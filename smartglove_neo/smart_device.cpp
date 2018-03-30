@@ -17,10 +17,9 @@
 
 #include <Wire.h>
 #include "smart_device.h"
+#include "behaviour.h"
 #include "config.h"
 
-#define LED_FAST_DELAY 100
-#define LED_SLOW_DELAY 500
 
 LED::LED() :
     _blinkMillis(0),
@@ -39,12 +38,12 @@ void LED::setMode(uint8_t mode) {
         _on = true;
         break;
     case LED_BLINK_SLOW:
-        _blinkMillis = LED_SLOW_DELAY;
+        _blinkMillis = LED_BLINK_SLOW_MS;
         _on = true;
         _timeout = millis() + _blinkMillis;
         break;
     case LED_BLINK_FAST:
-        _blinkMillis = LED_FAST_DELAY;
+        _blinkMillis = LED_BLINK_FAST_MS;
         _on = true;
         _timeout = millis() + _blinkMillis;
         break;
@@ -60,35 +59,13 @@ void LED::loop() {
 }
 
 
-void ButtonTest::loop(SmartDevice& device) {
-    char text[20];
-    device.display().setFont(&HELVETICA_10);
-    device.display().clear();
-    device.display().drawText(10, 10, "Button Test");
-    uint8_t x = 10;
-    for (uint8_t i = 0; i < BUTTON_COUNT; ++i) {
-        device.display().drawRectangle(x, 22, 7, 10);
-        if (device.buttonPressed(1 << i)) {
-            device.display().fillRectangle(x, 22, 7, 10);
-        }
-
-        x += 9;
-        if (i % 4 == 3) {
-            x += 2;
-        }
-    }
-
-    device.display().update();
-}
-
-
-void Menu::loop(SmartDevice& device) {
-    
-}
-
-
 SmartDevice::SmartDevice() :
-    _display(I2C_DISPLAY_ADDRESS) {
+    _behaviour(new BehaviourPtr[BEHAVIOUR_STACK_SIZE]),
+    _behaviourIndex(0),
+    _buttonsCurrent(0),
+    _buttonsLast(0),
+    _display(I2C_DISPLAY_ADDRESS),
+    _infoLed() {
 }
 
 bool SmartDevice::buttonDown(uint16_t button) const {
@@ -99,10 +76,23 @@ bool SmartDevice::buttonPressed(uint16_t button) const {
     return (_buttonsCurrent & button) == button;
 }
 
+bool SmartDevice::commandEnter() const {
+    return buttonDown(BUTTON_THUMB_1);
+}
+
+bool SmartDevice::commandNext() const {
+    return buttonDown(BUTTON_MIDDLE_FINGER_1);
+}
+
+bool SmartDevice::commandPrev() const {
+    return buttonDown(BUTTON_INDEX_FINGER_1);
+}
+
 void SmartDevice::setup() {
 //    Serial.begin(9600);
 //    while (!Serial) { delay(1); }
     Wire.begin();
+    _longPressButtons = longPressButtons();
     _display.begin();
     if (!_display.ready()) {
         _infoLed.setMode(LED_BLINK_FAST);
@@ -113,19 +103,58 @@ void SmartDevice::setup() {
     }
 
     setInfoLed(_infoLed.on());
-    _behaviour = new ButtonTest;
+    setBehaviour(new Menu);
     waitForFlash();
     doSetup();
 }
 
 void SmartDevice::loop() {
+    unsigned long now = millis();
     _infoLed.loop();
     setInfoLed(_infoLed.on());
     // update buttons
     _buttonsLast = _buttonsCurrent;
     _buttonsCurrent = readButtonState();
+    if ((_buttonsCurrent & _longPressButtons) != _longPressButtons) {
+        _longPressEnd = now + LONG_PRESS_MS;
+    }
+
+    if (_longPressEnd <= now) {
+        setBehaviour(new Menu);
+        _longPressEnd = now + LONG_PRESS_MS;
+    }
+
     doLoop();
-    _behaviour->loop(*this);
+    _display.clear();
+    if (_behaviourIndex > 0) {
+        _behaviour[_behaviourIndex - 1]->loop(*this);
+    }
+
+    _display.update();
+}
+
+void SmartDevice::popBehaviour() {
+    if (_behaviourIndex > 0) {
+        delete _behaviour[_behaviourIndex - 1];
+        _behaviour[_behaviourIndex - 1] = NULL;
+        --_behaviourIndex;
+    }
+}
+
+void SmartDevice::pushBehaviour(Behaviour* behaviour) {
+    if (_behaviourIndex < BEHAVIOUR_STACK_SIZE && behaviour != NULL) {
+        ++_behaviourIndex;
+        _behaviour[_behaviourIndex - 1] = behaviour;
+        _behaviour[_behaviourIndex - 1]->setup(*this);
+    }
+}
+
+void SmartDevice::setBehaviour(Behaviour* behaviour) {
+    while (_behaviourIndex > 0) {
+        popBehaviour();
+    }
+
+    pushBehaviour(behaviour);
 }
 
 void SmartDevice::waitForFlash() {

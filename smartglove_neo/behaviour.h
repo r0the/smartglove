@@ -15,23 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SMART_BALL_H
-#define SMART_BALL_H
+#ifndef BEHAVIOUR_H
+#define BEHAVIOUR_H
 
 #include "smart_device.h"
-#include "pca9557.h"
+#include "junxion.h"
 
-class SmartBall : public SmartDevice {
+class ButtonTest : public Behaviour {
 public:
-    SmartBall();
-protected:
-    virtual void doSetup();
-    virtual void doLoop();
-    virtual uint16_t longPressButtons() const;
-    virtual uint16_t readButtonState() const;
-    virtual void setInfoLed(bool on);
+    virtual void setup(SmartDevice& device);
+    virtual void loop(SmartDevice& device);
+};
+
+class JunxionMode : public Behaviour {
+public:
+    virtual void setup(SmartDevice& device);
+    virtual void loop(SmartDevice& device);
 private:
-    PCA9557 _buttons;
+    Junxion _junxion;
+    uint8_t _state;
+};
+
+class Menu : public Behaviour {
+public:
+    virtual void setup(SmartDevice& device);
+    virtual void loop(SmartDevice& device);
+private:
+    uint8_t _selected;
+};
+
+class NumberInput : public Behaviour {
+    
 };
 
 #endif

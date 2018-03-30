@@ -55,21 +55,11 @@ class SmartDevice;
 
 class Behaviour {
 public:
+    virtual void setup(SmartDevice& device) = 0;
     virtual void loop(SmartDevice& device) = 0;
 };
 
-
-class ButtonTest : public Behaviour {
-public:
-    virtual void loop(SmartDevice& device);
-};
-
-
-class Menu : public Behaviour {
-public:
-    virtual void loop(SmartDevice& device);
-};
-
+typedef Behaviour* BehaviourPtr;
 
 class SmartDevice {
 public:
@@ -78,20 +68,30 @@ public:
     void loop();
     bool buttonDown(uint16_t button) const;
     bool buttonPressed(uint16_t button) const;
+    bool commandEnter() const;
+    bool commandNext() const;
+    bool commandPrev() const;
     inline SSD1306& display() { return _display; }
+    void popBehaviour();
+    void pushBehaviour(Behaviour* behaviour);
+    void setBehaviour(Behaviour* behaviour);
 protected:
     virtual void doSetup() = 0;
     virtual void doLoop() = 0;
+    virtual uint16_t longPressButtons() const = 0;
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
 private:
     void waitForFlash();
-    Behaviour* _behaviour;
+    BehaviourPtr* _behaviour;
+    uint8_t _behaviourIndex;
     uint16_t _buttonsCurrent;
     uint16_t _buttonsLast;
     SSD1306 _display;
     LED _infoLed;
-    uint8_t _state;
+    bool _longPress;
+    unsigned long _longPressEnd;
+    uint16_t _longPressButtons;
 };
 
 #endif

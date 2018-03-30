@@ -41,6 +41,10 @@ void SmartBall::doSetup() {
 void SmartBall::doLoop() {
 }
 
+uint16_t SmartBall::longPressButtons() const {
+    return BUTTON_THUMB_1 | BUTTON_LITTLE_FINGER_1;
+}
+
 uint16_t SmartBall::readButtonState() const {
     uint16_t result = 0;
     uint8_t buttons = _buttons.readInput();
