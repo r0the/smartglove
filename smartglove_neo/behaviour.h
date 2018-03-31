@@ -33,6 +33,7 @@ public:
     virtual void loop(SmartDevice& device);
 private:
     Junxion _junxion;
+    bool _idSent;
     uint8_t _state;
 };
 

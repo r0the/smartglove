@@ -33,81 +33,15 @@
 #define INPUT_CONFIG_RESPONSE 'p'
 #define JUNXION_ID 308
 
-// ----------------------------------------------------------------------------
-// class AnalogInput
-// ----------------------------------------------------------------------------
-
-class AnalogInput {
-public:
-    AnalogInput() :
-        pin(0),
-        resolution(10),
-        type(ANALOG),
-        value(0) {
-    }
-
-    int8_t pin;
-    int8_t resolution;
-    char type;
-    int16_t value;
-};
-
-// ----------------------------------------------------------------------------
-// class DigitalInput
-// ----------------------------------------------------------------------------
-
-class DigitalInput {
-public:
-    DigitalInput() :
-        active(false),
-        pin(0) {
-    }
-
-    bool active;
-    int8_t pin;
-};
-
-// ----------------------------------------------------------------------------
-// class Junxion
-// ----------------------------------------------------------------------------
-
 Junxion::Junxion() {
 }
 
-void Junxion::init(uint8_t digitalInputCount, uint8_t analogInputCount) {
-    _analogInputCount = analogInputCount;
-    _analogInputs = new AnalogInput[analogInputCount];
+void Junxion::setup(const Buttons* buttons, const Sensors* sensors) {
+    _buttons = buttons;
+    _sensors = sensors;
     _boardId = 1;
-    _dataSize = 2 * analogInputCount + 2 * ((digitalInputCount / 16) + 1);
-    _digitalInputCount = digitalInputCount;
-    _digitalInputs = new DigitalInput[digitalInputCount];
-    _headerExpected = true;
-}
-
-void Junxion::configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution) {
-    if (index < _analogInputCount) {
-        _analogInputs[index].pin = pin;
-        _analogInputs[index].resolution = resolution;
-        _analogInputs[index].type = type;
-    }
-}
-
-void Junxion::configureDigitalInput(uint8_t index, uint8_t pin) {
-    if (index < _digitalInputCount) {
-        _digitalInputs[index].pin = pin;
-    }
-}
-
-void Junxion::setAnalogValue(uint8_t index, int16_t value) {
-    if (index < _analogInputCount) {
-        _analogInputs[index].value = value;
-    }
-}
-
-void Junxion::setDigitalValue(uint8_t index, bool active) {
-    if (index < _digitalInputCount) {
-        _digitalInputs[index].active = active;
-    }
+    _dataSize = 2 * sensors->count() + 2 * ((buttons->count() / 16) + 1);
+    _headerReceived = false;
 }
 
 void Junxion::setBoardId(uint8_t boardId) {
@@ -115,42 +49,51 @@ void Junxion::setBoardId(uint8_t boardId) {
 }
 
 void Junxion::loop() {
-    if (_headerExpected && Serial.available() > 2) {
+    if (!_headerReceived && Serial.available() > 2) {
+        if (Serial.read() != HEADER) {
+            return;
+        }
+        
         if (Serial.read() == HEADER) {
-            if (Serial.read() == HEADER) {
-                _headerExpected = false;
-                _packageSize = Serial.read();
-            }
+           _headerReceived = true;
+            _packageSize = Serial.read() + 1;
         }
     }
 
-    if (!_headerExpected && Serial.available() > _packageSize) {
-        int8_t cmd = Serial.read();
-        switch (cmd) {
-            case START_DATA:
-                _sendData = true;
-                break;
-            case STOP_DATA:
-                _sendData = false;
-                break;
-            case BOARD_ID_REQUEST:
-                sendHeader(BOARD_ID_RESPONSE, 1);
-                Serial.write(_boardId);
-                break;
-            case JUNXION_ID_REQUEST:
-                sendJunxionId();
-                break;
-            case INPUT_CONFIG_REQUEST:
-                sendInputConfig();
-                break;
-        }
-
-        _headerExpected = true;
-     }
+    if (_headerReceived && Serial.available() >= _packageSize) {
+        char cmd = Serial.read();
+        handleCommand(cmd);
+        _headerReceived = false;
+    }
  
-     if (_sendData) {
-         sendData();
-     }
+    if (_sendData) {
+        sendData();
+    }
+}
+
+void Junxion::handleCommand(char cmd) {
+    switch (cmd) {
+        case START_DATA:
+            _sendData = true;
+            break;
+        case STOP_DATA:
+            _sendData = false;
+            break;
+        case BOARD_ID_REQUEST:
+            sendBoardId();
+            break;
+        case JUNXION_ID_REQUEST:
+            sendJunxionId();
+            break;
+        case INPUT_CONFIG_REQUEST:
+            sendInputConfig();
+            break;
+    }
+}
+
+void Junxion::sendBoardId() {
+    sendHeader(BOARD_ID_RESPONSE, 1);
+    Serial.write(_boardId);
 }
 
 void Junxion::sendData() {
@@ -158,8 +101,8 @@ void Junxion::sendData() {
     // Send digital input states
     uint16_t state = 0;
     uint8_t pos = 0;
-    for (uint8_t i = 0; i < _digitalInputCount; ++i) {
-        if (_digitalInputs[i].active) {
+    for (uint8_t i = 0; i < _buttons->count(); ++i) {
+        if (_buttons->pressed(i)) {
             state = state | (1 << pos);
         }
 
@@ -176,8 +119,8 @@ void Junxion::sendData() {
     }
 
     // Send analog pin states
-    for (uint8_t i = 0; i < _analogInputCount; ++i) {
-        sendInt16(_analogInputs[i].value);
+    for (uint8_t i = 0; i < _sensors->count(); ++i) {
+        sendInt16(_sensors->value(i));
     }
 }
 
@@ -189,17 +132,17 @@ void Junxion::sendHeader(char cmd, uint8_t dataSize) {
 }
 
 void Junxion::sendInputConfig() {
-    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (_analogInputCount + _digitalInputCount));
-    for (uint8_t i = 0; i < _digitalInputCount; ++i) {
+    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (_sensors->count() + _buttons->count()));
+    for (uint8_t i = 0; i < _buttons->count(); ++i) {
         Serial.write(DIGITAL);
-        Serial.write(_digitalInputs[i].pin);
+        Serial.write(i);
         Serial.write(DIGITAL_RESOLUTION);
     }
  
-    for (uint8_t i = 0; i < _analogInputCount; ++i) {
-        Serial.write(_analogInputs[i].type);
-        Serial.write(_analogInputs[i].pin);
-        Serial.write(_analogInputs[i].resolution);
+    for (uint8_t i = 0; i < _sensors->count(); ++i) {
+        Serial.write(_sensors->type(i));
+        Serial.write(_sensors->pin(i));
+        Serial.write(_sensors->resolution(i));
     }
 }
 

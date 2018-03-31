@@ -66,7 +66,8 @@ SmartDevice::SmartDevice() :
     _behaviourIndex(0),
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
-    _infoLed() {
+    _infoLed(),
+    _sensors(NULL) {
 }
 
 bool SmartDevice::commandEnter() const {

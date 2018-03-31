@@ -20,6 +20,7 @@
 
 #include <ssd1306.h>
 #include "buttons.h"
+#include "sensors.h"
 
 #define LED_OFF         0
 #define LED_ON          1
@@ -61,6 +62,8 @@ public:
     SmartDevice();
     void setup();
     void loop();
+    inline const Buttons* buttons() const { return &_buttons; }
+    inline const Sensors* sensors() const { return _sensors; }
     inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
     inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
     bool commandEnter() const;
@@ -83,10 +86,11 @@ private:
 
     void waitForFlash();
     BehaviourPtr* _behaviour;
-    Buttons _buttons;
     uint8_t _behaviourIndex;
+    Buttons _buttons;
     SSD1306 _display;
     LED _infoLed;
+    Sensors* _sensors;
 };
 
 #endif

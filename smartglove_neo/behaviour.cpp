@@ -48,19 +48,10 @@ void ButtonTest::loop(SmartDevice& device) {
 
 void JunxionMode::setup(SmartDevice& device) {
     _state = MIN_STATE;
+    _junxion.setup(device.buttons(), device.sensors());
     _junxion.setBoardId(JUNXION_GLOVE_BOARD_ID);
-    _junxion.configureAnalogInput( 0, 'a', 0, 10);
-    _junxion.configureAnalogInput( 1, 'a', 1, 10);
-    _junxion.configureAnalogInput( 2, 'a', 2, 10);
-    _junxion.configureAnalogInput( 3, 'a', 3, 10);
-    _junxion.configureAnalogInput( 4, 'a', 4, 10);
-    _junxion.configureAnalogInput( 5, 'a', 5, 10);
-    _junxion.configureDigitalInput(0, 0);
-    _junxion.configureDigitalInput(1, 1);
-    _junxion.configureDigitalInput(2, 2);
-    _junxion.configureDigitalInput(3, 3);
-    _junxion.configureDigitalInput(4, 4);
-    _junxion.configureDigitalInput(5, 5);
+    _idSent = false;
+    Serial.end();
     Serial.begin(JUNXION_BAUD_RATE);
 }
 
@@ -71,16 +62,37 @@ void JunxionMode::loop(SmartDevice& device) {
         device.display().setFont(&HELVETICA_10);
         device.display().drawText(10, 8, "Connecting");
         device.display().drawText(10, 22, "to junXion...");
-    }
-    else {
-        sprintf(text, "%i", _state);
-        device.display().setFont(&SWISS_20_B);
-        device.display().setTextAlign(ALIGN_CENTER);
-        device.display().drawText(64, 12, text);
+        return;
     }
 
-    delay(1500);
-//    _junxion.sendJunxionId();
+    if (!_idSent) {
+        _junxion.sendJunxionId();
+        _junxion.sendInputConfig();
+        _idSent = true;
+    }
+        
+    char data[40];
+    int i = 0;
+    while (Serial.available() && i < 20) {
+        uint8_t b = Serial.read();
+        sprintf(data + i, "%02X", b);
+        i += 2;
+    }
+
+    if (i > 0) {
+        data[i] = 0x0;
+        device.display().setTextAlign(ALIGN_LEFT);
+        device.display().setFont(&HELVETICA_10);
+        device.display().drawText(10, 8, "junXion data:");
+        device.display().drawText(10, 22, data);
+        delay(10000);
+    }
+//    sprintf(text, "%i", _state);
+//    device.display().setFont(&SWISS_20_B);
+//    device.display().setTextAlign(ALIGN_CENTER);
+ //   device.display().drawText(64, 12, text);
+
+//    delay(1500);
 //    _junxion.sendInputConfig();
 
     if (device.commandNext()) {

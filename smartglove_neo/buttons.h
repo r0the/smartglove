@@ -36,6 +36,7 @@
 class Buttons {
 public:
     Buttons();
+    inline uint8_t count() const { return BUTTON_COUNT; }
     bool down(uint16_t button) const;
     inline bool longPress() const { return _longPress; }
     bool pressed(uint16_t button) const;
