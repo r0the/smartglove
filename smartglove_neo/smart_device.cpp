@@ -58,22 +58,15 @@ void LED::loop() {
     }
 }
 
+Behaviour::Behaviour() {
+}
 
 SmartDevice::SmartDevice() :
     _behaviour(new BehaviourPtr[BEHAVIOUR_STACK_SIZE]),
     _behaviourIndex(0),
-    _buttonsCurrent(0),
-    _buttonsLast(0),
+    _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
     _infoLed() {
-}
-
-bool SmartDevice::buttonDown(uint16_t button) const {
-    return buttonPressed(button) && ((_buttonsLast & button) == 0);
-}
-
-bool SmartDevice::buttonPressed(uint16_t button) const {
-    return (_buttonsCurrent & button) == button;
 }
 
 bool SmartDevice::commandEnter() const {
@@ -92,7 +85,7 @@ void SmartDevice::setup() {
 //    Serial.begin(9600);
 //    while (!Serial) { delay(1); }
     Wire.begin();
-    _longPressButtons = longPressButtons();
+    _buttons.setupLongPress(longPressButtons(), LONG_PRESS_MS);
     _display.begin();
     if (!_display.ready()) {
         _infoLed.setMode(LED_BLINK_FAST);
@@ -103,8 +96,8 @@ void SmartDevice::setup() {
     }
 
     setInfoLed(_infoLed.on());
-    setBehaviour(new Menu);
     waitForFlash();
+    setBehaviour(new Menu);
     doSetup();
 }
 
@@ -113,15 +106,9 @@ void SmartDevice::loop() {
     _infoLed.loop();
     setInfoLed(_infoLed.on());
     // update buttons
-    _buttonsLast = _buttonsCurrent;
-    _buttonsCurrent = readButtonState();
-    if ((_buttonsCurrent & _longPressButtons) != _longPressButtons) {
-        _longPressEnd = now + LONG_PRESS_MS;
-    }
-
-    if (_longPressEnd <= now) {
+    _buttons.updateState(readButtonState());
+    if (_buttons.longPress()) {
         setBehaviour(new Menu);
-        _longPressEnd = now + LONG_PRESS_MS;
     }
 
     doLoop();

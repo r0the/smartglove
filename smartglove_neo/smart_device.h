@@ -19,24 +19,12 @@
 #define SMART_DEVICE_H
 
 #include <ssd1306.h>
+#include "buttons.h"
 
 #define LED_OFF         0
 #define LED_ON          1
 #define LED_BLINK_SLOW  2
 #define LED_BLINK_FAST  3
-
-#define BUTTON_THUMB_1          0x0001
-#define BUTTON_THUMB_2          0x0002
-#define BUTTON_THUMB_3          0x0004
-#define BUTTON_THUMB_4          0x0008
-#define BUTTON_INDEX_FINGER_1   0x0010
-#define BUTTON_MIDDLE_FINGER_1  0x0020
-#define BUTTON_RING_FINGER_1    0x0040
-#define BUTTON_LITTLE_FINGER_1  0x0080
-#define BUTTON_INDEX_FINGER_2   0x0100
-#define BUTTON_MIDDLE_FINGER_2  0x0200
-
-#define BUTTON_COUNT 12
 
 class LED {
 public:
@@ -45,6 +33,9 @@ public:
     void loop();
     void setMode(uint8_t mode);
 private:
+    LED(const LED&);
+    LED& operator=(const LED&);
+
     unsigned long _blinkMillis;
     bool _on;
     unsigned long _timeout;
@@ -55,8 +46,12 @@ class SmartDevice;
 
 class Behaviour {
 public:
+    Behaviour();
     virtual void setup(SmartDevice& device) = 0;
     virtual void loop(SmartDevice& device) = 0;
+private:
+    Behaviour(const LED&);
+    Behaviour& operator=(const LED&);
 };
 
 typedef Behaviour* BehaviourPtr;
@@ -66,14 +61,15 @@ public:
     SmartDevice();
     void setup();
     void loop();
-    bool buttonDown(uint16_t button) const;
-    bool buttonPressed(uint16_t button) const;
+    inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
+    inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
     bool commandEnter() const;
     bool commandNext() const;
     bool commandPrev() const;
     inline SSD1306& display() { return _display; }
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
+    uint8_t sensorCount() const;
     void setBehaviour(Behaviour* behaviour);
 protected:
     virtual void doSetup() = 0;
@@ -82,16 +78,15 @@ protected:
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
 private:
+    SmartDevice(const SmartDevice&);
+    SmartDevice& operator=(const SmartDevice&);
+
     void waitForFlash();
     BehaviourPtr* _behaviour;
+    Buttons _buttons;
     uint8_t _behaviourIndex;
-    uint16_t _buttonsCurrent;
-    uint16_t _buttonsLast;
     SSD1306 _display;
     LED _infoLed;
-    bool _longPress;
-    unsigned long _longPressEnd;
-    uint16_t _longPressButtons;
 };
 
 #endif
