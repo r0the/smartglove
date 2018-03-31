@@ -25,7 +25,6 @@ void setup() {
 }
 
 void loop() {
-    delay(10);
     smartDevice->loop();
 }
 

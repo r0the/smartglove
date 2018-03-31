@@ -19,20 +19,24 @@
 #define SMART_DEVICE_H
 
 #include <ssd1306.h>
-#include "buttons.h"
+#include "imu.h"
 #include "sensors.h"
 
-#define LED_OFF         0
-#define LED_ON          1
-#define LED_BLINK_SLOW  2
-#define LED_BLINK_FAST  3
+
+/******************************************************************************
+ * class LED
+ *****************************************************************************/
 
 class LED {
 public:
+    enum Mode {
+        Off, On, BlinkSlow, BlinkFast
+    };
+
     LED();
     inline bool on() const { return _on; }
     void loop();
-    void setMode(uint8_t mode);
+    void setMode(Mode mode);
 private:
     LED(const LED&);
     LED& operator=(const LED&);
@@ -42,6 +46,47 @@ private:
     unsigned long _timeout;
 };
 
+/******************************************************************************
+ * class Buttons
+ *****************************************************************************/
+
+#define BUTTON_THUMB_1          0x0001
+#define BUTTON_THUMB_2          0x0002
+#define BUTTON_THUMB_3          0x0004
+#define BUTTON_THUMB_4          0x0008
+#define BUTTON_INDEX_FINGER_1   0x0010
+#define BUTTON_MIDDLE_FINGER_1  0x0020
+#define BUTTON_RING_FINGER_1    0x0040
+#define BUTTON_LITTLE_FINGER_1  0x0080
+#define BUTTON_INDEX_FINGER_2   0x0100
+#define BUTTON_MIDDLE_FINGER_2  0x0200
+#define BUTTON_RING_FINGER_2    0x0400
+#define BUTTON_LITTLE_FINGER_2  0x0800
+#define BUTTON_MAX              12
+
+class Buttons {
+public:
+    Buttons();
+    bool available(uint16_t button) const;
+    bool down(uint16_t button) const;
+    inline bool longPress() const { return _longPress; }
+    bool pressed(uint16_t button) const;
+    void setAvailable(uint16_t available);
+    void setLongPress(uint16_t buttons, uint16_t millis);
+    void updateState(uint16_t current);
+private:
+    uint16_t _available;
+    uint16_t _current;
+    uint16_t _last;
+    bool _longPress;
+    unsigned long _longPressMillis;
+    unsigned long _longPressEnd;
+    uint16_t _longPressButtons;
+};
+
+/******************************************************************************
+ * class Behaviour
+ *****************************************************************************/
 
 class SmartDevice;
 
@@ -51,35 +96,43 @@ public:
     virtual void setup(SmartDevice& device) = 0;
     virtual void loop(SmartDevice& device) = 0;
 private:
-    Behaviour(const LED&);
-    Behaviour& operator=(const LED&);
+    Behaviour(const Behaviour&);
+    Behaviour& operator=(const Behaviour&);
 };
 
 typedef Behaviour* BehaviourPtr;
+
+/******************************************************************************
+ * class SmartDevice
+ *****************************************************************************/
 
 class SmartDevice {
 public:
     SmartDevice();
     void setup();
     void loop();
-    inline const Buttons* buttons() const { return &_buttons; }
-    inline const Sensors* sensors() const { return _sensors; }
+    inline bool buttonAvailable(uint16_t button) const { return _buttons.available(button); }
     inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
     inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
     bool commandEnter() const;
     bool commandNext() const;
     bool commandPrev() const;
     inline SSD1306& display() { return _display; }
+    bool imuReady() const;
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
-    uint8_t sensorCount() const;
+    void resetIMU();
+    int32_t sensorValue(uint8_t index) const { return _sensors.value(index); }
     void setBehaviour(Behaviour* behaviour);
+    void setSensorOutRange(uint8_t index, uint16_t min, uint16_t max);
 protected:
     virtual void doSetup() = 0;
     virtual void doLoop() = 0;
+    virtual uint16_t availableButtons() const = 0;
     virtual uint16_t longPressButtons() const = 0;
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
+    void setSensorRawRange(uint8_t index, double min, double max);
 private:
     SmartDevice(const SmartDevice&);
     SmartDevice& operator=(const SmartDevice&);
@@ -89,8 +142,9 @@ private:
     uint8_t _behaviourIndex;
     Buttons _buttons;
     SSD1306 _display;
+    IMU _imu;
     LED _infoLed;
-    Sensors* _sensors;
+    Sensors _sensors;
 };
 
 #endif

@@ -48,6 +48,10 @@ static uint8_t median3(uint16_t* data, uint8_t a, uint8_t b, uint8_t c) {
     }
 }
 
+/******************************************************************************
+ * class Sensor
+ *****************************************************************************/
+
 Sensor::Sensor() :
     _factor(1.0),
     _outMax(65535),
@@ -106,58 +110,42 @@ uint16_t Sensor::value() const {
     return _values[index];
 }
 
+/******************************************************************************
+ * class Sensors
+ *****************************************************************************/
 
-Sensors::Sensors(uint8_t count) :
-    _count(count),
-    _sensors(new Sensor[count]) {
+Sensors::Sensors() :
+    _sensors(new Sensor[SENSOR_MAX]) {
 }
 
 Sensors::~Sensors() {
     delete[] _sensors;
 }
 
-uint8_t Sensors::pin(uint8_t index) const {
-    if (index < _count) {
-        return _sensors[index]._pin;
-    }
-    else {
-        return 0;
+void Sensors::addMeasurement(uint8_t index, double value) {
+    if (index < SENSOR_MAX) {
+        _sensors[index].addMeasurement(value);
     }
 }
 
-char Sensors::type(uint8_t index) const {
-    if (index < _count) {
-        return _sensors[index]._type;
-    }
-    else {
-        return 0;
+void Sensors::setOutRange(uint8_t index, uint16_t min, uint16_t max) {
+    if (index < SENSOR_MAX) {
+        _sensors[index].setOutRange(min, max);
     }
 }
 
-
-uint8_t Sensors::resolution(uint8_t index) const {
-    if (index < _count) {
-        return _sensors[index]._resolution;
-    }
-    else {
-        return 0;
+void Sensors::setRawRange(uint8_t index, double min, double max) {
+    if (index < SENSOR_MAX) {
+        _sensors[index].setRawRange(min, max);
     }
 }
 
 uint16_t Sensors::value(uint8_t index) const {
-    if (index < _count) {
+    if (index < SENSOR_MAX) {
         return _sensors[index].value();
     }
     else {
         return 0;
-    }
-}
-
-void Sensors::configOutput(uint8_t index, uint8_t pin, uint8_t type, uint8_t resolution) {
-    if (index < _count) {
-        _sensors[index]._pin = pin;
-        _sensors[index]._resolution = resolution;
-        _sensors[index]._type = type;
     }
 }
 

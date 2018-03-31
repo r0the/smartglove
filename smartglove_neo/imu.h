@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BNO055_H
-#define BNO055_H
+#ifndef IMU_H
+#define IMU_H
 
 #include <Arduino.h>
 #include <Adafruit_BNO055.h>
@@ -26,17 +26,17 @@
 #define GESTURE_3 0x4
 #define GESTURE_4 0x8
 
-class Motion {
+class IMU {
 public:
-    Motion();
-    ~Motion();
-    void begin();
+    enum Status {
+        Uninitialized, Error, Ready
+    };
+
+    IMU();
+    ~IMU();
+    void setup();
     void loop();
-
-    bool calibrating() const;
-    bool error() const;
-    bool ready() const;
-
+    inline Status status() const { return _status; }
     double ax() const;
     double ay() const;
     double az() const;
@@ -46,15 +46,15 @@ public:
     double roll() const;
 
 private:
-    Motion(const Motion&);
-    Motion& operator=(const Motion&);
+    IMU(const IMU&);
+    IMU& operator=(const IMU&);
 
     imu::Vector<3>* _acceleration;
     Adafruit_BNO055 _bno;
     sensors_event_t* _event;
     uint8_t _gestureState;
     double _heading;
-    byte _status;
+    Status _status;
     uint32_t _waveLeftTimeout;
     uint32_t _waveRightTimeout;
 };

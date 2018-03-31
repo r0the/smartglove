@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2017 by Stefan Rothe
+ * Copyright (C) 2015 - 2018 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 #include "junxion.h"
 
+#define DEFAULT_BAUD_RATE 115200
+
 #define ANALOG 'a'
 #define DIGITAL 'd'
 #define DIGITAL_RESOLUTION 1
@@ -33,22 +35,121 @@
 #define INPUT_CONFIG_RESPONSE 'p'
 #define JUNXION_ID 308
 
-Junxion::Junxion() {
+/******************************************************************************
+ * class AnalogInput
+ *****************************************************************************/
+
+class AnalogInput {
+public:
+    AnalogInput() :
+        pin(0),
+        resolution(10),
+        type(ANALOG),
+        value(0) {
+    }
+
+    int8_t pin;
+    int8_t resolution;
+    char type;
+    int16_t value;
+};
+
+/******************************************************************************
+ * class DigitalInput
+ *****************************************************************************/
+
+class DigitalInput {
+public:
+    DigitalInput() :
+        active(false),
+        pin(0) {
+    }
+
+    bool active;
+    int8_t pin;
+};
+
+/******************************************************************************
+ * class Junxion
+ *****************************************************************************/
+
+Junxion::Junxion() :
+    _analogInputCount(0),
+    _analogInputs(NULL),
+    _boardId(1),
+    _baudRate(DEFAULT_BAUD_RATE),
+    _dataSize(0),
+    _digitalInputCount(0),
+    _digitalInputs(NULL),
+    _headerReceived(false),
+    _sendData(false) {
 }
 
-void Junxion::setup(const Buttons* buttons, const Sensors* sensors) {
-    _buttons = buttons;
-    _sensors = sensors;
-    _boardId = 1;
-    _dataSize = 2 * sensors->count() + 2 * ((buttons->count() / 16) + 1);
-    _headerReceived = false;
+Junxion::~Junxion() {
+    delete[] _analogInputs;
+    delete[] _digitalInputs;
 }
 
-void Junxion::setBoardId(uint8_t boardId) {
-    _boardId = boardId;
+void Junxion::setup(uint8_t digitalInputCount, uint8_t analogInputCount) {
+    _analogInputCount = analogInputCount;
+    _analogInputs = new AnalogInput[analogInputCount];
+    _digitalInputCount = digitalInputCount;
+    _digitalInputs = new DigitalInput[digitalInputCount];
+
+    _dataSize = 2 * analogInputCount + 2 * ((digitalInputCount / 16) + 1);
+}
+
+void Junxion::configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution) {
+    if (index < _analogInputCount) {
+        _analogInputs[index].pin = pin;
+        _analogInputs[index].resolution = resolution;
+        _analogInputs[index].type = type;
+    }
+}
+
+void Junxion::configureDigitalInput(uint8_t index, uint8_t pin) {
+    if (index < _digitalInputCount) {
+        _digitalInputs[index].pin = pin;
+    }
+}
+
+void Junxion::setAnalogValue(uint8_t index, int16_t value) {
+    if (index < _analogInputCount) {
+        _analogInputs[index].value = value;
+    }
+}
+
+void Junxion::setDigitalValue(uint8_t index, bool active) {
+    if (index < _digitalInputCount) {
+        _digitalInputs[index].active = active;
+    }
+}
+
+void Junxion::setBoardId(uint8_t id) {
+    _boardId = id;
 }
 
 void Junxion::loop() {
+    switch (_state) {
+    case Disconnected:
+        Serial.begin(_baudRate);
+        _state = Connecting;
+        break;
+    case Connecting:
+        if (Serial) {
+            sendJunxionId();
+            sendInputConfig();
+            _state = Connected;
+        }
+
+        break;
+    case Connected:
+        communicate();
+        break;
+    }
+}
+
+void Junxion::communicate() {
     if (!_headerReceived && Serial.available() > 2) {
         if (Serial.read() != HEADER) {
             return;
@@ -101,8 +202,8 @@ void Junxion::sendData() {
     // Send digital input states
     uint16_t state = 0;
     uint8_t pos = 0;
-    for (uint8_t i = 0; i < _buttons->count(); ++i) {
-        if (_buttons->pressed(i)) {
+    for (uint8_t i = 0; i < _digitalInputCount; ++i) {
+        if (_digitalInputs[i].active) {
             state = state | (1 << pos);
         }
 
@@ -119,8 +220,8 @@ void Junxion::sendData() {
     }
 
     // Send analog pin states
-    for (uint8_t i = 0; i < _sensors->count(); ++i) {
-        sendInt16(_sensors->value(i));
+    for (uint8_t i = 0; i < _analogInputCount; ++i) {
+        sendInt16(_analogInputs[i].value);
     }
 }
 
@@ -132,17 +233,17 @@ void Junxion::sendHeader(char cmd, uint8_t dataSize) {
 }
 
 void Junxion::sendInputConfig() {
-    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (_sensors->count() + _buttons->count()));
-    for (uint8_t i = 0; i < _buttons->count(); ++i) {
+    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (_analogInputCount + _digitalInputCount));
+    for (uint8_t i = 0; i < _digitalInputCount; ++i) {
         Serial.write(DIGITAL);
-        Serial.write(i);
+        Serial.write(_digitalInputs[i].pin);
         Serial.write(DIGITAL_RESOLUTION);
     }
  
-    for (uint8_t i = 0; i < _sensors->count(); ++i) {
-        Serial.write(_sensors->type(i));
-        Serial.write(_sensors->pin(i));
-        Serial.write(_sensors->resolution(i));
+    for (uint8_t i = 0; i < _analogInputCount; ++i) {
+        Serial.write(_analogInputs[i].type);
+        Serial.write(_analogInputs[i].pin);
+        Serial.write(_analogInputs[i].resolution);
     }
 }
 

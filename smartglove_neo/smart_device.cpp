@@ -20,6 +20,9 @@
 #include "behaviour.h"
 #include "config.h"
 
+/******************************************************************************
+ * class LED
+ *****************************************************************************/
 
 LED::LED() :
     _blinkMillis(0),
@@ -27,22 +30,22 @@ LED::LED() :
     _timeout(0) {
 }
 
-void LED::setMode(uint8_t mode) {
+void LED::setMode(Mode mode) {
     switch (mode) {
-    case LED_OFF:
+    case Off:
         _blinkMillis = 0;
         _on = false;
         break;
-    case LED_ON:
+    case On:
         _blinkMillis = 0;
         _on = true;
         break;
-    case LED_BLINK_SLOW:
+    case BlinkSlow:
         _blinkMillis = LED_BLINK_SLOW_MS;
         _on = true;
         _timeout = millis() + _blinkMillis;
         break;
-    case LED_BLINK_FAST:
+    case BlinkFast:
         _blinkMillis = LED_BLINK_FAST_MS;
         _on = true;
         _timeout = millis() + _blinkMillis;
@@ -58,16 +61,75 @@ void LED::loop() {
     }
 }
 
+/******************************************************************************
+ * class Buttons
+ *****************************************************************************/
+
+Buttons::Buttons() :
+    _current(0),
+    _last(0),
+    _longPress(false),
+    _longPressButtons(0),
+    _longPressMillis(5000) {
+}
+
+bool Buttons::available(uint16_t button) const {
+    return (_available & button) == button;
+}
+
+bool Buttons::down(uint16_t button) const {
+    return pressed(button) && ((_last & button) == 0);
+}
+
+bool Buttons::pressed(uint16_t button) const {
+    return (_current & button) == button;
+}
+
+void Buttons::setAvailable(uint16_t available) {
+    _available = available;
+}
+
+void Buttons::setLongPress(uint16_t buttons, uint16_t millis) {
+    _longPressButtons = buttons;
+    _longPressMillis = millis;
+}
+
+void Buttons::updateState(uint16_t current) {
+    unsigned long now = millis();
+    _last = _current;
+    _current = _available & current;
+    if ((_current & _longPressButtons) != _longPressButtons) {
+        _longPressEnd = now + _longPressMillis;
+    }
+
+    if (_longPressEnd <= now) {
+        _longPress = true;
+        _longPressEnd = now + _longPressMillis;
+    }
+    else {
+        _longPress = false;
+    }
+}
+
+/******************************************************************************
+ * class Behaviour
+ *****************************************************************************/
+
 Behaviour::Behaviour() {
 }
+
+/******************************************************************************
+ * class SmartDevice
+ *****************************************************************************/
 
 SmartDevice::SmartDevice() :
     _behaviour(new BehaviourPtr[BEHAVIOUR_STACK_SIZE]),
     _behaviourIndex(0),
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
+    _imu(),
     _infoLed(),
-    _sensors(NULL) {
+    _sensors() {
 }
 
 bool SmartDevice::commandEnter() const {
@@ -82,23 +144,39 @@ bool SmartDevice::commandPrev() const {
     return buttonDown(BUTTON_INDEX_FINGER_1);
 }
 
+bool SmartDevice::imuReady() const {
+    return _imu.status() == IMU::Ready;
+}
+
 void SmartDevice::setup() {
-//    Serial.begin(9600);
-//    while (!Serial) { delay(1); }
     Wire.begin();
-    _buttons.setupLongPress(longPressButtons(), LONG_PRESS_MS);
+    // initialize buttons
+    _buttons.setAvailable(availableButtons());
+    _buttons.setLongPress(longPressButtons(), LONG_PRESS_MS);
+
+    // initialize display
     _display.begin();
     if (!_display.ready()) {
-        _infoLed.setMode(LED_BLINK_FAST);
+        _infoLed.setMode(LED::BlinkFast);
     }
     else {
-        _infoLed.setMode(LED_OFF);
+        _infoLed.setMode(LED::Off);
         _display.setFont(&HELVETICA_18);
     }
 
     setInfoLed(_infoLed.on());
+
+    setSensorRawRange(SENSOR_GYRO_ROLL, 180.0, -180.0);
+    setSensorRawRange(SENSOR_GYRO_PITCH, 90.0, -90.0);
+    setSensorRawRange(SENSOR_GYRO_HEADING, 180.0, -180.0);
+
+    // initialize IMU
+    _imu.setup();
+
     waitForFlash();
-    setBehaviour(new Menu);
+//    Serial.begin(9600);
+//    while (!Serial) { delay(1); }
+    setBehaviour(new MainMenu);
     doSetup();
 }
 
@@ -109,8 +187,14 @@ void SmartDevice::loop() {
     // update buttons
     _buttons.updateState(readButtonState());
     if (_buttons.longPress()) {
-        setBehaviour(new Menu);
+        setBehaviour(new MainMenu);
     }
+
+    // update sensor values from IMU
+    _imu.loop();
+    _sensors.addMeasurement(SENSOR_GYRO_HEADING, _imu.heading());
+    _sensors.addMeasurement(SENSOR_GYRO_PITCH, _imu.pitch());
+    _sensors.addMeasurement(SENSOR_GYRO_ROLL, _imu.roll());
 
     doLoop();
     _display.clear();
@@ -126,6 +210,7 @@ void SmartDevice::popBehaviour() {
         delete _behaviour[_behaviourIndex - 1];
         _behaviour[_behaviourIndex - 1] = NULL;
         --_behaviourIndex;
+        _behaviour[_behaviourIndex - 1]->setup(*this);
     }
 }
 
@@ -137,12 +222,25 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
     }
 }
 
+void SmartDevice::resetIMU() {
+    _imu.setup();
+}
+
 void SmartDevice::setBehaviour(Behaviour* behaviour) {
     while (_behaviourIndex > 0) {
         popBehaviour();
     }
 
     pushBehaviour(behaviour);
+}
+
+
+void SmartDevice::setSensorOutRange(uint8_t index, uint16_t min, uint16_t max) {
+    _sensors.setOutRange(index, min, max);
+}
+
+void SmartDevice::setSensorRawRange(uint8_t index, double min, double max) {
+    _sensors.setRawRange(index, min, max);
 }
 
 void SmartDevice::waitForFlash() {
@@ -154,6 +252,8 @@ void SmartDevice::waitForFlash() {
         if (_display.ready()) {
             sprintf(text, "Wait %i", (wait / 1000));
             _display.clear();
+            _display.setFont(&HELVETICA_10);
+            _display.setTextAlign(ALIGN_LEFT);
             _display.drawText(10, 10, text);
             _display.update();
         }

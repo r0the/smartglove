@@ -21,11 +21,50 @@
 #include "smart_device.h"
 #include "junxion.h"
 
+/******************************************************************************
+ * class MenuBehaviour
+ *****************************************************************************/
+
+class MenuBehaviour : public Behaviour {
+public:
+    MenuBehaviour(uint8_t itemCount);
+    virtual void setup(SmartDevice& device);
+    virtual void loop(SmartDevice& device);
+protected:
+    virtual void action(SmartDevice& device, uint8_t selected) = 0;
+    virtual void draw(SmartDevice& device, uint8_t selected) = 0;
+private:
+    uint8_t _itemCount;
+    uint8_t _selected;
+};
+
+/******************************************************************************
+ * class ButtonTest
+ *****************************************************************************/
+
 class ButtonTest : public Behaviour {
 public:
     virtual void setup(SmartDevice& device);
     virtual void loop(SmartDevice& device);
 };
+
+/******************************************************************************
+ * class GyroscopeTest
+ *****************************************************************************/
+
+class GyroscopeTest : public MenuBehaviour {
+public:
+    GyroscopeTest();
+    virtual void setup(SmartDevice& device);
+    virtual void action(SmartDevice& device, uint8_t selected);
+    virtual void draw(SmartDevice& device, uint8_t selected);
+private:
+    uint8_t _range;
+};
+
+/******************************************************************************
+ * class JunxionMode
+ *****************************************************************************/
 
 class JunxionMode : public Behaviour {
 public:
@@ -33,20 +72,18 @@ public:
     virtual void loop(SmartDevice& device);
 private:
     Junxion _junxion;
-    bool _idSent;
     uint8_t _state;
 };
 
-class Menu : public Behaviour {
-public:
-    virtual void setup(SmartDevice& device);
-    virtual void loop(SmartDevice& device);
-private:
-    uint8_t _selected;
-};
+/******************************************************************************
+ * class MainMenu
+ *****************************************************************************/
 
-class NumberInput : public Behaviour {
-    
+class MainMenu : public MenuBehaviour {
+public:
+    MainMenu();
+    virtual void action(SmartDevice& device, uint8_t selected);
+    virtual void draw(SmartDevice& device, uint8_t selected);
 };
 
 #endif

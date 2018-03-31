@@ -20,6 +20,24 @@
 
 #include <Arduino.h>
 
+#define SENSOR_BEND_1        0
+#define SENSOR_BEND_2        1
+#define SENSOR_BEND_3        2
+#define SENSOR_BEND_4        3
+#define SENSOR_DIST_HAND     4
+#define SENSOR_DIST_GROUND   5
+#define SENSOR_ACCEL_X       6
+#define SENSOR_ACCEL_Y       7
+#define SENSOR_ACCEL_Z       8
+#define SENSOR_GYRO_ROLL     9
+#define SENSOR_GYRO_PITCH   10
+#define SENSOR_GYRO_HEADING 11
+#define SENSOR_MAX          11
+
+/******************************************************************************
+ * class Sensor
+ *****************************************************************************/
+
 class Sensor {
     friend class Sensors;
 public:
@@ -34,32 +52,32 @@ private:
     Sensor& operator=(const Sensor&);
 
     double _factor;
-    uint8_t _pin;
     uint16_t _outMax;
     uint16_t _outMin;
     uint8_t _pos;
     double _rawMax;
     double _rawMin;
-    uint8_t _resolution;
     char _type;
     uint16_t* _values;
 };
 
+/******************************************************************************
+ * class Sensors
+ *****************************************************************************/
+
 class Sensors {
 public:
-    Sensors(uint8_t count);
+    Sensors();
     ~Sensors();
-    inline uint8_t count() const { return _count; }
-    void configOutput(uint8_t index, uint8_t pin, uint8_t type, uint8_t resolution);
-    uint8_t pin(uint8_t index) const;
-    uint8_t resolution(uint8_t index) const;
+    void addMeasurement(uint8_t index, double value);
+    void setOutRange(uint8_t index, uint16_t min, uint16_t max);
+    void setRawRange(uint8_t index, double min, double max);
+    inline uint8_t count() const { return SENSOR_MAX; }
     uint16_t value(uint8_t index) const;
-    char type(uint8_t index) const;
 private:  
     Sensors(const Sensors&);
     Sensors& operator=(const Sensors&);
 
-    uint8_t _count;
     Sensor* _sensors;
 };
 #endif

@@ -15,38 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "bno055.h"
+#include "imu.h"
 #include "config.h"
-
-#define STATUS_ERROR 0x1
-#define STATUS_READY 0x2
 
 #define WAVE_THRESHOLD 7.0
 #define WAVE_TIMEOUT 400
 
-Motion::Motion() :
+IMU::IMU() :
     _acceleration(new imu::Vector<3>()),
     _event(new sensors_event_t()),
-    _status(0) {
+    _status(Uninitialized) {
 }
 
-Motion::~Motion() {
+IMU::~IMU() {
     delete _event;
     delete _acceleration;
 }
 
-void Motion::begin() {
+void IMU::setup() {
     if (_bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS)) {
-        _status = STATUS_READY;
+        _status = Ready;
     }
     else {
-        _status = STATUS_ERROR;
+        _status = Error;
     }
 }
 
-void Motion::loop() {
+void IMU::loop() {
     uint32_t now = millis();
-    if (_status == STATUS_READY) {
+    if (_status == Ready) {
         _bno.getEvent(_event);
         *_acceleration = _bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
         _heading = _event->orientation.x;
@@ -68,39 +65,32 @@ void Motion::loop() {
     }
 }
 
-double Motion::ax() const {
+double IMU::ax() const {
     return _acceleration->x();
 }
 
-double Motion::ay() const {
+double IMU::ay() const {
     return _acceleration->y();
 }
 
-double Motion::az() const {
+double IMU::az() const {
     return _acceleration->z();
 }
 
-uint8_t Motion::gestureState() const {
+uint8_t IMU::gestureState() const {
     return _gestureState;
 }
 
-double Motion::heading() const {
+double IMU::heading() const {
     return _heading;
 }
 
-double Motion::pitch() const {
+double IMU::pitch() const {
     return _event->orientation.y;
 }
 
-double Motion::roll() const {
+double IMU::roll() const {
     return _event->orientation.z;
 }
 
-bool Motion::error() const {
-    return _status == STATUS_ERROR;
-}
-
-bool Motion::ready() const {
-    return _status == STATUS_READY;
-}
 
