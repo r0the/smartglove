@@ -22,6 +22,16 @@
 #include "junxion.h"
 
 /******************************************************************************
+ * class InitBehaviour
+ *****************************************************************************/
+
+class InitBehaviour : public Behaviour {
+public:
+    virtual void setup(SmartDevice& device);
+    virtual void loop(SmartDevice& device);
+};
+
+/******************************************************************************
  * class MenuBehaviour
  *****************************************************************************/
 

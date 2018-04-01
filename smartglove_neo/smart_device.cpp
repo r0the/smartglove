@@ -119,12 +119,59 @@ Behaviour::Behaviour() {
 }
 
 /******************************************************************************
+ * class BehaviourStack
+ *****************************************************************************/
+
+BehaviourStack::BehaviourStack(uint8_t size) :
+    _behaviour(new BehaviourPtr[size]),
+    _index(0),
+    _nextIndex(0),
+    _size(size) {
+    _behaviour[_index] = new InitBehaviour;
+}
+
+BehaviourStack::~BehaviourStack() {
+    delete[] _behaviour;
+}
+
+void BehaviourStack::loop(SmartDevice& device) {
+    _behaviour[_index]->loop(device);
+    bool changed = false;
+    while (_index > _nextIndex) {
+        delete _behaviour[_index];
+        --_index;
+        changed = true;
+    }
+
+    if (_index < _nextIndex) {
+        _index = _nextIndex;
+        changed = true;
+    }
+
+    if (changed) {
+        _behaviour[_index]->setup(device);
+    }
+}
+
+void BehaviourStack::pop() {
+    if (_nextIndex > 0) {
+        --_nextIndex;
+    }
+}
+
+void BehaviourStack::push(Behaviour* behaviour) {
+    if (_nextIndex < _size - 1) {
+        ++_nextIndex;
+        _behaviour[_nextIndex] = behaviour;
+    }
+}
+
+/******************************************************************************
  * class SmartDevice
  *****************************************************************************/
 
 SmartDevice::SmartDevice() :
-    _behaviour(new BehaviourPtr[BEHAVIOUR_STACK_SIZE]),
-    _behaviourIndex(0),
+    _behaviour(BEHAVIOUR_STACK_SIZE),
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
     _imu(),
@@ -176,20 +223,14 @@ void SmartDevice::setup() {
     waitForFlash();
 //    Serial.begin(9600);
 //    while (!Serial) { delay(1); }
-    setBehaviour(new MainMenu);
     doSetup();
 }
 
 void SmartDevice::loop() {
-    unsigned long now = millis();
     _infoLed.loop();
     setInfoLed(_infoLed.on());
     // update buttons
     _buttons.updateState(readButtonState());
-    if (_buttons.longPress()) {
-        setBehaviour(new MainMenu);
-    }
-
     // update sensor values from IMU
     _imu.loop();
     _sensors.addMeasurement(SENSOR_GYRO_HEADING, _imu.heading());
@@ -198,42 +239,21 @@ void SmartDevice::loop() {
 
     doLoop();
     _display.clear();
-    if (_behaviourIndex > 0) {
-        _behaviour[_behaviourIndex - 1]->loop(*this);
-    }
-
+    _behaviour.loop(*this);
     _display.update();
 }
 
 void SmartDevice::popBehaviour() {
-    if (_behaviourIndex > 0) {
-        delete _behaviour[_behaviourIndex - 1];
-        _behaviour[_behaviourIndex - 1] = NULL;
-        --_behaviourIndex;
-        _behaviour[_behaviourIndex - 1]->setup(*this);
-    }
+    _behaviour.pop();
 }
 
 void SmartDevice::pushBehaviour(Behaviour* behaviour) {
-    if (_behaviourIndex < BEHAVIOUR_STACK_SIZE && behaviour != NULL) {
-        ++_behaviourIndex;
-        _behaviour[_behaviourIndex - 1] = behaviour;
-        _behaviour[_behaviourIndex - 1]->setup(*this);
-    }
+    _behaviour.push(behaviour);
 }
 
 void SmartDevice::resetIMU() {
     _imu.setup();
 }
-
-void SmartDevice::setBehaviour(Behaviour* behaviour) {
-    while (_behaviourIndex > 0) {
-        popBehaviour();
-    }
-
-    pushBehaviour(behaviour);
-}
-
 
 void SmartDevice::setSensorOutRange(uint8_t index, uint16_t min, uint16_t max) {
     _sensors.setOutRange(index, min, max);

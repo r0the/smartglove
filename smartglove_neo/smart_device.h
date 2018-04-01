@@ -103,6 +103,27 @@ private:
 typedef Behaviour* BehaviourPtr;
 
 /******************************************************************************
+ * class BehaviourStack
+ *****************************************************************************/
+
+class BehaviourStack {
+public:
+    BehaviourStack(uint8_t size);
+    ~BehaviourStack();
+    void loop(SmartDevice& device);
+    void pop();
+    void push(Behaviour* behaviour);
+private:
+    BehaviourStack(const BehaviourStack&);
+    BehaviourStack& operator=(const BehaviourStack&);
+
+    BehaviourPtr* _behaviour;
+    uint8_t _index;
+    uint8_t _nextIndex;
+    uint8_t _size;
+};
+
+/******************************************************************************
  * class SmartDevice
  *****************************************************************************/
 
@@ -114,6 +135,7 @@ public:
     inline bool buttonAvailable(uint16_t button) const { return _buttons.available(button); }
     inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
     inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
+    inline bool buttonLongPress() const { return _buttons.longPress(); }
     bool commandEnter() const;
     bool commandNext() const;
     bool commandPrev() const;
@@ -123,7 +145,6 @@ public:
     void pushBehaviour(Behaviour* behaviour);
     void resetIMU();
     int32_t sensorValue(uint8_t index) const { return _sensors.value(index); }
-    void setBehaviour(Behaviour* behaviour);
     void setSensorOutRange(uint8_t index, uint16_t min, uint16_t max);
 protected:
     virtual void doSetup() = 0;
@@ -136,10 +157,8 @@ protected:
 private:
     SmartDevice(const SmartDevice&);
     SmartDevice& operator=(const SmartDevice&);
-
     void waitForFlash();
-    BehaviourPtr* _behaviour;
-    uint8_t _behaviourIndex;
+    BehaviourStack _behaviour;
     Buttons _buttons;
     SSD1306 _display;
     IMU _imu;

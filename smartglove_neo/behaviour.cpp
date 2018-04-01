@@ -19,6 +19,17 @@
 #include "config.h"
 
 /******************************************************************************
+ * class InitBehaviour
+ *****************************************************************************/
+
+void InitBehaviour::setup(SmartDevice& device) {
+}
+
+void InitBehaviour::loop(SmartDevice& device) {
+    device.pushBehaviour(new MainMenu);
+}
+
+/******************************************************************************
  * class MenuBehaviour
  *****************************************************************************/
 
@@ -59,6 +70,10 @@ void ButtonTest::setup(SmartDevice& device) {
 }
 
 void ButtonTest::loop(SmartDevice& device) {
+    if (device.buttonLongPress()) {
+        device.popBehaviour();
+    }
+
     char text[20];
     device.display().drawText(10, 8, "Button Test");
     uint8_t x = 10;
@@ -136,6 +151,10 @@ void JunxionMode::setup(SmartDevice& device) {
 }
 
 void JunxionMode::loop(SmartDevice& device) {
+    if (device.buttonLongPress()) {
+        device.popBehaviour();
+    }
+
     switch (_junxion.state()) {
     case Disconnected:
     case Connecting:
