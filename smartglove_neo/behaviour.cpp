@@ -87,17 +87,17 @@ void ButtonTest::loop() {
     char text[20];
     device.display().drawText(10, 8, "Button Test");
     uint8_t x = 10;
-    for (uint8_t i = 0; i < Buttons::MAX; ++i) {
-        if (device.buttonAvailable(1 << i)) {
+    for (uint8_t id = 0; id < Buttons::MAX; ++id) {
+        if (device.buttonAvailable(id)) {
             device.display().drawRectangle(x, 22, 7, 10);
         }
 
-        if (device.buttonPressed(1 << i)) {
+        if (device.buttonPressed(id)) {
             device.display().fillRectangle(x, 22, 7, 10);
         }
 
         x += 9;
-        if (i % 4 == 3) {
+        if (id % 4 == 3) {
             x += 2;
         }
     }

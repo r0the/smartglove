@@ -62,64 +62,6 @@ void LED::loop() {
 }
 
 /******************************************************************************
- * class Buttons
- *****************************************************************************/
-
-const uint8_t Buttons::MAX = 12;
-
-Buttons::Buttons() :
-    _current(0),
-    _last(0),
-    _longPress(false),
-    _longPressButtons(0),
-    _longPressMillis(5000) {
-}
-
-bool Buttons::available(uint16_t button) const {
-    return (_available & button) == button;
-}
-
-bool Buttons::down(uint16_t button) const {
-    return pressed(button) && ((_last & button) == 0);
-}
-
-bool Buttons::pressed(uint16_t button) const {
-    return (_current & button) == button;
-}
-
-void Buttons::setAvailable(uint16_t available) {
-    _count = 0;
-    _available = available;
-    for (uint8_t i = 0; i < MAX; ++i) {
-        if (Buttons::available(1 << i)) {
-            ++_count;
-        }
-    }
-}
-
-void Buttons::setLongPress(uint16_t buttons, uint16_t millis) {
-    _longPressButtons = buttons;
-    _longPressMillis = millis;
-}
-
-void Buttons::updateState(uint16_t current) {
-    unsigned long now = millis();
-    _last = _current;
-    _current = _available & current;
-    if ((_current & _longPressButtons) != _longPressButtons) {
-        _longPressEnd = now + _longPressMillis;
-    }
-
-    if (_longPressEnd <= now) {
-        _longPress = true;
-        _longPressEnd = now + _longPressMillis;
-    }
-    else {
-        _longPress = false;
-    }
-}
-
-/******************************************************************************
  * class Behaviour
  *****************************************************************************/
 
@@ -207,8 +149,8 @@ bool SmartDevice::imuReady() const {
 void SmartDevice::setup() {
     Wire.begin();
     // initialize buttons
-    _buttons.setAvailable(availableButtons());
-    _buttons.setLongPress(longPressButtons(), LONG_PRESS_MS);
+    _buttons.setAvailable(availableButtonMask());
+    _buttons.setLongPress(longPressButtonMask(), LONG_PRESS_MS);
 
     // initialize display
     _display.begin();

@@ -49,6 +49,58 @@ static uint8_t median3(uint16_t* data, uint8_t a, uint8_t b, uint8_t c) {
 }
 
 /******************************************************************************
+ * class Buttons
+ *****************************************************************************/
+
+const uint8_t Buttons::MAX = 12;
+
+Buttons::Buttons() :
+    _current(0),
+    _last(0),
+    _longPress(false),
+    _longPressButtons(0),
+    _longPressMillis(5000) {
+}
+
+bool Buttons::available(uint8_t id) const {
+    return _available & (1 << id);
+}
+
+bool Buttons::down(uint8_t id) const {
+    return pressed(id) && !(_last & (1 << id));
+}
+
+bool Buttons::pressed(uint8_t id) const {
+    return available(id) && (_current & (1 << id));
+}
+
+void Buttons::setAvailable(uint16_t mask) {
+    _available = mask;
+}
+
+void Buttons::setLongPress(uint16_t mask, uint16_t millis) {
+    _longPressButtons = mask;
+    _longPressMillis = millis;
+}
+
+void Buttons::updateState(uint16_t current) {
+    unsigned long now = millis();
+    _last = _current;
+    _current = _available & current;
+    if ((_current & _longPressButtons) != _longPressButtons) {
+        _longPressEnd = now + _longPressMillis;
+    }
+
+    if (_longPressEnd <= now) {
+        _longPress = true;
+        _longPressEnd = now + _longPressMillis;
+    }
+    else {
+        _longPress = false;
+    }
+}
+
+/******************************************************************************
  * class Sensor
  *****************************************************************************/
 

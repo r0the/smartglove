@@ -27,8 +27,9 @@ public:
 protected:
     virtual void doSetup();
     virtual void doLoop();
-    virtual uint16_t availableButtons() const;
-    virtual uint16_t longPressButtons() const;
+    virtual uint16_t availableButtonMask() const;
+    virtual uint16_t availableSensorMask() const;
+    virtual uint16_t longPressButtonMask() const;
     virtual uint16_t readButtonState() const;
     virtual void setInfoLed(bool on);
 private:

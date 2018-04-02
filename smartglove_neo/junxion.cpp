@@ -51,7 +51,7 @@ const bool DIGITAL_PIN_BUTTON[DIGITAL_PIN_COUNT] = {
     false, false, false, false, true, true, true, true
 };
 
-const uint16_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
+const uint8_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
     BUTTON_THUMB_1,
     BUTTON_THUMB_2,
     BUTTON_THUMB_3,
@@ -213,9 +213,9 @@ void Junxion::setBoardId(uint8_t id) {
 }
 
 bool Junxion::digitalPinActive(uint8_t pin) const {
-    uint16_t mask = DIGITAL_PIN_MAP[pin];
+    uint8_t id = DIGITAL_PIN_MAP[pin];
     if (DIGITAL_PIN_BUTTON[pin]) {
-        return device.buttonAvailable(mask) && device.buttonPressed(mask);
+        return device.buttonAvailable(id) && device.buttonPressed(id);
     }
     else {
         return false;
@@ -223,9 +223,9 @@ bool Junxion::digitalPinActive(uint8_t pin) const {
 }
 
 bool Junxion::digitalPinAvailable(uint8_t pin) const {
-    uint16_t mask = DIGITAL_PIN_MAP[pin];
+    uint8_t id = DIGITAL_PIN_MAP[pin];
     if (DIGITAL_PIN_BUTTON[pin]) {
-        return device.buttonAvailable(mask);
+        return device.buttonAvailable(id);
     }
     else {
         return false;
@@ -233,7 +233,14 @@ bool Junxion::digitalPinAvailable(uint8_t pin) const {
 }
 
 uint8_t Junxion::digitalPinCount() const {
-    return device.buttonCount();
+    uint8_t result = 0;
+    for (uint8_t id = 0; id < Buttons::MAX; ++id) {
+        if (device.buttonAvailable(id)) {
+            ++result;
+        }
+    }
+
+    return result;
 }
 
 void Junxion::handleCommand(char cmd) {

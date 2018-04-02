@@ -47,46 +47,6 @@ private:
 };
 
 /******************************************************************************
- * class Buttons
- *****************************************************************************/
-
-#define BUTTON_THUMB_1          0x0001
-#define BUTTON_THUMB_2          0x0002
-#define BUTTON_THUMB_3          0x0004
-#define BUTTON_THUMB_4          0x0008
-#define BUTTON_INDEX_FINGER_1   0x0010
-#define BUTTON_MIDDLE_FINGER_1  0x0020
-#define BUTTON_RING_FINGER_1    0x0040
-#define BUTTON_LITTLE_FINGER_1  0x0080
-#define BUTTON_INDEX_FINGER_2   0x0100
-#define BUTTON_MIDDLE_FINGER_2  0x0200
-#define BUTTON_RING_FINGER_2    0x0400
-#define BUTTON_LITTLE_FINGER_2  0x0800
-
-class Buttons {
-public:
-    static const uint8_t MAX;
-    Buttons();
-    bool available(uint16_t button) const;
-    uint8_t count() const { return _count; }
-    bool down(uint16_t button) const;
-    inline bool longPress() const { return _longPress; }
-    bool pressed(uint16_t button) const;
-    void setAvailable(uint16_t available);
-    void setLongPress(uint16_t buttons, uint16_t millis);
-    void updateState(uint16_t current);
-private:
-    uint16_t _available;
-    uint8_t _count;
-    uint16_t _current;
-    uint16_t _last;
-    bool _longPress;
-    unsigned long _longPressMillis;
-    unsigned long _longPressEnd;
-    uint16_t _longPressButtons;
-};
-
-/******************************************************************************
  * class Behaviour
  *****************************************************************************/
 
@@ -136,11 +96,10 @@ public:
     SmartDevice();
     void setup();
     void loop();
-    inline bool buttonAvailable(uint16_t button) const { return _buttons.available(button); }
-    inline uint8_t buttonCount() const { return _buttons.count(); }
-    inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
+    inline bool buttonAvailable(uint8_t id) const { return _buttons.available(id); }
+    inline bool buttonDown(uint8_t id) const { return _buttons.down(id); }
     inline bool buttonLongPress() const { return _buttons.longPress(); }
-    inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
+    inline bool buttonPressed(uint8_t id) const { return _buttons.pressed(id); }
     bool commandDown() const;
     bool commandEnter() const;
     bool commandUp() const;
@@ -154,8 +113,9 @@ public:
 protected:
     virtual void doSetup() = 0;
     virtual void doLoop() = 0;
-    virtual uint16_t availableButtons() const = 0;
-    virtual uint16_t longPressButtons() const = 0;
+    virtual uint16_t availableButtonMask() const = 0;
+    virtual uint16_t availableSensorMask() const = 0;
+    virtual uint16_t longPressButtonMask() const = 0;
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
     void setSensorRawRange(uint8_t index, double min, double max);

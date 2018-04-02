@@ -19,7 +19,7 @@
 #include "config.h"
 
 const uint8_t BUTTON_COUNT = 7;
-const uint16_t BUTTON_MAP[BUTTON_COUNT] = {
+const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
     BUTTON_THUMB_1,
     BUTTON_INDEX_FINGER_1,
     BUTTON_MIDDLE_FINGER_1,
@@ -42,14 +42,31 @@ void SmartBall::doSetup() {
 void SmartBall::doLoop() {
 }
 
-uint16_t SmartBall::availableButtons() const {
-    return BUTTON_THUMB_1 | BUTTON_INDEX_FINGER_1 | BUTTON_MIDDLE_FINGER_1 |
-        BUTTON_RING_FINGER_1 | BUTTON_LITTLE_FINGER_1 | BUTTON_INDEX_FINGER_2 |
-        BUTTON_MIDDLE_FINGER_2;
+uint16_t SmartBall::availableButtonMask() const {
+    return
+        (1 << BUTTON_THUMB_1) | 
+        (1 << BUTTON_INDEX_FINGER_1) | 
+        (1 << BUTTON_MIDDLE_FINGER_1) |
+        (1 << BUTTON_RING_FINGER_1) |
+        (1 << BUTTON_LITTLE_FINGER_1) |
+        (1 << BUTTON_INDEX_FINGER_2) |
+        (1 << BUTTON_MIDDLE_FINGER_2);
 }
 
-uint16_t SmartBall::longPressButtons() const {
-    return BUTTON_THUMB_1 | BUTTON_LITTLE_FINGER_1;
+uint16_t SmartBall::availableSensorMask() const {
+    return
+        (1 << SENSOR_ACCEL_X) | 
+        (1 << SENSOR_ACCEL_Y) | 
+        (1 << SENSOR_ACCEL_Z) |
+        (1 << SENSOR_GYRO_ROLL) |
+        (1 << SENSOR_GYRO_PITCH) |
+        (1 << SENSOR_GYRO_HEADING);
+}
+
+uint16_t SmartBall::longPressButtonMask() const {
+    return
+        (1 << BUTTON_THUMB_1) |
+        (1 << BUTTON_LITTLE_FINGER_1);
 }
 
 uint16_t SmartBall::readButtonState() const {
@@ -57,7 +74,7 @@ uint16_t SmartBall::readButtonState() const {
     uint8_t buttons = _buttons.readInput();
     for (uint8_t bit = 0; bit < BUTTON_COUNT; ++bit) {
         if (buttons & (1 << bit)) {
-            result |= BUTTON_MAP[bit];
+            result |= (1 << BUTTON_MAP[bit]);
         }
     }
 
