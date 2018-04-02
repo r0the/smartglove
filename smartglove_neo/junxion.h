@@ -40,23 +40,21 @@ public:
     virtual void setup();
     virtual void loop();
 
-    void setup(uint8_t digitalInputCount, uint8_t analogInputCount);
-    void configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution);
-    void setAnalogValue(uint8_t index, int16_t value);
     void setBoardId(uint8_t id);
 private:
+    uint8_t analogPinCount() const;
     void communicate();
+    bool digitalPinActive(uint8_t pin) const;
+    bool digitalPinAvailable(uint8_t pin) const;
+    uint8_t digitalPinCount() const;
     void handleCommand(char cmd);
     void sendBoardId();
-    void sendData();
-    void sendHeader(char cmd, uint8_t dataSize);
+    void sendData() const;
+    void sendHeader(char cmd, uint8_t dataSize) const;
     void sendInputConfig();
-    void sendInt16(int16_t data);
     void sendJunxionId();
-    void sendUInt16(uint16_t data);
+    void sendUInt16(uint16_t data) const;
     void showConnecting();
-    uint8_t _analogInputCount;
-    AnalogInput* _analogInputs;
     uint32_t _baudRate;
     uint8_t _boardId;
     ConnectionState _connectionState; 

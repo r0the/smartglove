@@ -18,7 +18,8 @@
 #include "smart_ball.h"
 #include "config.h"
 
-const uint16_t BUTTON_MAP[7] = {
+const uint8_t BUTTON_COUNT = 7;
+const uint16_t BUTTON_MAP[BUTTON_COUNT] = {
     BUTTON_THUMB_1,
     BUTTON_INDEX_FINGER_1,
     BUTTON_MIDDLE_FINGER_1,
@@ -54,7 +55,7 @@ uint16_t SmartBall::longPressButtons() const {
 uint16_t SmartBall::readButtonState() const {
     uint16_t result = 0;
     uint8_t buttons = _buttons.readInput();
-    for (uint8_t bit = 0; bit < 7; ++bit) {
+    for (uint8_t bit = 0; bit < BUTTON_COUNT; ++bit) {
         if (buttons & (1 << bit)) {
             result |= BUTTON_MAP[bit];
         }

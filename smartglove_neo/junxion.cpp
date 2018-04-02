@@ -36,8 +36,13 @@
 #define INPUT_CONFIG_RESPONSE 'p'
 #define JUNXION_ID 308
 
-const uint8_t DIGITAL_PIN_COUNT = 8;
-const uint8_t DIGITAL_PIN_MAP[] = {
+const uint8_t DIGITAL_PIN_COUNT = 16;
+const bool DIGITAL_PIN_BUTTON[DIGITAL_PIN_COUNT] = {
+    true, true, true, true, true, true, true, true,
+    false, false, false, false, true, true, true, true
+};
+
+const uint16_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
     BUTTON_THUMB_1,
     BUTTON_THUMB_2,
     BUTTON_THUMB_3,
@@ -45,29 +50,18 @@ const uint8_t DIGITAL_PIN_MAP[] = {
     BUTTON_INDEX_FINGER_1,
     BUTTON_MIDDLE_FINGER_1,
     BUTTON_RING_FINGER_1,
-    BUTTON_LITTLE_FINGER_1
+    BUTTON_LITTLE_FINGER_1,
+    0,
+    0,
+    0,
+    0,
+    BUTTON_INDEX_FINGER_2,
+    BUTTON_MIDDLE_FINGER_2,
+    BUTTON_RING_FINGER_2,
+    BUTTON_LITTLE_FINGER_2
 };
 
 const uint8_t ANALOG_PIN_COUNT = 8;
-
-/******************************************************************************
- * class AnalogInput
- *****************************************************************************/
-
-class AnalogInput {
-public:
-    AnalogInput() :
-        pin(0),
-        resolution(10),
-        type(ANALOG),
-        value(0) {
-    }
-
-    int8_t pin;
-    int8_t resolution;
-    char type;
-    int16_t value;
-};
 
 /******************************************************************************
  * class Junxion
@@ -75,8 +69,6 @@ public:
 
 JunxionMode::JunxionMode(SmartDevice& device) :
     Behaviour(device),
-    _analogInputCount(0),
-    _analogInputs(NULL),
     _boardId(1),
     _baudRate(DEFAULT_BAUD_RATE),
     _connectionState(Disconnected),
@@ -87,7 +79,6 @@ JunxionMode::JunxionMode(SmartDevice& device) :
 }
 
 JunxionMode::~JunxionMode() {
-    delete[] _analogInputs;
 }
 
 void JunxionMode::setup() {
@@ -126,28 +117,12 @@ void JunxionMode::loop() {
     }
 }
 
-void JunxionMode::setup(uint8_t digitalInputCount, uint8_t analogInputCount) {
-    _analogInputCount = analogInputCount;
-    _analogInputs = new AnalogInput[analogInputCount];
-    _dataSize = 2 * analogInputCount + 2 * ((digitalInputCount / 16) + 1);
-}
-
-void JunxionMode::configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution) {
-    if (index < _analogInputCount) {
-        _analogInputs[index].pin = pin;
-        _analogInputs[index].resolution = resolution;
-        _analogInputs[index].type = type;
-    }
-}
-
-void JunxionMode::setAnalogValue(uint8_t index, int16_t value) {
-    if (index < _analogInputCount) {
-        _analogInputs[index].value = value;
-    }
-}
-
 void JunxionMode::setBoardId(uint8_t id) {
     _boardId = id;
+}
+
+uint8_t JunxionMode::analogPinCount() const {
+    return 1;
 }
 
 void JunxionMode::communicate() {
@@ -170,6 +145,7 @@ void JunxionMode::communicate() {
  
     if (_sendData) {
         sendData();
+        delay(10);
     }
 
     char text[10];
@@ -177,6 +153,9 @@ void JunxionMode::communicate() {
     device.display().setFont(&SWISS_20_B);
     device.display().setTextAlign(ALIGN_CENTER);
     device.display().drawText(64, 12, text);
+    if (_sendData) {
+        device.display().drawText(10, 12, "S"); 
+    }
     if (device.commandNext()) {
         if (_state < MAX_STATE) {
             ++_state;
@@ -196,22 +175,54 @@ void JunxionMode::communicate() {
     }
 }
 
+bool JunxionMode::digitalPinActive(uint8_t pin) const {
+    uint16_t mask = DIGITAL_PIN_MAP[pin];
+    if (DIGITAL_PIN_BUTTON[pin]) {
+        return device.buttonAvailable(mask) && device.buttonPressed(mask);
+    }
+    else {
+        return false;
+    }
+}
+
+bool JunxionMode::digitalPinAvailable(uint8_t pin) const {
+    uint16_t mask = DIGITAL_PIN_MAP[pin];
+    if (DIGITAL_PIN_BUTTON[pin]) {
+        return device.buttonAvailable(mask);
+    }
+    else {
+        return false;
+    }
+}
+
+uint8_t JunxionMode::digitalPinCount() const {
+    return device.buttonCount();
+}
+
 void JunxionMode::handleCommand(char cmd) {
     switch (cmd) {
         case START_DATA:
+            PRINTLN("Request Start Data");
             _sendData = true;
             break;
         case STOP_DATA:
+            PRINTLN("Request Stop Data");
             _sendData = false;
             break;
         case BOARD_ID_REQUEST:
+            PRINTLN("Request Board ID");
             sendBoardId();
             break;
         case JUNXION_ID_REQUEST:
+            PRINTLN("Request junXion ID");
             sendJunxionId();
             break;
         case INPUT_CONFIG_REQUEST:
+            PRINTLN("Request Input Config");
             sendInputConfig();
+            break;
+        default:
+            PRINT("Unknown command: ") PRINTLN(cmd)
             break;
     }
 }
@@ -221,38 +232,38 @@ void JunxionMode::sendBoardId() {
     Serial.write(_boardId);
 }
 
-void JunxionMode::sendData() {
-    sendHeader(DATA_RESPONSE, _dataSize);
+void JunxionMode::sendData() const {
+    uint8_t dataSize = 2 * (analogPinCount() + digitalPinCount() / 16 + 1);
+    PRINT("Sending Data, size=")
+    PRINTLN(dataSize)
+    sendHeader(DATA_RESPONSE, dataSize);
     // Send digital input states
     uint16_t state = 0;
     uint8_t pos = 0;
     for (uint8_t i = 0; i < DIGITAL_PIN_COUNT; ++i) {
-        uint8_t button = DIGITAL_PIN_MAP[i];
-        if (device.buttonAvailable(button)) {
-            if (device.buttonPressed(button)) {
+        if (digitalPinAvailable(i)) {
+            if (digitalPinActive(i)) {
+                PRINT("Pin ") PRINT(i) PRINTLN(" active")
                 state = state | (1 << pos);
             }
     
             ++pos;
             if (pos >= 16) {
-                sendInt16(state);
+                sendUInt16(state);
                 state = 0;
                 pos = 0;
             }
         }
     }
 
-    if (pos > 0) {    
-        sendInt16(state);
+    if (pos > 0) {
+        sendUInt16(state);
     }
 
-    // Send analog pin states
-    for (uint8_t i = 0; i < _analogInputCount; ++i) {
-        sendInt16(_analogInputs[i].value);
-    }
+    sendUInt16(device.sensorValue(SENSOR_GYRO_ROLL));
 }
 
-void JunxionMode::sendHeader(char cmd, uint8_t dataSize) {
+void JunxionMode::sendHeader(char cmd, uint8_t dataSize) const {
     Serial.write(HEADER);
     Serial.write(HEADER);
     Serial.write(dataSize);
@@ -260,35 +271,28 @@ void JunxionMode::sendHeader(char cmd, uint8_t dataSize) {
 }
 
 void JunxionMode::sendInputConfig() {
-    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (_analogInputCount + device.buttonCount()));
+    sendHeader(INPUT_CONFIG_RESPONSE, 3 * (analogPinCount() + digitalPinCount()));
     for (uint8_t i = 0; i < DIGITAL_PIN_COUNT; ++i) {
-        if (device.buttonAvailable(DIGITAL_PIN_MAP[i])) {
+        if (digitalPinAvailable(i)) {
             Serial.write(DIGITAL);
             Serial.write(i);
             Serial.write(DIGITAL_RESOLUTION);
         }
     }
  
-    for (uint8_t i = 0; i < _analogInputCount; ++i) {
-        Serial.write(_analogInputs[i].type);
-        Serial.write(_analogInputs[i].pin);
-        Serial.write(_analogInputs[i].resolution);
-    }
-}
-
-void JunxionMode::sendInt16(int16_t data) {
-    Serial.write(data / 256);
-    Serial.write(data % 256);
+    Serial.write('c'); // type
+    Serial.write(1); // pin
+    Serial.write(10); // resolution
 }
 
 void JunxionMode::sendJunxionId() {
     sendHeader(JUNXION_ID_RESPONSE, 2);
-    sendInt16(JUNXION_ID);
+    sendUInt16(JUNXION_ID);
 }
 
-void JunxionMode::sendUInt16(uint16_t data) {
-    Serial.write(data / 256);
-    Serial.write(data % 256);
+void JunxionMode::sendUInt16(uint16_t data) const {
+    Serial.write(static_cast<int>(data / 256));
+    Serial.write(static_cast<int>(data % 256));
 }
 
 void JunxionMode::showConnecting() {

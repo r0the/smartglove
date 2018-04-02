@@ -16,12 +16,16 @@
  */
 
 #include "smart_ball.h"
+#include "config.h"
 
 SmartDevice* smartDevice;
 
 void setup() {
-//    Serial.begin(9600);
-//    while (!Serial) { delay(1); }
+#ifdef DEBUG
+    Serial1.begin(9600);
+    while (!Serial1) { delay(1); }
+    Serial1.println("Starting Debug Session...");
+#endif
     smartDevice = new SmartBall();
     smartDevice->setup();
 }
