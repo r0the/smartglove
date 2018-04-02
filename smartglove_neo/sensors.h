@@ -32,7 +32,6 @@
 #define SENSOR_GYRO_ROLL     9
 #define SENSOR_GYRO_PITCH   10
 #define SENSOR_GYRO_HEADING 11
-#define SENSOR_MAX          11
 
 /******************************************************************************
  * class Sensor
@@ -67,12 +66,12 @@ private:
 
 class Sensors {
 public:
+    static const uint8_t MAX;
     Sensors();
     ~Sensors();
     void addMeasurement(uint8_t index, double value);
     void setOutRange(uint8_t index, uint16_t min, uint16_t max);
     void setRawRange(uint8_t index, double min, double max);
-    inline uint8_t count() const { return SENSOR_MAX; }
     uint16_t value(uint8_t index) const;
 private:  
     Sensors(const Sensors&);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2018 by Stefan Rothe
+ * Copyright (C) 2015 - 2016 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,43 +22,37 @@
 #include "smart_device.h"
 
 class AnalogInput;
-class DigitalInput;
 
-enum ConnectionState {
-    Disconnected, Connecting, Connected
-};
+// ----------------------------------------------------------------------------
+// class Junxion
+// ----------------------------------------------------------------------------
 
-/******************************************************************************
- * class Junxion
- *****************************************************************************/
-
-class JunxionMode : public Behaviour {
+class Junxion : public Behaviour {
 public:
-    JunxionMode(SmartDevice& device);
-    ~JunxionMode();
-
+    Junxion(SmartDevice& device);
     virtual void setup();
     virtual void loop();
 
+    void configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution);
+    void setAnalogValue(uint8_t index, int16_t value);
     void setBoardId(uint8_t id);
 private:
-    uint8_t analogPinCount() const;
-    void communicate();
+    Junxion(const Junxion&);
+    Junxion& operator=(const Junxion&);
+
     bool digitalPinActive(uint8_t pin) const;
     bool digitalPinAvailable(uint8_t pin) const;
     uint8_t digitalPinCount() const;
     void handleCommand(char cmd);
-    void sendBoardId();
     void sendData() const;
     void sendHeader(char cmd, uint8_t dataSize) const;
-    void sendInputConfig();
-    void sendJunxionId();
+    void sendInputConfig() const;
+    void sendJunxionId() const;
     void sendUInt16(uint16_t data) const;
-    void showConnecting();
-    uint32_t _baudRate;
+    void showConnecting() const;
+    uint8_t _analogInputCount;
+    AnalogInput* _analogInputs;
     uint8_t _boardId;
-    ConnectionState _connectionState; 
-    unsigned long _connectionTimeout;
     uint8_t _dataSize;
     bool _headerReceived;
     unsigned int  _packageSize;

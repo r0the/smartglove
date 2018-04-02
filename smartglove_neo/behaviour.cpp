@@ -55,11 +55,11 @@ void MenuBehaviour::loop() {
         return;
     }
 
-    if (device.commandNext()) {
+    if (device.commandDown()) {
         _selected = (_selected + 1) % _itemCount;
     }
 
-    if (device.commandPrev()) {
+    if (device.commandUp()) {
         _selected = (_selected + _itemCount - 1) % _itemCount;
     }
 
@@ -164,7 +164,7 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 2:
-        device.pushBehaviour(new JunxionMode(device));
+        device.pushBehaviour(new Junxion(device));
         break;            
     }
 }

@@ -188,15 +188,15 @@ SmartDevice::SmartDevice() :
     _sensors() {
 }
 
+bool SmartDevice::commandDown() const {
+    return buttonDown(BUTTON_MIDDLE_FINGER_1);
+}
+
 bool SmartDevice::commandEnter() const {
     return buttonDown(BUTTON_THUMB_1);
 }
 
-bool SmartDevice::commandNext() const {
-    return buttonDown(BUTTON_MIDDLE_FINGER_1);
-}
-
-bool SmartDevice::commandPrev() const {
+bool SmartDevice::commandUp() const {
     return buttonDown(BUTTON_INDEX_FINGER_1);
 }
 

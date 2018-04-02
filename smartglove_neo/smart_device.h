@@ -141,9 +141,9 @@ public:
     inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
     inline bool buttonLongPress() const { return _buttons.longPress(); }
     inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
+    bool commandDown() const;
     bool commandEnter() const;
-    bool commandNext() const;
-    bool commandPrev() const;
+    bool commandUp() const;
     inline SSD1306& display() { return _display; }
     bool imuReady() const;
     void popBehaviour();

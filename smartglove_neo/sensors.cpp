@@ -114,8 +114,10 @@ uint16_t Sensor::value() const {
  * class Sensors
  *****************************************************************************/
 
+const uint8_t Sensors::MAX = 11;
+
 Sensors::Sensors() :
-    _sensors(new Sensor[SENSOR_MAX]) {
+    _sensors(new Sensor[MAX]) {
 }
 
 Sensors::~Sensors() {
@@ -123,25 +125,25 @@ Sensors::~Sensors() {
 }
 
 void Sensors::addMeasurement(uint8_t index, double value) {
-    if (index < SENSOR_MAX) {
+    if (index < MAX) {
         _sensors[index].addMeasurement(value);
     }
 }
 
 void Sensors::setOutRange(uint8_t index, uint16_t min, uint16_t max) {
-    if (index < SENSOR_MAX) {
+    if (index < MAX) {
         _sensors[index].setOutRange(min, max);
     }
 }
 
 void Sensors::setRawRange(uint8_t index, double min, double max) {
-    if (index < SENSOR_MAX) {
+    if (index < MAX) {
         _sensors[index].setRawRange(min, max);
     }
 }
 
 uint16_t Sensors::value(uint8_t index) const {
-    if (index < SENSOR_MAX) {
+    if (index < MAX) {
         return _sensors[index].value();
     }
     else {
