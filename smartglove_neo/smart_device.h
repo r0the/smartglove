@@ -62,12 +62,13 @@ private:
 #define BUTTON_MIDDLE_FINGER_2  0x0200
 #define BUTTON_RING_FINGER_2    0x0400
 #define BUTTON_LITTLE_FINGER_2  0x0800
-#define BUTTON_MAX              12
 
 class Buttons {
 public:
+    static const uint8_t MAX;
     Buttons();
     bool available(uint16_t button) const;
+    uint8_t count() const { return _count; }
     bool down(uint16_t button) const;
     inline bool longPress() const { return _longPress; }
     bool pressed(uint16_t button) const;
@@ -76,6 +77,7 @@ public:
     void updateState(uint16_t current);
 private:
     uint16_t _available;
+    uint8_t _count;
     uint16_t _current;
     uint16_t _last;
     bool _longPress;
@@ -92,9 +94,11 @@ class SmartDevice;
 
 class Behaviour {
 public:
-    Behaviour();
-    virtual void setup(SmartDevice& device) = 0;
-    virtual void loop(SmartDevice& device) = 0;
+    Behaviour(SmartDevice& device);
+    virtual void setup() = 0;
+    virtual void loop() = 0;
+protected:
+    SmartDevice& device;
 private:
     Behaviour(const Behaviour&);
     Behaviour& operator=(const Behaviour&);
@@ -108,9 +112,9 @@ typedef Behaviour* BehaviourPtr;
 
 class BehaviourStack {
 public:
-    BehaviourStack(uint8_t size);
+    BehaviourStack(SmartDevice& device, uint8_t capacity);
     ~BehaviourStack();
-    void loop(SmartDevice& device);
+    void loop();
     void pop();
     void push(Behaviour* behaviour);
 private:
@@ -118,9 +122,9 @@ private:
     BehaviourStack& operator=(const BehaviourStack&);
 
     BehaviourPtr* _behaviour;
+    uint8_t _capacity;
     uint8_t _index;
     uint8_t _nextIndex;
-    uint8_t _size;
 };
 
 /******************************************************************************
@@ -133,9 +137,10 @@ public:
     void setup();
     void loop();
     inline bool buttonAvailable(uint16_t button) const { return _buttons.available(button); }
+    inline uint8_t buttonCount() const { return _buttons.count(); }
     inline bool buttonDown(uint16_t button) const { return _buttons.down(button); }
-    inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
     inline bool buttonLongPress() const { return _buttons.longPress(); }
+    inline bool buttonPressed(uint16_t button) const { return _buttons.pressed(button); }
     bool commandEnter() const;
     bool commandNext() const;
     bool commandPrev() const;

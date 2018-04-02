@@ -17,35 +17,41 @@
 
 #include "behaviour.h"
 #include "config.h"
+#include "junxion.h"
 
 /******************************************************************************
  * class InitBehaviour
  *****************************************************************************/
 
-void InitBehaviour::setup(SmartDevice& device) {
+InitBehaviour::InitBehaviour(SmartDevice& device) :
+    Behaviour(device) {
 }
 
-void InitBehaviour::loop(SmartDevice& device) {
-    device.pushBehaviour(new MainMenu);
+void InitBehaviour::setup() {
+}
+
+void InitBehaviour::loop() {
+    device.pushBehaviour(new MainMenu(device));
 }
 
 /******************************************************************************
  * class MenuBehaviour
  *****************************************************************************/
 
-MenuBehaviour::MenuBehaviour(uint8_t itemCount) :
+MenuBehaviour::MenuBehaviour(SmartDevice& device,uint8_t itemCount) :
+    Behaviour(device),
     _itemCount(itemCount),
     _selected(0) {
 }
 
-void MenuBehaviour::setup(SmartDevice& device) {
+void MenuBehaviour::setup() {
     device.display().setFont(&HELVETICA_10);
     device.display().setTextAlign(ALIGN_LEFT);
 }
 
-void MenuBehaviour::loop(SmartDevice& device) {
+void MenuBehaviour::loop() {
     if (device.commandEnter()) {
-        action(device, _selected);
+        action(_selected);
         return;
     }
 
@@ -54,22 +60,26 @@ void MenuBehaviour::loop(SmartDevice& device) {
     }
 
     if (device.commandPrev()) {
-        _selected = (_selected + _itemCount + 1) % _itemCount;
+        _selected = (_selected + _itemCount - 1) % _itemCount;
     }
 
-    draw(device, _selected);
+    draw(_selected);
 }
 
 /******************************************************************************
  * class ButtonTest
  *****************************************************************************/
 
-void ButtonTest::setup(SmartDevice& device) {
+ButtonTest::ButtonTest(SmartDevice& device) :
+    Behaviour(device) {
+}
+
+void ButtonTest::setup() {
     device.display().setFont(&HELVETICA_10);
     device.display().setTextAlign(ALIGN_LEFT);
 }
 
-void ButtonTest::loop(SmartDevice& device) {
+void ButtonTest::loop() {
     if (device.buttonLongPress()) {
         device.popBehaviour();
     }
@@ -77,7 +87,7 @@ void ButtonTest::loop(SmartDevice& device) {
     char text[20];
     device.display().drawText(10, 8, "Button Test");
     uint8_t x = 10;
-    for (uint8_t i = 0; i < BUTTON_MAX; ++i) {
+    for (uint8_t i = 0; i < Buttons::MAX; ++i) {
         if (device.buttonAvailable(1 << i)) {
             device.display().drawRectangle(x, 22, 7, 10);
         }
@@ -100,11 +110,11 @@ void ButtonTest::loop(SmartDevice& device) {
 const char* GYROSCOPE_MENU_ITEMS[] = { "Heading", "Pitch", "Roll" };
 uint8_t GYROSCOPE_MENU_MAP[] = { SENSOR_GYRO_HEADING, SENSOR_GYRO_PITCH, SENSOR_GYRO_ROLL };
 
-GyroscopeTest::GyroscopeTest() :
-    MenuBehaviour(3) {
+GyroscopeTest::GyroscopeTest(SmartDevice& device) :
+    MenuBehaviour(device, 3) {
 }
 
-void GyroscopeTest::setup(SmartDevice& device) {
+void GyroscopeTest::setup() {
     device.display().setFont(&HELVETICA_10);
     device.display().setTextAlign(ALIGN_LEFT);
     _range = 115;
@@ -114,11 +124,11 @@ void GyroscopeTest::setup(SmartDevice& device) {
     device.resetIMU();
 }
 
-void GyroscopeTest::action(SmartDevice& device, uint8_t selected) {
+void GyroscopeTest::action(uint8_t selected) {
     device.popBehaviour();
 }
 
-void GyroscopeTest::draw(SmartDevice& device, uint8_t selected) {
+void GyroscopeTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, GYROSCOPE_MENU_ITEMS[selected]);
     if (device.imuReady()) {
         device.display().drawRectangle(10, 22, _range, 8);
@@ -136,88 +146,31 @@ void GyroscopeTest::draw(SmartDevice& device, uint8_t selected) {
 }
 
 /******************************************************************************
- * class JunxionMode
- *****************************************************************************/
-
-void JunxionMode::setup(SmartDevice& device) {
-    _state = MIN_STATE;
-    for (uint8_t i = 0; i < BUTTON_MAX; ++i) {
-        if (device.buttonAvailable(1 << i)) {
-            _junxion.configureDigitalInput(i, i);
-        }
-    }
-
-    _junxion.setBoardId(JUNXION_GLOVE_BOARD_ID);
-}
-
-void JunxionMode::loop(SmartDevice& device) {
-    if (device.buttonLongPress()) {
-        device.popBehaviour();
-    }
-
-    switch (_junxion.state()) {
-    case Disconnected:
-    case Connecting:
-        device.display().setTextAlign(ALIGN_LEFT);
-        device.display().setFont(&HELVETICA_10);
-        device.display().drawText(10, 8, "Connecting");
-        device.display().drawText(10, 22, "to junXion...");
-        return;
-    }
-
-    char text[10];
-    sprintf(text, "%i", _state);
-    device.display().setFont(&SWISS_20_B);
-    device.display().setTextAlign(ALIGN_CENTER);
-    device.display().drawText(64, 12, text);
-
-
-    if (device.commandNext()) {
-        if (_state < MAX_STATE) {
-            ++_state;
-        }
-        else {
-            _state = MIN_STATE;
-        }
-    }
-
-    if (device.commandPrev()) {
-        if (_state > MIN_STATE) {
-            --_state;
-        }
-        else {
-            _state = MAX_STATE;
-        }
-    }
-}
-
-/******************************************************************************
  * class MainMenu
  *****************************************************************************/
 
 const char* MAIN_MENU_ITEMS[] = { "Button Test", "Gyroscope Test", "Exit" };
 
-MainMenu::MainMenu() :
-    MenuBehaviour(3) {
+MainMenu::MainMenu(SmartDevice& device) :
+    MenuBehaviour(device, 3) {
 }
 
-void MainMenu::action(SmartDevice& device, uint8_t selected) {
+void MainMenu::action(uint8_t selected) {
     switch (selected) {
     case 0:
-        device.pushBehaviour(new ButtonTest);
+        device.pushBehaviour(new ButtonTest(device));
         break;
     case 1:
-        device.pushBehaviour(new GyroscopeTest);
+        device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 2:
-        device.pushBehaviour(new JunxionMode);
+        device.pushBehaviour(new JunxionMode(device));
         break;            
     }
 }
 
-void MainMenu::draw(SmartDevice& device, uint8_t selected) {
+void MainMenu::draw(uint8_t selected) {
     device.display().drawText(10, 8, "Menu");
     device.display().drawText(10, 20, MAIN_MENU_ITEMS[selected]);
 }
-
 

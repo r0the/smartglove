@@ -65,6 +65,8 @@ void LED::loop() {
  * class Buttons
  *****************************************************************************/
 
+const uint8_t Buttons::MAX = 12;
+
 Buttons::Buttons() :
     _current(0),
     _last(0),
@@ -86,7 +88,13 @@ bool Buttons::pressed(uint16_t button) const {
 }
 
 void Buttons::setAvailable(uint16_t available) {
+    _count = 0;
     _available = available;
+    for (uint8_t i = 0; i < MAX; ++i) {
+        if (Buttons::available(1 << i)) {
+            ++_count;
+        }
+    }
 }
 
 void Buttons::setLongPress(uint16_t buttons, uint16_t millis) {
@@ -115,27 +123,28 @@ void Buttons::updateState(uint16_t current) {
  * class Behaviour
  *****************************************************************************/
 
-Behaviour::Behaviour() {
+Behaviour::Behaviour(SmartDevice& device) :
+    device(device) {
 }
 
 /******************************************************************************
  * class BehaviourStack
  *****************************************************************************/
 
-BehaviourStack::BehaviourStack(uint8_t size) :
-    _behaviour(new BehaviourPtr[size]),
+BehaviourStack::BehaviourStack(SmartDevice& device, uint8_t capacity) :
+    _behaviour(new BehaviourPtr[capacity]),
+    _capacity(capacity),
     _index(0),
-    _nextIndex(0),
-    _size(size) {
-    _behaviour[_index] = new InitBehaviour;
+    _nextIndex(0) {
+    _behaviour[_index] = new InitBehaviour(device);
 }
 
 BehaviourStack::~BehaviourStack() {
     delete[] _behaviour;
 }
 
-void BehaviourStack::loop(SmartDevice& device) {
-    _behaviour[_index]->loop(device);
+void BehaviourStack::loop() {
+    _behaviour[_index]->loop();
     bool changed = false;
     while (_index > _nextIndex) {
         delete _behaviour[_index];
@@ -149,7 +158,7 @@ void BehaviourStack::loop(SmartDevice& device) {
     }
 
     if (changed) {
-        _behaviour[_index]->setup(device);
+        _behaviour[_index]->setup();
     }
 }
 
@@ -160,7 +169,7 @@ void BehaviourStack::pop() {
 }
 
 void BehaviourStack::push(Behaviour* behaviour) {
-    if (_nextIndex < _size - 1) {
+    if (_nextIndex < _capacity - 1) {
         ++_nextIndex;
         _behaviour[_nextIndex] = behaviour;
     }
@@ -171,7 +180,7 @@ void BehaviourStack::push(Behaviour* behaviour) {
  *****************************************************************************/
 
 SmartDevice::SmartDevice() :
-    _behaviour(BEHAVIOUR_STACK_SIZE),
+    _behaviour(*this, BEHAVIOUR_STACK_CAPACITY),
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
     _imu(),
@@ -221,8 +230,6 @@ void SmartDevice::setup() {
     _imu.setup();
 
     waitForFlash();
-//    Serial.begin(9600);
-//    while (!Serial) { delay(1); }
     doSetup();
 }
 
@@ -239,7 +246,7 @@ void SmartDevice::loop() {
 
     doLoop();
     _display.clear();
-    _behaviour.loop(*this);
+    _behaviour.loop();
     _display.update();
 }
 

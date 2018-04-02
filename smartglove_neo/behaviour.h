@@ -27,8 +27,9 @@
 
 class InitBehaviour : public Behaviour {
 public:
-    virtual void setup(SmartDevice& device);
-    virtual void loop(SmartDevice& device);
+    explicit InitBehaviour(SmartDevice& device);
+    virtual void setup();
+    virtual void loop();
 };
 
 /******************************************************************************
@@ -37,12 +38,12 @@ public:
 
 class MenuBehaviour : public Behaviour {
 public:
-    MenuBehaviour(uint8_t itemCount);
-    virtual void setup(SmartDevice& device);
-    virtual void loop(SmartDevice& device);
+    MenuBehaviour(SmartDevice& device, uint8_t itemCount);
+    virtual void setup();
+    virtual void loop();
 protected:
-    virtual void action(SmartDevice& device, uint8_t selected) = 0;
-    virtual void draw(SmartDevice& device, uint8_t selected) = 0;
+    virtual void action(uint8_t selected) = 0;
+    virtual void draw(uint8_t selected) = 0;
 private:
     uint8_t _itemCount;
     uint8_t _selected;
@@ -54,8 +55,9 @@ private:
 
 class ButtonTest : public Behaviour {
 public:
-    virtual void setup(SmartDevice& device);
-    virtual void loop(SmartDevice& device);
+    explicit ButtonTest(SmartDevice& device);
+    virtual void setup();
+    virtual void loop();
 };
 
 /******************************************************************************
@@ -64,25 +66,12 @@ public:
 
 class GyroscopeTest : public MenuBehaviour {
 public:
-    GyroscopeTest();
-    virtual void setup(SmartDevice& device);
-    virtual void action(SmartDevice& device, uint8_t selected);
-    virtual void draw(SmartDevice& device, uint8_t selected);
+    explicit GyroscopeTest(SmartDevice& device);
+    virtual void setup();
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
 private:
     uint8_t _range;
-};
-
-/******************************************************************************
- * class JunxionMode
- *****************************************************************************/
-
-class JunxionMode : public Behaviour {
-public:
-    virtual void setup(SmartDevice& device);
-    virtual void loop(SmartDevice& device);
-private:
-    Junxion _junxion;
-    uint8_t _state;
 };
 
 /******************************************************************************
@@ -91,9 +80,9 @@ private:
 
 class MainMenu : public MenuBehaviour {
 public:
-    MainMenu();
-    virtual void action(SmartDevice& device, uint8_t selected);
-    virtual void draw(SmartDevice& device, uint8_t selected);
+    MainMenu(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
 };
 
 #endif

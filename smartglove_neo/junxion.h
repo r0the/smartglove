@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2016 by Stefan Rothe
+ * Copyright (C) 2015 - 2018 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define JUNXION_H
 
 #include <Arduino.h>
+#include "smart_device.h"
 
 class AnalogInput;
 class DigitalInput;
@@ -31,22 +32,19 @@ enum ConnectionState {
  * class Junxion
  *****************************************************************************/
 
-class Junxion {
+class JunxionMode : public Behaviour {
 public:
-    Junxion();
-    ~Junxion();
+    JunxionMode(SmartDevice& device);
+    ~JunxionMode();
+
+    virtual void setup();
+    virtual void loop();
+
     void setup(uint8_t digitalInputCount, uint8_t analogInputCount);
     void configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution);
-    void configureDigitalInput(uint8_t index, uint8_t pin);
-    void loop();
     void setAnalogValue(uint8_t index, int16_t value);
-    void setDigitalValue(uint8_t index, bool active);
     void setBoardId(uint8_t id);
-    inline ConnectionState state() const { return _state; }
 private:
-    Junxion(const Junxion&);
-    Junxion& operator=(const Junxion&);
-
     void communicate();
     void handleCommand(char cmd);
     void sendBoardId();
@@ -56,17 +54,18 @@ private:
     void sendInt16(int16_t data);
     void sendJunxionId();
     void sendUInt16(uint16_t data);
+    void showConnecting();
     uint8_t _analogInputCount;
     AnalogInput* _analogInputs;
     uint32_t _baudRate;
     uint8_t _boardId;
+    ConnectionState _connectionState; 
+    unsigned long _connectionTimeout;
     uint8_t _dataSize;
-    uint8_t _digitalInputCount;
-    DigitalInput* _digitalInputs;
     bool _headerReceived;
     unsigned int  _packageSize;
     bool _sendData;
-    ConnectionState _state; 
+    uint8_t _state;
 };
 
 #endif
