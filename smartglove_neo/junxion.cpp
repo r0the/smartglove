@@ -116,7 +116,7 @@ Junxion::Junxion(SmartDevice& device) :
 void Junxion::setup() {
     _dataSize = 2 * (analogPinCount() + ownPinCount() + (digitalPinCount() / 16) + 1);
     setBoardId(JUNXION_BOARD_ID);
-    for (uint8_t i = 0; i < Sensors::MAX; ++i) {
+    for (uint8_t i = 0; i < Sensors::COUNT; ++i) {
         device.setSensorOutRange(i, 0, 65535);
     }
 

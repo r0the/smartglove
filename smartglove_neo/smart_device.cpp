@@ -184,6 +184,9 @@ void SmartDevice::loop() {
     _buttons.updateState(readButtonState());
     // update sensor values from IMU
     _imu.loop();
+    _sensors.addMeasurement(SENSOR_ACCEL_X, _imu.ax());
+    _sensors.addMeasurement(SENSOR_ACCEL_Y, _imu.ay());
+    _sensors.addMeasurement(SENSOR_ACCEL_Z, _imu.az());
     _sensors.addMeasurement(SENSOR_GYRO_HEADING, _imu.heading());
     _sensors.addMeasurement(SENSOR_GYRO_PITCH, _imu.pitch());
     _sensors.addMeasurement(SENSOR_GYRO_ROLL, _imu.roll());

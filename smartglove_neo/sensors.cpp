@@ -52,7 +52,7 @@ static uint8_t median3(uint16_t* data, uint8_t a, uint8_t b, uint8_t c) {
  * class Buttons
  *****************************************************************************/
 
-const uint8_t Buttons::MAX = 12;
+const uint8_t Buttons::COUNT = 12;
 
 Buttons::Buttons() :
     _current(0),
@@ -63,7 +63,7 @@ Buttons::Buttons() :
 }
 
 bool Buttons::available(uint8_t id) const {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return false;
     }
     
@@ -71,7 +71,7 @@ bool Buttons::available(uint8_t id) const {
 }
 
 bool Buttons::down(uint8_t id) const {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return false;
     }
 
@@ -79,7 +79,7 @@ bool Buttons::down(uint8_t id) const {
 }
 
 bool Buttons::pressed(uint8_t id) const {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return false;
     }
 
@@ -201,10 +201,10 @@ uint16_t Sensor::value() const {
  * class Sensors
  *****************************************************************************/
 
-const uint8_t Sensors::MAX = 11;
+const uint8_t Sensors::COUNT = 12;
 
 Sensors::Sensors() :
-    _sensors(new Sensor[MAX]) {
+    _sensors(new Sensor[COUNT]) {
 }
 
 Sensors::~Sensors() {
@@ -212,7 +212,7 @@ Sensors::~Sensors() {
 }
 
 void Sensors::addMeasurement(uint8_t id, double value) {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return;
     }
 
@@ -220,7 +220,7 @@ void Sensors::addMeasurement(uint8_t id, double value) {
 }
 
 bool Sensors::available(uint8_t id) const {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return false;
     }
 
@@ -232,7 +232,7 @@ void Sensors::setAvailable(uint16_t mask) {
 }
 
 void Sensors::setOutRange(uint8_t id, uint16_t min, uint16_t max) {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return;
     }
 
@@ -240,7 +240,7 @@ void Sensors::setOutRange(uint8_t id, uint16_t min, uint16_t max) {
 }
 
 void Sensors::setRawRange(uint8_t id, double min, double max) {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return;
     }
 
@@ -248,12 +248,10 @@ void Sensors::setRawRange(uint8_t id, double min, double max) {
 }
 
 uint16_t Sensors::value(uint8_t id) const {
-    if (id >= MAX) {
+    if (id >= COUNT) {
         return 0;
     }
 
-    if (id < MAX) {
-        return _sensors[id].value();
-    }
+    return _sensors[id].value();
 }
 

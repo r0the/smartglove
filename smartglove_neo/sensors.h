@@ -39,7 +39,7 @@
 
 class Buttons {
 public:
-    static const uint8_t MAX;
+    static const uint8_t COUNT;
     Buttons();
     bool available(uint8_t id) const;
     bool down(uint8_t id) const;
@@ -82,7 +82,7 @@ class Sensor;
 
 class Sensors {
 public:
-    static const uint8_t MAX;
+    static const uint8_t COUNT;
     Sensors();
     ~Sensors();
     void addMeasurement(uint8_t id, double value);
