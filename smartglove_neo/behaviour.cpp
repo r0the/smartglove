@@ -31,7 +31,7 @@ void InitBehaviour::setup() {
 }
 
 void InitBehaviour::loop() {
-    device.pushBehaviour(new MainMenu(device));
+    device.pushBehaviour(new Junxion(device));
 }
 
 /******************************************************************************
@@ -164,7 +164,7 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 2:
-        device.pushBehaviour(new Junxion(device));
+        device.popBehaviour();
         break;            
     }
 }

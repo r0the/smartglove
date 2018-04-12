@@ -166,6 +166,9 @@ void SmartDevice::setup() {
 
     setInfoLed(_infoLed.on());
 
+    setSensorRawRange(SENSOR_ACCEL_X, -10.0, 10.0);
+    setSensorRawRange(SENSOR_ACCEL_Y, 10.0, -10.0);
+    setSensorRawRange(SENSOR_ACCEL_Z, 10.0, -10.0);
     setSensorRawRange(SENSOR_GYRO_ROLL, 180.0, -180.0);
     setSensorRawRange(SENSOR_GYRO_PITCH, 90.0, -90.0);
     setSensorRawRange(SENSOR_GYRO_HEADING, 180.0, -180.0);
@@ -173,7 +176,7 @@ void SmartDevice::setup() {
     // initialize IMU
     _imu.setup();
 
-    waitForFlash();
+//    waitForFlash();
     doSetup();
 }
 

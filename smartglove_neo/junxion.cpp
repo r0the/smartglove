@@ -17,6 +17,7 @@
 
 #include "junxion.h"
 #include "config.h"
+#include "behaviour.h"
 
 #define ANALOG 'a'
 #define DIGITAL 'd'
@@ -131,6 +132,10 @@ void Junxion::setup() {
 }
 
 void Junxion::loop() {
+    if (device.buttonLongPress()) {
+        device.pushBehaviour(new MainMenu(device));
+    }
+
     if (!_headerReceived && Serial.available() > 2) {
         if (Serial.read() == HEADER) {
             if (Serial.read() == HEADER) {
