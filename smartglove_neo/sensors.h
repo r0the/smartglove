@@ -49,6 +49,9 @@ public:
     void setLongPress(uint16_t mask, uint16_t millis);
     void updateState(uint16_t current);
 private:
+    Buttons(const Buttons&);
+    Buttons& operator=(const Buttons&);
+
     uint16_t _available;
     uint16_t _current;
     uint16_t _last;
@@ -59,62 +62,40 @@ private:
 };
 
 /******************************************************************************
- * class Sensor
- *****************************************************************************/
-
-class Sensor {
-    friend class Sensors;
-public:
-    Sensor();
-    void addMeasurement(double value);
-
-    void setOutRange(uint16_t min, uint16_t max);
-    void setRawRange(double min, double max);
-    uint16_t value() const;
-private:
-    Sensor(const Sensor&);
-    Sensor& operator=(const Sensor&);
-
-    double _factor;
-    uint16_t _outMax;
-    uint16_t _outMin;
-    uint8_t _pos;
-    double _rawMax;
-    double _rawMin;
-    char _type;
-    uint16_t* _values;
-};
-
-/******************************************************************************
  * class Sensors
  *****************************************************************************/
 
-#define SENSOR_BEND_1        0
-#define SENSOR_BEND_2        1
-#define SENSOR_BEND_3        2
-#define SENSOR_BEND_4        3
-#define SENSOR_DIST_HAND     4
-#define SENSOR_DIST_GROUND   5
-#define SENSOR_ACCEL_X       6
-#define SENSOR_ACCEL_Y       7
-#define SENSOR_ACCEL_Z       8
-#define SENSOR_GYRO_ROLL     9
-#define SENSOR_GYRO_PITCH   10
-#define SENSOR_GYRO_HEADING 11
+#define SENSOR_BEND_INDEX_FINGER   0
+#define SENSOR_BEND_MIDDLE_FINGER  1
+#define SENSOR_BEND_RING_FINGER    2
+#define SENSOR_BEND_LITTLE_FINGER  3
+#define SENSOR_DIST_HAND           4
+#define SENSOR_DIST_GROUND         5
+#define SENSOR_ACCEL_X             6
+#define SENSOR_ACCEL_Y             7
+#define SENSOR_ACCEL_Z             8
+#define SENSOR_GYRO_ROLL           9
+#define SENSOR_GYRO_PITCH         10
+#define SENSOR_GYRO_HEADING       11
+
+class Sensor;
 
 class Sensors {
 public:
     static const uint8_t MAX;
     Sensors();
     ~Sensors();
-    void addMeasurement(uint8_t index, double value);
-    void setOutRange(uint8_t index, uint16_t min, uint16_t max);
-    void setRawRange(uint8_t index, double min, double max);
-    uint16_t value(uint8_t index) const;
+    void addMeasurement(uint8_t id, double value);
+    bool available(uint8_t id) const;
+    void setAvailable(uint16_t mask);
+    void setOutRange(uint8_t id, uint16_t min, uint16_t max);
+    void setRawRange(uint8_t id, double min, double max);
+    uint16_t value(uint8_t id) const;
 private:  
     Sensors(const Sensors&);
     Sensors& operator=(const Sensors&);
 
+    uint16_t _available;
     Sensor* _sensors;
 };
 #endif

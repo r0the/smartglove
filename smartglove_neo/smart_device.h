@@ -108,8 +108,9 @@ public:
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
     void resetIMU();
-    int32_t sensorValue(uint8_t index) const { return _sensors.value(index); }
-    void setSensorOutRange(uint8_t index, uint16_t min, uint16_t max);
+    bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
+    int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
+    void setSensorOutRange(uint8_t id, uint16_t min, uint16_t max);
 protected:
     virtual void doSetup() = 0;
     virtual void doLoop() = 0;

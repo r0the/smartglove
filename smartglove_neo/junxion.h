@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2016 by Stefan Rothe
+ * Copyright (C) 2015 - 2018 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 #include <Arduino.h>
 #include "smart_device.h"
 
-class AnalogInput;
-
 // ----------------------------------------------------------------------------
 // class Junxion
 // ----------------------------------------------------------------------------
@@ -32,17 +30,20 @@ public:
     Junxion(SmartDevice& device);
     virtual void setup();
     virtual void loop();
-
-    void configureAnalogInput(uint8_t index, char type, uint8_t pin, uint8_t resolution);
-    void setAnalogValue(uint8_t index, int16_t value);
     void setBoardId(uint8_t id);
 private:
     Junxion(const Junxion&);
     Junxion& operator=(const Junxion&);
 
+    bool analogPinAvailable(uint8_t pin) const;
+    uint8_t analogPinCount() const;
+    uint16_t analogPinValue(uint8_t pin) const;
     bool digitalPinActive(uint8_t pin) const;
     bool digitalPinAvailable(uint8_t pin) const;
     uint8_t digitalPinCount() const;
+    bool ownPinAvailable(uint8_t pin) const;
+    uint8_t ownPinCount() const;
+    uint16_t ownPinValue(uint8_t pin) const;
     void handleCommand(char cmd);
     void sendData() const;
     void sendHeader(char cmd, uint8_t dataSize) const;
@@ -50,8 +51,6 @@ private:
     void sendJunxionId() const;
     void sendUInt16(uint16_t data) const;
     void showConnecting() const;
-    uint8_t _analogInputCount;
-    AnalogInput* _analogInputs;
     uint8_t _boardId;
     uint8_t _dataSize;
     bool _headerReceived;

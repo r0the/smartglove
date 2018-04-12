@@ -150,6 +150,8 @@ void SmartDevice::setup() {
     Wire.begin();
     // initialize buttons
     _buttons.setAvailable(availableButtonMask());
+    _sensors.setAvailable(availableSensorMask());
+    PRINT("availableSensorMask=") PRINTLN(availableSensorMask())
     _buttons.setLongPress(longPressButtonMask(), LONG_PRESS_MS);
 
     // initialize display

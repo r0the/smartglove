@@ -63,14 +63,26 @@ Buttons::Buttons() :
 }
 
 bool Buttons::available(uint8_t id) const {
+    if (id >= MAX) {
+        return false;
+    }
+    
     return _available & (1 << id);
 }
 
 bool Buttons::down(uint8_t id) const {
+    if (id >= MAX) {
+        return false;
+    }
+
     return pressed(id) && !(_last & (1 << id));
 }
 
 bool Buttons::pressed(uint8_t id) const {
+    if (id >= MAX) {
+        return false;
+    }
+
     return available(id) && (_current & (1 << id));
 }
 
@@ -103,6 +115,29 @@ void Buttons::updateState(uint16_t current) {
 /******************************************************************************
  * class Sensor
  *****************************************************************************/
+
+class Sensor {
+    friend class Sensors;
+public:
+    Sensor();
+    void addMeasurement(double value);
+
+    void setOutRange(uint16_t min, uint16_t max);
+    void setRawRange(double min, double max);
+    uint16_t value() const;
+private:
+    Sensor(const Sensor&);
+    Sensor& operator=(const Sensor&);
+
+    double _factor;
+    uint16_t _outMax;
+    uint16_t _outMin;
+    uint8_t _pos;
+    double _rawMax;
+    double _rawMin;
+    char _type;
+    uint16_t* _values;
+};
 
 Sensor::Sensor() :
     _factor(1.0),
@@ -176,30 +211,49 @@ Sensors::~Sensors() {
     delete[] _sensors;
 }
 
-void Sensors::addMeasurement(uint8_t index, double value) {
-    if (index < MAX) {
-        _sensors[index].addMeasurement(value);
+void Sensors::addMeasurement(uint8_t id, double value) {
+    if (id >= MAX) {
+        return;
     }
+
+    _sensors[id].addMeasurement(value);
 }
 
-void Sensors::setOutRange(uint8_t index, uint16_t min, uint16_t max) {
-    if (index < MAX) {
-        _sensors[index].setOutRange(min, max);
+bool Sensors::available(uint8_t id) const {
+    if (id >= MAX) {
+        return false;
     }
+
+    return _available & (1 << id);
 }
 
-void Sensors::setRawRange(uint8_t index, double min, double max) {
-    if (index < MAX) {
-        _sensors[index].setRawRange(min, max);
-    }
+void Sensors::setAvailable(uint16_t mask) {
+    _available = mask;
 }
 
-uint16_t Sensors::value(uint8_t index) const {
-    if (index < MAX) {
-        return _sensors[index].value();
+void Sensors::setOutRange(uint8_t id, uint16_t min, uint16_t max) {
+    if (id >= MAX) {
+        return;
     }
-    else {
+
+    _sensors[id].setOutRange(min, max);
+}
+
+void Sensors::setRawRange(uint8_t id, double min, double max) {
+    if (id >= MAX) {
+        return;
+    }
+
+    _sensors[id].setRawRange(min, max);
+}
+
+uint16_t Sensors::value(uint8_t id) const {
+    if (id >= MAX) {
         return 0;
+    }
+
+    if (id < MAX) {
+        return _sensors[id].value();
     }
 }
 

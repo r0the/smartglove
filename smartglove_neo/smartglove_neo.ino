@@ -21,11 +21,7 @@
 SmartDevice* smartDevice;
 
 void setup() {
-#ifdef DEBUG
-//    Serial.begin(9600);
-//    while (!Serial) { delay(1); }
-//    Serial.println("Starting Debug Session...");
-#endif
+    DEBUG_INIT()
     smartDevice = new SmartBall();
     smartDevice->setup();
 }
@@ -33,5 +29,4 @@ void setup() {
 void loop() {
     smartDevice->loop();
 }
-
 
