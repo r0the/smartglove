@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define DEBUG false
+//#define DEBUG
 
 #define I2C_DISPLAY_ADDRESS            0x3C
 #define I2C_SMART_BALL_BUTTONS_ADDRESS 0x19
@@ -36,6 +36,7 @@
 #ifdef DEBUG
 
 void printByte(uint8_t data);
+
 
 #define DEBUG_INIT() Serial1.begin(9600); while (!Serial) { delay(1); } Serial.println("Starting Debug Session...");
 #define PRINTLN(MSG) Serial1.println(MSG);
