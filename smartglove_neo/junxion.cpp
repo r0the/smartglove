@@ -385,6 +385,6 @@ void Junxion::showConnecting() const {
     device.display().setTextAlign(ALIGN_LEFT);
     device.display().setFont(&HELVETICA_10);
     device.display().drawText(10, 8, "Waiting for");
-    device.display().drawText(10, 22, "Serial connection...");
+    device.display().drawText(10, 22, "serial connection...");
 }
 
