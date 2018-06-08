@@ -121,12 +121,6 @@ void Junxion::setup() {
         device.setSensorOutRange(i, 0, 65535);
     }
 
-    showConnecting();
-    Serial.begin(JUNXION_BAUD_RATE);
-    while (!Serial) {
-        delay(10);
-    }
-
     sendJunxionId();
     sendInputConfig();
 }
@@ -134,6 +128,12 @@ void Junxion::setup() {
 void Junxion::loop() {
     if (device.buttonLongPress()) {
         device.pushBehaviour(new MainMenu(device));
+    }
+
+    if (!Serial) {
+        showConnecting();
+        Serial.begin(JUNXION_BAUD_RATE);
+        return;
     }
 
     if (!_headerReceived && Serial.available() > 2) {
@@ -384,7 +384,7 @@ void Junxion::sendUInt16(uint16_t data) const {
 void Junxion::showConnecting() const {
     device.display().setTextAlign(ALIGN_LEFT);
     device.display().setFont(&HELVETICA_10);
-    device.display().drawText(10, 8, "Connecting");
-    device.display().drawText(10, 22, "to junXion...");
+    device.display().drawText(10, 8, "Waiting for");
+    device.display().drawText(10, 22, "Serial connection...");
 }
 
