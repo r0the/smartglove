@@ -30,7 +30,6 @@ public:
     Junxion(SmartDevice& device);
     virtual void setup();
     virtual void loop();
-    void setBoardId(uint8_t id);
 private:
     Junxion(const Junxion&);
     Junxion& operator=(const Junxion&);

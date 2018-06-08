@@ -44,9 +44,26 @@ public:
 protected:
     virtual void action(uint8_t selected) = 0;
     virtual void draw(uint8_t selected) = 0;
+    void select(uint8_t index);
 private:
     uint8_t _itemCount;
     uint8_t _selected;
+};
+
+/******************************************************************************
+ * class BoardIdSelect
+ *****************************************************************************/
+
+class BoardIdSelect : public MenuBehaviour {
+public:
+    explicit BoardIdSelect(SmartDevice& device);
+    virtual void setup();
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const unsigned short ITEM_COUNT;
+    static const char* ITEMS[];
+    static uint8_t MAP[];
 };
 
 /******************************************************************************
@@ -72,6 +89,9 @@ public:
     virtual void draw(uint8_t selected);
 private:
     uint8_t _range;
+    static const unsigned short ITEM_COUNT;
+    static const char* ITEMS[];
+    static uint8_t MAP[];
 };
 
 /******************************************************************************
@@ -83,6 +103,9 @@ public:
     MainMenu(SmartDevice& device);
     virtual void action(uint8_t selected);
     virtual void draw(uint8_t selected);
+private:
+    static const unsigned short ITEM_COUNT;
+    static const char* ITEMS[];
 };
 
 #endif

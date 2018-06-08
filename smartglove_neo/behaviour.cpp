@@ -18,6 +18,7 @@
 #include "behaviour.h"
 #include "config.h"
 #include "junxion.h"
+#include "storage.h"
 
 /******************************************************************************
  * class InitBehaviour
@@ -66,6 +67,63 @@ void MenuBehaviour::loop() {
     draw(_selected);
 }
 
+void MenuBehaviour::select(uint8_t index) {
+    _selected = index;
+}
+
+/******************************************************************************
+ * class BoardIdSelect
+ *****************************************************************************/
+
+const unsigned short BoardIdSelect::ITEM_COUNT = 3;
+const char* BoardIdSelect::ITEMS[BoardIdSelect::ITEM_COUNT] = {
+    "Arduino 51",
+    "Arduino 52",
+    "Arduino 53"
+};
+
+BoardIdSelect::BoardIdSelect(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+    switch (Storage.readByte(STORAGE_BOARD_ID)) {
+        case 51:
+            select(0);
+            break;
+        case 52:
+            select(1);
+            break;
+        case 53:
+            select(2);
+            break;
+    }
+}
+
+void BoardIdSelect::setup() {
+    device.display().setFont(&HELVETICA_10);
+    device.display().setTextAlign(ALIGN_LEFT);
+}
+
+void BoardIdSelect::action(uint8_t selected) {
+    uint8_t id = 0;
+    switch (selected) {
+        case 0:
+            id = 51;
+            break;
+        case 1:
+            id = 52;
+            break;
+        case 2:
+            id = 53;
+            break;
+    }
+    Storage.writeByte(STORAGE_BOARD_ID, id);
+    device.popBehaviour();
+}
+
+void BoardIdSelect::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "junXion Board ID");
+    device.display().drawText(10, 20, ITEMS[selected]);
+}
+
 /******************************************************************************
  * class ButtonTest
  *****************************************************************************/
@@ -107,11 +165,16 @@ void ButtonTest::loop() {
  * class GyroscopeTest
  *****************************************************************************/
 
-const char* GYROSCOPE_MENU_ITEMS[] = { "Heading", "Pitch", "Roll" };
-uint8_t GYROSCOPE_MENU_MAP[] = { SENSOR_GYRO_HEADING, SENSOR_GYRO_PITCH, SENSOR_GYRO_ROLL };
+const unsigned short GyroscopeTest::ITEM_COUNT = 3;
+const char* GyroscopeTest::ITEMS[GyroscopeTest::ITEM_COUNT] = {
+    "Heading", "Pitch", "Roll"
+};
+uint8_t GyroscopeTest::MAP[] = {
+    SENSOR_GYRO_HEADING, SENSOR_GYRO_PITCH, SENSOR_GYRO_ROLL
+};
 
 GyroscopeTest::GyroscopeTest(SmartDevice& device) :
-    MenuBehaviour(device, 3) {
+    MenuBehaviour(device, ITEM_COUNT) {
 }
 
 void GyroscopeTest::setup() {
@@ -129,10 +192,10 @@ void GyroscopeTest::action(uint8_t selected) {
 }
 
 void GyroscopeTest::draw(uint8_t selected) {
-    device.display().drawText(10, 8, GYROSCOPE_MENU_ITEMS[selected]);
+    device.display().drawText(10, 8, ITEMS[selected]);
     if (device.imuReady()) {
         device.display().drawRectangle(10, 22, _range, 8);
-        uint16_t val = device.sensorValue(GYROSCOPE_MENU_MAP[selected]);
+        uint16_t val = device.sensorValue(MAP[selected]);
         if (val < _range/2) {
             device.display().fillRectangle(10 + val, 22, _range/2 - val, 8);
         }
@@ -149,21 +212,30 @@ void GyroscopeTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const char* MAIN_MENU_ITEMS[] = { "Button Test", "Gyroscope Test", "Exit" };
+const unsigned short MainMenu::ITEM_COUNT = 4;
+const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
+    "junXion Board ID",
+    "Button Test",
+    "Gyroscope Test",
+    "Exit"
+};
 
 MainMenu::MainMenu(SmartDevice& device) :
-    MenuBehaviour(device, 3) {
+    MenuBehaviour(device, ITEM_COUNT) {
 }
 
 void MainMenu::action(uint8_t selected) {
     switch (selected) {
     case 0:
-        device.pushBehaviour(new ButtonTest(device));
+        device.pushBehaviour(new BoardIdSelect(device));
         break;
     case 1:
-        device.pushBehaviour(new GyroscopeTest(device));
+        device.pushBehaviour(new ButtonTest(device));
         break;
     case 2:
+        device.pushBehaviour(new GyroscopeTest(device));
+        break;
+    case 3:
         device.popBehaviour();
         break;            
     }
@@ -171,6 +243,6 @@ void MainMenu::action(uint8_t selected) {
 
 void MainMenu::draw(uint8_t selected) {
     device.display().drawText(10, 8, "Menu");
-    device.display().drawText(10, 20, MAIN_MENU_ITEMS[selected]);
+    device.display().drawText(10, 20, ITEMS[selected]);
 }
 

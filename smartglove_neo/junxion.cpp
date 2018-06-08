@@ -18,6 +18,7 @@
 #include "junxion.h"
 #include "config.h"
 #include "behaviour.h"
+#include "storage.h"
 
 #define ANALOG 'a'
 #define DIGITAL 'd'
@@ -35,7 +36,6 @@
 #define INPUT_CONFIG_RESPONSE 'p'
 #define JUNXION_ID 308
 
-#define JUNXION_BOARD_ID 51 // results in ArdId:3 in junXion
 #define JUNXION_BAUD_RATE 115200
 #define JUNXION_DIGITAL_INPUT_COUNT 10
 #define JUNXION_ANALOG_INPUT_COUNT 12
@@ -116,7 +116,7 @@ Junxion::Junxion(SmartDevice& device) :
 
 void Junxion::setup() {
     _dataSize = 2 * (analogPinCount() + ownPinCount() + (digitalPinCount() / 16) + 1);
-    setBoardId(JUNXION_BOARD_ID);
+    _boardId = Storage.readByte(STORAGE_BOARD_ID);
     for (uint8_t i = 0; i < Sensors::COUNT; ++i) {
         device.setSensorOutRange(i, 0, 65535);
     }
@@ -176,10 +176,6 @@ void Junxion::loop() {
             _state = MAX_STATE;
         }
     }
-}
-
-void Junxion::setBoardId(uint8_t id) {
-    _boardId = id;
 }
 
 bool Junxion::analogPinAvailable(uint8_t pin) const {
