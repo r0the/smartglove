@@ -49,12 +49,13 @@ private:
     void sendInputConfig() const;
     void sendJunxionId() const;
     void sendUInt16(uint16_t data) const;
-    void showConnecting() const;
     uint8_t _boardId;
     uint8_t _dataSize;
     bool _headerReceived;
     unsigned int  _packageSize;
     bool _sendData;
+    bool _serialAvailable;
+    unsigned long _serialCheckMs;
     uint8_t _state;
 };
 
