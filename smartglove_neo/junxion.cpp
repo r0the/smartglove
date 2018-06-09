@@ -110,6 +110,8 @@ Junxion::Junxion(SmartDevice& device) :
     _dataSize(0),
     _headerReceived(false),
     _sendData(false),
+    _serialAvailable(false),
+    _serialCheckMs(0),
     _state(MIN_STATE)
 {
 }
@@ -120,9 +122,6 @@ void Junxion::setup() {
     for (uint8_t i = 0; i < Sensors::COUNT; ++i) {
         device.setSensorOutRange(i, 0, 65535);
     }
-
-    sendJunxionId();
-    sendInputConfig();
 }
 
 void Junxion::loop() {
@@ -130,9 +129,25 @@ void Junxion::loop() {
         device.pushBehaviour(new MainMenu(device));
     }
 
-    if (!Serial) {
-        showConnecting();
-        Serial.begin(JUNXION_BAUD_RATE);
+    unsigned long now = millis();
+    if (_serialCheckMs < now) {
+        // Checking the Serial connection takes a long time, so it shouldn't be
+        // done too often.
+        _serialAvailable = static_cast<bool>(Serial);
+        if (!_serialAvailable) {
+            Serial.begin(JUNXION_BAUD_RATE);
+            sendJunxionId();
+            sendInputConfig();
+        }
+
+        _serialCheckMs = now + SERIAL_CHECK_INTERVAL_MS;
+    }
+
+    if (!_serialAvailable) {
+        device.display().setTextAlign(ALIGN_LEFT);
+        device.display().setFont(&HELVETICA_10);
+        device.display().drawText(10, 8, "Waiting for");
+        device.display().drawText(10, 22, "serial connection...");
         return;
     }
 
@@ -148,17 +163,12 @@ void Junxion::loop() {
     if (_headerReceived && Serial.available() > _packageSize) {
         handleCommand(Serial.read());
         _headerReceived = false;
-     }
+    }
  
-     if (_sendData) {
-         sendData();
-     }
+    if (_sendData) {
+        sendData();
+    }
 
-    char text[10];
-    sprintf(text, "%i", _state);
-    device.display().setFont(&SWISS_20_B);
-    device.display().setTextAlign(ALIGN_CENTER);
-    device.display().drawText(64, 12, text);
     if (device.commandUp()) {
         if (_state < MAX_STATE) {
             ++_state;
@@ -176,6 +186,12 @@ void Junxion::loop() {
             _state = MAX_STATE;
         }
     }
+
+    char text[10];
+    sprintf(text, "%i", _state);
+    device.display().setFont(&SWISS_20_B);
+    device.display().setTextAlign(ALIGN_CENTER);
+    device.display().drawText(64, 12, text);
 }
 
 bool Junxion::analogPinAvailable(uint8_t pin) const {
@@ -375,12 +391,5 @@ void Junxion::sendJunxionId() const {
 void Junxion::sendUInt16(uint16_t data) const {
     Serial.write(data / 256);
     Serial.write(data % 256);
-}
-
-void Junxion::showConnecting() const {
-    device.display().setTextAlign(ALIGN_LEFT);
-    device.display().setFont(&HELVETICA_10);
-    device.display().drawText(10, 8, "Waiting for");
-    device.display().drawText(10, 22, "serial connection...");
 }
 
