@@ -197,7 +197,7 @@ void SmartDevice::loop() {
     doLoop();
     _display.clear();
     _behaviour.loop();
-    _display.update();
+    _display.updatePage();
 }
 
 void SmartDevice::popBehaviour() {
