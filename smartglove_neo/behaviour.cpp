@@ -157,7 +157,7 @@ void ButtonTest::loop() {
 }
 
 /******************************************************************************
- * class BoardIdSelect
+ * class FramerateOption
  *****************************************************************************/
 
 const unsigned short FramerateOption::ITEM_COUNT = 2;
@@ -179,6 +179,52 @@ void FramerateOption::action(uint8_t selected) {
 void FramerateOption::draw(uint8_t selected) {
     device.display().drawText(10, 8, "Show Framerate");
     device.display().drawText(10, 20, ITEMS[selected]);
+}
+
+/******************************************************************************
+ * class GestureTest
+ *****************************************************************************/
+
+const unsigned short GestureTest::ITEM_COUNT = 3;
+const char* GestureTest::ITEMS[GestureTest::ITEM_COUNT] = {
+    "X-Axis", "Y-Axis", "Z-Axis"
+};
+uint8_t GestureTest::MAP[] = {
+    SENSOR_ACCEL_X, SENSOR_ACCEL_Y, SENSOR_ACCEL_Z
+};
+
+GestureTest::GestureTest(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+}
+
+void GestureTest::setup() {
+    MenuBehaviour::setup();
+    _range = 115;
+    device.setSensorOutRange(SENSOR_ACCEL_X, 0, _range);
+    device.setSensorOutRange(SENSOR_ACCEL_Y, 0, _range);
+    device.setSensorOutRange(SENSOR_ACCEL_Z, 0, _range);
+    device.resetIMU();
+}
+
+void GestureTest::action(uint8_t selected) {
+    device.popBehaviour();
+}
+
+void GestureTest::draw(uint8_t selected) {
+    device.display().drawText(10, 8, ITEMS[selected]);
+    if (device.imuReady()) {
+        device.display().drawRectangle(10, 22, _range, 8);
+        uint16_t val = device.sensorValue(MAP[selected]);
+        if (val < _range/2) {
+            device.display().fillRectangle(10 + val, 22, _range/2 - val, 8);
+        }
+        else {
+            device.display().fillRectangle(10 + _range/2, 22, val - _range/2, 8);
+        }
+    }
+    else {
+        device.display().drawText(10, 22, "IMU not ready");
+    }
 }
 
 /******************************************************************************
@@ -231,10 +277,11 @@ void GyroscopeTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const unsigned short MainMenu::ITEM_COUNT = 5;
+const unsigned short MainMenu::ITEM_COUNT = 6;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
+    "Gesture Test",
     "Gyroscope Test",
     "Framerate",
     "Exit"
@@ -253,14 +300,17 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new ButtonTest(device));
         break;
     case 2:
-        device.pushBehaviour(new GyroscopeTest(device));
+        device.pushBehaviour(new GestureTest(device));
         break;
     case 3:
-        device.pushBehaviour(new FramerateOption(device));
+        device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 4:
+        device.pushBehaviour(new FramerateOption(device));
+        break;
+    case 5:
         device.popBehaviour();
-        break;            
+        break;
     }
 }
 

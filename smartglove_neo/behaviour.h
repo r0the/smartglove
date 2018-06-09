@@ -91,6 +91,23 @@ private:
 };
 
 /******************************************************************************
+ * class GestureTest
+ *****************************************************************************/
+
+class GestureTest : public MenuBehaviour {
+public:
+    explicit GestureTest(SmartDevice& device);
+    virtual void setup();
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    uint8_t _range;
+    static const unsigned short ITEM_COUNT;
+    static const char* ITEMS[];
+    static uint8_t MAP[];
+};
+
+/******************************************************************************
  * class GyroscopeTest
  *****************************************************************************/
 
