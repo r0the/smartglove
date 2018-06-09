@@ -2,15 +2,7 @@
 
 ## Usage
 
-
-
-### I2C Addresses
-
-| Chip    | Function                  | Fixed Address Part | Variable Address part | Address Binary | Address Hex |
-|:------- |:------------------------- |:------------------ |:--------------------- |:-------------- |:----------- |
-| PCA9557 | buttons and LED           | `0011`             | `001`                 | `B0001001`     | `0x19`      |
-| BNO055  | inertial measurement unit | `010100`           | `1`                   | `B0101001`     | `0x29`      |
-| SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
+## junXion Interface
 
 ### Digital Outputs
 
@@ -48,3 +40,29 @@ SmartGlove devices support up to 16 digital outputs:
 | IMU             | Orientation Heading |  10 | Own Input 6 |
 |                 | junXion State       |  11 | Own Input 7 |
 | Distance Sensor | Hand-to-Ground      |  12 | Own Input 8 |
+
+## Hardware
+
+### I2C Addresses
+
+| Chip    | Function                  | Fixed Address Part | Variable Address part | Address Binary | Address Hex |
+|:------- |:------------------------- |:------------------ |:--------------------- |:-------------- |:----------- |
+| PCA9557 | buttons and LED           | `0011`             | `001`                 | `B0001001`     | `0x19`      |
+| BNO055  | inertial measurement unit | `010100`           | `1`                   | `B0101001`     | `0x29`      |
+| SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
+
+## IDE Setup
+
+1. Install [the Arduino IDE][1].
+2. In the Arduino IDE preferences, add the following **Additional Board Manager URL**:
+
+   `https://adafruit.github.io/arduino-board-index/package_adafruit_index.json`
+
+3. Install the **Adafruit SAMD Boards** boards manager.
+4. Install the following libraries:
+   - Adafruit Unified Sensor
+   - Adafruit BNO055
+   - MonoGFX Arduino
+5. Select the board **Adafruit Feather M0**.
+
+[1]: https://www.arduino.cc/en/Main/Software
