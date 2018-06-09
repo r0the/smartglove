@@ -27,7 +27,7 @@
 
 LED::LED() :
     _blinkMillis(0),
-    _on(false), 
+    _on(false),
     _timeout(0) {
 }
 
@@ -183,6 +183,8 @@ void SmartDevice::setup() {
     doSetup();
 }
 
+unsigned long last;
+
 void SmartDevice::loop() {
     _infoLed.loop();
     setInfoLed(_infoLed.on());
@@ -198,6 +200,7 @@ void SmartDevice::loop() {
     _sensors.addMeasurement(SENSOR_GYRO_ROLL, _imu.roll());
 
     doLoop();
+    unsigned long now = millis();
     _display.clear();
     _behaviour.loop();
     if (_showFramerate) {
@@ -212,6 +215,7 @@ void SmartDevice::loop() {
         _display.setFont(oldFont);
     }
     _display.updatePage();
+    last = now;
 }
 
 void SmartDevice::popBehaviour() {
@@ -256,7 +260,7 @@ void SmartDevice::waitForFlash() {
             _display.update();
         }
         else {
-            
+
         }
 
         delay(10);

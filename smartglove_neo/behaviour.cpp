@@ -259,6 +259,10 @@ void GyroscopeTest::action(uint8_t selected) {
 void GyroscopeTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, ITEMS[selected]);
     if (device.imuReady()) {
+        if (device.sensorActivity(MAP[selected])) {
+            device.display().drawText(90, 8, "A");
+        }
+
         device.display().drawRectangle(10, 22, _range, 8);
         uint16_t val = device.sensorValue(MAP[selected]);
         if (val < _range/2) {

@@ -93,4 +93,3 @@ double IMU::roll() const {
     return _event->orientation.z;
 }
 
-

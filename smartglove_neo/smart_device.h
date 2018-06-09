@@ -22,7 +22,6 @@
 #include "imu.h"
 #include "sensors.h"
 
-
 /******************************************************************************
  * class LED
  *****************************************************************************/
@@ -108,6 +107,7 @@ public:
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
     void resetIMU();
+    bool sensorActivity(uint8_t id) const { return _sensors.activity(id); }
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
     void setSensorOutRange(uint8_t id, uint16_t min, uint16_t max);

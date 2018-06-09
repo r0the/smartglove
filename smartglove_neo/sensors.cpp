@@ -120,8 +120,8 @@ class Sensor {
     friend class Sensors;
 public:
     Sensor();
+    bool activity() const;
     void addMeasurement(double value);
-
     void setOutRange(uint16_t min, uint16_t max);
     void setRawRange(double min, double max);
     uint16_t value() const;
@@ -150,6 +150,10 @@ Sensor::Sensor() :
     for (int i = 0; i < RAW_VALUE_COUNT; ++i) {
         _values[i] = (_outMax - _outMin) / 2;
     }
+}
+
+bool Sensor::activity() const {
+    return true;
 }
 
 void Sensor::addMeasurement(double value) {
@@ -209,6 +213,14 @@ Sensors::Sensors() :
 
 Sensors::~Sensors() {
     delete[] _sensors;
+}
+
+bool Sensors::activity(uint8_t id) const {
+    if (id >= COUNT) {
+        return false;
+    }
+
+    return _sensors[id].activity();
 }
 
 void Sensors::addMeasurement(uint8_t id, double value) {

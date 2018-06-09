@@ -85,6 +85,7 @@ public:
     static const uint8_t COUNT;
     Sensors();
     ~Sensors();
+    bool activity(uint8_t id) const;
     void addMeasurement(uint8_t id, double value);
     bool available(uint8_t id) const;
     void setAvailable(uint16_t mask);
