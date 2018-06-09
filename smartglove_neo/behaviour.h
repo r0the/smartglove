@@ -57,7 +57,6 @@ private:
 class BoardIdSelect : public MenuBehaviour {
 public:
     explicit BoardIdSelect(SmartDevice& device);
-    virtual void setup();
     virtual void action(uint8_t selected);
     virtual void draw(uint8_t selected);
 private:
@@ -75,6 +74,20 @@ public:
     explicit ButtonTest(SmartDevice& device);
     virtual void setup();
     virtual void loop();
+};
+
+/******************************************************************************
+ * class FramerateMenu
+ *****************************************************************************/
+
+class FramerateOption: public MenuBehaviour {
+public:
+    explicit FramerateOption(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const unsigned short ITEM_COUNT;
+    static const char* ITEMS[];
 };
 
 /******************************************************************************

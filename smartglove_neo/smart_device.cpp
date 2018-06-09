@@ -19,6 +19,7 @@
 #include "smart_device.h"
 #include "behaviour.h"
 #include "config.h"
+#include "storage.h"
 
 /******************************************************************************
  * class LED
@@ -166,6 +167,8 @@ void SmartDevice::setup() {
 
     setInfoLed(_infoLed.on());
 
+    _showFramerate = Storage.readByte(STORAGE_SHOW_FRAMERATE);
+
     setSensorRawRange(SENSOR_ACCEL_X, -10.0, 10.0);
     setSensorRawRange(SENSOR_ACCEL_Y, 10.0, -10.0);
     setSensorRawRange(SENSOR_ACCEL_Z, 10.0, -10.0);
@@ -197,6 +200,17 @@ void SmartDevice::loop() {
     doLoop();
     _display.clear();
     _behaviour.loop();
+    if (_showFramerate) {
+        unsigned long now = millis();
+        char text[6];
+        sprintf(text, "%i", 1000 / (now - _lastMs));
+        _lastMs = now;
+        Font* oldFont = _display.font();
+        _display.setFont(&HELVETICA_8);
+        _display.setTextAlign(ALIGN_LEFT);
+        _display.drawText(115, 7, text);
+        _display.setFont(oldFont);
+    }
     _display.updatePage();
 }
 
@@ -218,6 +232,13 @@ void SmartDevice::setSensorOutRange(uint8_t index, uint16_t min, uint16_t max) {
 
 void SmartDevice::setSensorRawRange(uint8_t index, double min, double max) {
     _sensors.setRawRange(index, min, max);
+}
+
+void SmartDevice::setShowFramerate(bool showFramerate) {
+    if (_showFramerate != showFramerate) {
+        _showFramerate = showFramerate;
+        Storage.writeByte(STORAGE_SHOW_FRAMERATE, showFramerate);
+    }
 }
 
 void SmartDevice::waitForFlash() {

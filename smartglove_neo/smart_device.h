@@ -111,6 +111,8 @@ public:
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
     void setSensorOutRange(uint8_t id, uint16_t min, uint16_t max);
+    void setShowFramerate(bool showFramerate);
+    bool showFramerate() const { return _showFramerate; }
 protected:
     virtual void doSetup() = 0;
     virtual void doLoop() = 0;
@@ -129,7 +131,9 @@ private:
     SSD1306 _display;
     IMU _imu;
     LED _infoLed;
+    unsigned long _lastMs;
     Sensors _sensors;
+    bool _showFramerate;
 };
 
 #endif

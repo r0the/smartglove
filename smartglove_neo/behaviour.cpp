@@ -97,11 +97,6 @@ BoardIdSelect::BoardIdSelect(SmartDevice& device) :
     }
 }
 
-void BoardIdSelect::setup() {
-    device.display().setFont(&HELVETICA_10);
-    device.display().setTextAlign(ALIGN_LEFT);
-}
-
 void BoardIdSelect::action(uint8_t selected) {
     uint8_t id = 0;
     switch (selected) {
@@ -162,6 +157,31 @@ void ButtonTest::loop() {
 }
 
 /******************************************************************************
+ * class BoardIdSelect
+ *****************************************************************************/
+
+const unsigned short FramerateOption::ITEM_COUNT = 2;
+const char* FramerateOption::ITEMS[FramerateOption::ITEM_COUNT] = {
+    "No",
+    "Yes"
+};
+
+FramerateOption::FramerateOption(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+    select(device.showFramerate() ? 1 : 0);
+}
+
+void FramerateOption::action(uint8_t selected) {
+    device.setShowFramerate(selected == 1);
+    device.popBehaviour();
+}
+
+void FramerateOption::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "Show Framerate");
+    device.display().drawText(10, 20, ITEMS[selected]);
+}
+
+/******************************************************************************
  * class GyroscopeTest
  *****************************************************************************/
 
@@ -178,8 +198,7 @@ GyroscopeTest::GyroscopeTest(SmartDevice& device) :
 }
 
 void GyroscopeTest::setup() {
-    device.display().setFont(&HELVETICA_10);
-    device.display().setTextAlign(ALIGN_LEFT);
+    MenuBehaviour::setup();
     _range = 115;
     device.setSensorOutRange(SENSOR_GYRO_HEADING, 0, _range);
     device.setSensorOutRange(SENSOR_GYRO_PITCH, 0, _range);
@@ -212,11 +231,12 @@ void GyroscopeTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const unsigned short MainMenu::ITEM_COUNT = 4;
+const unsigned short MainMenu::ITEM_COUNT = 5;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
     "Gyroscope Test",
+    "Framerate",
     "Exit"
 };
 
@@ -236,6 +256,9 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 3:
+        device.pushBehaviour(new FramerateOption(device));
+        break;
+    case 4:
         device.popBehaviour();
         break;            
     }
