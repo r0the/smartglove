@@ -80,42 +80,21 @@ void MenuBehaviour::selected(uint8_t selected) {
  * class BoardIdSelect
  *****************************************************************************/
 
-const uint8_t BoardIdSelect::ITEM_COUNT = 3;
+const uint8_t BoardIdSelect::ITEM_COUNT = 4;
 const char* BoardIdSelect::ITEMS[BoardIdSelect::ITEM_COUNT] = {
-    "Arduino 51",
-    "Arduino 52",
-    "Arduino 53"
+    "ID:1",
+    "ID:2",
+    "ID:3",
+    "ID:4"
 };
 
 BoardIdSelect::BoardIdSelect(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
-    switch (Storage.readByte(STORAGE_BOARD_ID)) {
-        case 51:
-            select(0);
-            break;
-        case 52:
-            select(1);
-            break;
-        case 53:
-            select(2);
-            break;
-    }
+    select(Storage.readByte(STORAGE_BOARD_ID) - 49);
 }
 
 void BoardIdSelect::action(uint8_t selected) {
-    uint8_t id = 0;
-    switch (selected) {
-        case 0:
-            id = 51;
-            break;
-        case 1:
-            id = 52;
-            break;
-        case 2:
-            id = 53;
-            break;
-    }
-    Storage.writeByte(STORAGE_BOARD_ID, id);
+    Storage.writeByte(STORAGE_BOARD_ID, selected + 49);
     device.popBehaviour();
 }
 
