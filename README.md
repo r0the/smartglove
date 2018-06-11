@@ -11,7 +11,6 @@ The following buttons and button combinations have a special function:
 | Middle Finger 1                                | Menu navigation down |
 | long press (> 5 s) Thumb 1 and Little Finger 1 | Open menu            |
 | Index Finger 2 and Middle Finger 2             | Calibrate IMU        |
-|                                                |                      |
 
 ## junXion Interface
 
@@ -61,6 +60,8 @@ SmartGlove devices support up to 16 digital outputs:
 | PCA9557 | buttons and LED           | `0011`             | `001`                 | `B0001001`     | `0x19`      |
 | BNO055  | inertial measurement unit | `010100`           | `1`                   | `B0101001`     | `0x29`      |
 | SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
+| SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
+| 24AA64  | EEPROM                    | `01010`            | `000`                 | `B0101000`     | `0x50`      |
 
 ## IDE Setup
 
