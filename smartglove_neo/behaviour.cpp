@@ -58,10 +58,12 @@ void MenuBehaviour::loop() {
 
     if (device.commandDown()) {
         _selected = (_selected + 1) % _itemCount;
+        selected(_selected);
     }
 
     if (device.commandUp()) {
         _selected = (_selected + _itemCount - 1) % _itemCount;
+        selected(_selected);
     }
 
     draw(_selected);
@@ -69,6 +71,9 @@ void MenuBehaviour::loop() {
 
 void MenuBehaviour::select(uint8_t index) {
     _selected = index;
+}
+
+void MenuBehaviour::selected(uint8_t selected) {
 }
 
 /******************************************************************************
@@ -182,6 +187,49 @@ void FramerateOption::draw(uint8_t selected) {
 }
 
 /******************************************************************************
+ * class LEDTest
+ *****************************************************************************/
+
+const uint8_t LEDTest::ITEM_COUNT = 4;
+const char* LEDTest::ITEMS[LEDTest::ITEM_COUNT] = {
+    "Off",
+    "On",
+    "Blink slow",
+    "Blink fast"
+};
+
+LEDTest::LEDTest(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+}
+
+void LEDTest::action(uint8_t selected) {
+    device.setShowFramerate(selected == 1);
+    device.popBehaviour();
+}
+
+void LEDTest::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "LED Test");
+    device.display().drawText(10, 20, ITEMS[selected]);
+}
+
+void LEDTest::selected(uint8_t selected) {
+    switch (selected) {
+        case 0:
+            device.setLED(LED::Off);
+            break;
+        case 1:
+            device.setLED(LED::On);
+            break;
+        case 2:
+            device.setLED(LED::BlinkSlow);
+            break;
+        case 3:
+            device.setLED(LED::BlinkFast);
+            break;
+    }
+}
+
+/******************************************************************************
  * class GestureTest
  *****************************************************************************/
 
@@ -278,10 +326,11 @@ void GyroscopeTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const uint8_t MainMenu::ITEM_COUNT = 6;
+const uint8_t MainMenu::ITEM_COUNT = 7;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
+    "LED Test",
     "Gesture Test",
     "Gyroscope Test",
     "Framerate",
@@ -301,15 +350,18 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new ButtonTest(device));
         break;
     case 2:
-        device.pushBehaviour(new GestureTest(device));
+        device.pushBehaviour(new LEDTest(device));
         break;
     case 3:
-        device.pushBehaviour(new GyroscopeTest(device));
+        device.pushBehaviour(new GestureTest(device));
         break;
     case 4:
-        device.pushBehaviour(new FramerateOption(device));
+        device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 5:
+        device.pushBehaviour(new FramerateOption(device));
+        break;
+    case 6:
         device.popBehaviour();
         break;
     }

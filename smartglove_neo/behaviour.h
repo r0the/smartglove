@@ -44,6 +44,7 @@ public:
 protected:
     virtual void action(uint8_t selected) = 0;
     virtual void draw(uint8_t selected) = 0;
+    virtual void selected(uint8_t selected);
     void select(uint8_t index);
 private:
     uint8_t _itemCount;
@@ -85,6 +86,21 @@ public:
     explicit FramerateOption(SmartDevice& device);
     virtual void action(uint8_t selected);
     virtual void draw(uint8_t selected);
+private:
+    static const uint8_t ITEM_COUNT;
+    static const char* ITEMS[];
+};
+
+/******************************************************************************
+ * class LEDTest
+ *****************************************************************************/
+
+class LEDTest: public MenuBehaviour {
+public:
+    explicit LEDTest(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+    virtual void selected(uint8_t selected);
 private:
     static const uint8_t ITEM_COUNT;
     static const char* ITEMS[];

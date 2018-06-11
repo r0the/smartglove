@@ -99,7 +99,7 @@ uint16_t SmartBall::readButtonState() const {
     return result;
 }
 
-void SmartBall::setInfoLed(bool on) {
+void SmartBall::setInfoLED(bool on) {
     _buttons.writeOutput(on ? 0x80 : 0x00);
 }
 

@@ -127,7 +127,7 @@ SmartDevice::SmartDevice() :
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
     _imu(),
-    _infoLed(),
+    _infoLED(),
     _sensors() {
 }
 
@@ -165,14 +165,14 @@ void SmartDevice::setup() {
     // initialize display
     _display.begin();
     if (!_display.ready()) {
-        _infoLed.setMode(LED::BlinkFast);
+        _infoLED.setMode(LED::BlinkFast);
     }
     else {
-        _infoLed.setMode(LED::Off);
+        _infoLED.setMode(LED::Off);
         _display.setFont(&HELVETICA_18);
     }
 
-    setInfoLed(_infoLed.on());
+    setInfoLED(_infoLED.on());
 
     _showFramerate = Storage.readByte(STORAGE_SHOW_FRAMERATE);
 
@@ -193,8 +193,8 @@ void SmartDevice::setup() {
 unsigned long last;
 
 void SmartDevice::loop() {
-    _infoLed.loop();
-    setInfoLed(_infoLed.on());
+    _infoLED.loop();
+    setInfoLED(_infoLED.on());
     // update buttons
     _buttons.updateState(readButtonState());
     // update sensor values from IMU
@@ -235,6 +235,10 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
 
 void SmartDevice::resetIMU() {
     _imu.setup();
+}
+
+void SmartDevice::setLED(LED::Mode mode) {
+    _infoLED.setMode(mode);
 }
 
 void SmartDevice::setShowFramerate(bool showFramerate) {

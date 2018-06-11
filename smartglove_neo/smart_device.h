@@ -112,6 +112,7 @@ public:
     bool sensorActivity(uint8_t id) const { return _sensors.activity(id); }
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
+    void setLED(LED::Mode mode);
     void setShowFramerate(bool showFramerate);
     bool showFramerate() const { return _showFramerate; }
 protected:
@@ -120,7 +121,7 @@ protected:
     virtual uint16_t availableButtonMask() const = 0;
     virtual uint16_t availableSensorMask() const = 0;
     virtual uint16_t readButtonState() const = 0;
-    virtual void setInfoLed(bool on) = 0;
+    virtual void setInfoLED(bool on) = 0;
     void configureSensor(uint8_t index, double min, double max, double minStdDev);
 private:
     SmartDevice(const SmartDevice&);
@@ -130,7 +131,7 @@ private:
     Buttons _buttons;
     SSD1306 _display;
     IMU _imu;
-    LED _infoLed;
+    LED _infoLED;
     unsigned long _lastMs;
     Sensors _sensors;
     bool _showFramerate;

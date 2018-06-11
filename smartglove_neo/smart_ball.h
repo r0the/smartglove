@@ -32,7 +32,7 @@ protected:
     virtual uint16_t availableButtonMask() const;
     virtual uint16_t availableSensorMask() const;
     virtual uint16_t readButtonState() const;
-    virtual void setInfoLed(bool on);
+    virtual void setInfoLED(bool on);
 private:
     PCA9557 _buttons;
     bool _commandMenu;
