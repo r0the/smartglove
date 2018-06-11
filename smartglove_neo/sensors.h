@@ -43,10 +43,8 @@ public:
     Buttons();
     bool available(uint8_t id) const;
     bool down(uint8_t id) const;
-    inline bool longPress() const { return _longPress; }
     bool pressed(uint8_t id) const;
     void setAvailable(uint16_t mask);
-    void setLongPress(uint16_t mask, uint16_t millis);
     void updateState(uint16_t current);
 private:
     Buttons(const Buttons&);
@@ -55,10 +53,6 @@ private:
     uint16_t _available;
     uint16_t _current;
     uint16_t _last;
-    bool _longPress;
-    unsigned long _longPressMillis;
-    unsigned long _longPressEnd;
-    uint16_t _longPressButtons;
 };
 
 /******************************************************************************

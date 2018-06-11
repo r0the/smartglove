@@ -122,7 +122,7 @@ void Junxion::setup() {
 }
 
 void Junxion::loop() {
-    if (device.buttonLongPress()) {
+    if (device.commandMenu()) {
         device.pushBehaviour(new MainMenu(device));
     }
 

@@ -25,10 +25,7 @@ const uint8_t Buttons::COUNT = 12;
 
 Buttons::Buttons() :
     _current(0),
-    _last(0),
-    _longPress(false),
-    _longPressButtons(0),
-    _longPressMillis(5000) {
+    _last(0) {
 }
 
 bool Buttons::available(uint8_t id) const {
@@ -59,26 +56,10 @@ void Buttons::setAvailable(uint16_t mask) {
     _available = mask;
 }
 
-void Buttons::setLongPress(uint16_t mask, uint16_t millis) {
-    _longPressButtons = mask;
-    _longPressMillis = millis;
-}
-
 void Buttons::updateState(uint16_t current) {
     unsigned long now = millis();
     _last = _current;
     _current = _available & current;
-    if ((_current & _longPressButtons) != _longPressButtons) {
-        _longPressEnd = now + _longPressMillis;
-    }
-
-    if (_longPressEnd <= now) {
-        _longPress = true;
-        _longPressEnd = now + _longPressMillis;
-    }
-    else {
-        _longPress = false;
-    }
 }
 
 /******************************************************************************

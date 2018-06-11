@@ -24,16 +24,18 @@
 class SmartBall : public SmartDevice {
 public:
     SmartBall();
+    virtual bool commandMenu() const;
 protected:
     virtual void doSetup();
     virtual void doLoop();
     virtual uint16_t availableButtonMask() const;
     virtual uint16_t availableSensorMask() const;
-    virtual uint16_t longPressButtonMask() const;
     virtual uint16_t readButtonState() const;
     virtual void setInfoLed(bool on);
 private:
     PCA9557 _buttons;
+    bool _commandMenu;
+    unsigned long _menuTimeoutMs;
 };
 
 #endif

@@ -96,11 +96,12 @@ public:
     void setup();
     void loop();
     inline bool buttonAvailable(uint8_t id) const { return _buttons.available(id); }
+    bool buttonCombination(uint8_t id1, uint8_t id2) const;
     inline bool buttonDown(uint8_t id) const { return _buttons.down(id); }
-    inline bool buttonLongPress() const { return _buttons.longPress(); }
     inline bool buttonPressed(uint8_t id) const { return _buttons.pressed(id); }
     bool commandDown() const;
     bool commandEnter() const;
+    virtual bool commandMenu() const = 0;
     bool commandUp() const;
     inline SSD1306& display() { return _display; }
     bool imuReady() const;
@@ -117,7 +118,6 @@ protected:
     virtual void doLoop() = 0;
     virtual uint16_t availableButtonMask() const = 0;
     virtual uint16_t availableSensorMask() const = 0;
-    virtual uint16_t longPressButtonMask() const = 0;
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
     void configureSensor(uint8_t index, double min, double max, double minStdDev);

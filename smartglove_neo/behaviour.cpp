@@ -133,7 +133,7 @@ void ButtonTest::setup() {
 }
 
 void ButtonTest::loop() {
-    if (device.buttonLongPress()) {
+    if (device.commandMenu()) {
         device.popBehaviour();
     }
 

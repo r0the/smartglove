@@ -30,9 +30,14 @@ const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
 };
 
 SmartBall::SmartBall() :
-    _buttons(I2C_SMART_BALL_BUTTONS_ADDRESS) {
+    _buttons(I2C_SMART_BALL_BUTTONS_ADDRESS),
+    _commandMenu(false),
+    _menuTimeoutMs(0) {
 }
 
+bool SmartBall::commandMenu() const {
+    return _commandMenu;
+}
 
 void SmartBall::doSetup() {
     _buttons.writeConfig(0x7F);
@@ -40,6 +45,21 @@ void SmartBall::doSetup() {
 }
 
 void SmartBall::doLoop() {
+    unsigned long now = millis();
+    _commandMenu = false;
+    if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
+        _menuTimeoutMs = now + LONG_PRESS_MS;
+    }
+
+    if (buttonPressed(BUTTON_THUMB_1) && buttonPressed(BUTTON_LITTLE_FINGER_1)) {
+        if (_menuTimeoutMs < now) {
+            _commandMenu = true;
+            _menuTimeoutMs = now + LONG_PRESS_MS;
+        }
+    }
+    else {
+        _menuTimeoutMs = now + LONG_PRESS_MS;
+    }
 }
 
 uint16_t SmartBall::availableButtonMask() const {
@@ -61,12 +81,6 @@ uint16_t SmartBall::availableSensorMask() const {
         (1 << SENSOR_GYRO_ROLL) |
         (1 << SENSOR_GYRO_PITCH) |
         (1 << SENSOR_GYRO_HEADING);
-}
-
-uint16_t SmartBall::longPressButtonMask() const {
-    return
-        (1 << BUTTON_THUMB_1) |
-        (1 << BUTTON_LITTLE_FINGER_1);
 }
 
 uint16_t SmartBall::readButtonState() const {

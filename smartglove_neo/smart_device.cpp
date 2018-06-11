@@ -131,6 +131,11 @@ SmartDevice::SmartDevice() :
     _sensors() {
 }
 
+bool SmartDevice::buttonCombination(uint8_t id1, uint8_t id2) const {
+    return (buttonDown(id1) && buttonPressed(id2)) ||
+           (buttonDown(id2) && buttonPressed(id1));
+}
+
 bool SmartDevice::commandDown() const {
     return buttonDown(BUTTON_MIDDLE_FINGER_1);
 }
@@ -156,8 +161,6 @@ void SmartDevice::setup() {
     // initialize buttons
     _buttons.setAvailable(availableButtonMask());
     _sensors.setAvailable(availableSensorMask());
-    PRINT("availableSensorMask=") PRINTLN(availableSensorMask())
-    _buttons.setLongPress(longPressButtonMask(), LONG_PRESS_MS);
 
     // initialize display
     _display.begin();
