@@ -35,6 +35,10 @@ SmartBall::SmartBall() :
     _menuTimeoutMs(0) {
 }
 
+bool SmartBall::commandCalibrateIMU() const {
+    return buttonCombination(BUTTON_INDEX_FINGER_2, BUTTON_MIDDLE_FINGER_2);
+}
+
 bool SmartBall::commandMenu() const {
     return _commandMenu;
 }

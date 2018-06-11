@@ -99,6 +99,7 @@ public:
     bool buttonCombination(uint8_t id1, uint8_t id2) const;
     inline bool buttonDown(uint8_t id) const { return _buttons.down(id); }
     inline bool buttonPressed(uint8_t id) const { return _buttons.pressed(id); }
+    virtual bool commandCalibrateIMU() const = 0;
     bool commandDown() const;
     bool commandEnter() const;
     virtual bool commandMenu() const = 0;

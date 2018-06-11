@@ -24,6 +24,7 @@
 class SmartBall : public SmartDevice {
 public:
     SmartBall();
+    virtual bool commandCalibrateIMU() const;
     virtual bool commandMenu() const;
 protected:
     virtual void doSetup();

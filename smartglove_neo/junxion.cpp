@@ -126,6 +126,10 @@ void Junxion::loop() {
         device.pushBehaviour(new MainMenu(device));
     }
 
+    if (device.commandCalibrateIMU()) {
+        device.resetIMU();
+    }
+
     unsigned long now = millis();
     if (_serialCheckMs < now) {
         // Checking the Serial connection takes a long time, so it shouldn't be

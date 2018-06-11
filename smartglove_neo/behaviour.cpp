@@ -200,7 +200,6 @@ const uint16_t GestureTest::RANGE = 116;
 
 void GestureTest::setup() {
     MenuBehaviour::setup();
-    device.resetIMU();
 }
 
 void GestureTest::action(uint8_t selected) {
@@ -248,7 +247,6 @@ GyroscopeTest::GyroscopeTest(SmartDevice& device) :
 
 void GyroscopeTest::setup() {
     MenuBehaviour::setup();
-    device.resetIMU();
 }
 
 void GyroscopeTest::action(uint8_t selected) {

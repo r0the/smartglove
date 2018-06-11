@@ -2,6 +2,17 @@
 
 ## Usage
 
+The following buttons and button combinations have a special function:
+
+| Button(s)                                      | Function             |
+|:---------------------------------------------- |:-------------------- |
+| Thumb 1                                        | Enter/Select in menu |
+| Index Finger 1                                 | Menu navigation up   |
+| Middle Finger 1                                | Menu navigation down |
+| long press (> 5 s) Thumb 1 and Little Finger 1 | Open menu            |
+| Index Finger 2 and Middle Finger 2             | Calibrate IMU        |
+|                                                |                      |
+
 ## junXion Interface
 
 ### Digital Outputs
