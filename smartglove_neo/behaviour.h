@@ -62,7 +62,7 @@ public:
 private:
     static const uint8_t ITEM_COUNT;
     static const char* ITEMS[];
-    static uint8_t MAP[];
+    static const uint8_t MAP[];
 };
 
 /******************************************************************************
@@ -101,10 +101,10 @@ public:
     virtual void action(uint8_t selected);
     virtual void draw(uint8_t selected);
 private:
-    uint8_t _range;
     static const uint8_t ITEM_COUNT;
     static const char* ITEMS[];
-    static uint8_t MAP[];
+    static const uint8_t MAP[];
+    static const uint16_t RANGE;
 };
 
 /******************************************************************************

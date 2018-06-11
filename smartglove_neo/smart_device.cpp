@@ -173,9 +173,9 @@ void SmartDevice::setup() {
 
     _showFramerate = Storage.readByte(STORAGE_SHOW_FRAMERATE);
 
-    configureSensor(SENSOR_ACCEL_X, -10.0, 10.0, 1.0);
-    configureSensor(SENSOR_ACCEL_Y, 10.0, -10.0, 1.0);
-    configureSensor(SENSOR_ACCEL_Z, 10.0, -10.0, 1.0);
+    configureSensor(SENSOR_ACCEL_X, -10.0, 10.0, 0.2);
+    configureSensor(SENSOR_ACCEL_Y, 10.0, -10.0, 0.2);
+    configureSensor(SENSOR_ACCEL_Z, 10.0, -10.0, 0.2);
     configureSensor(SENSOR_GYRO_ROLL, 180.0, -180.0, 2.0);
     configureSensor(SENSOR_GYRO_PITCH, 90.0, -90.0, 1.0);
     configureSensor(SENSOR_GYRO_HEADING, 180.0, -180.0, 2.0);

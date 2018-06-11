@@ -189,16 +189,17 @@ const uint8_t GestureTest::ITEM_COUNT = 3;
 const char* GestureTest::ITEMS[GestureTest::ITEM_COUNT] = {
     "X-Axis", "Y-Axis", "Z-Axis"
 };
-uint8_t GestureTest::MAP[] = {
+const uint8_t GestureTest::MAP[] = {
     SENSOR_ACCEL_X, SENSOR_ACCEL_Y, SENSOR_ACCEL_Z
 };
 GestureTest::GestureTest(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
 }
 
+const uint16_t GestureTest::RANGE = 116;
+
 void GestureTest::setup() {
     MenuBehaviour::setup();
-    _range = 115;
     device.resetIMU();
 }
 
@@ -209,13 +210,17 @@ void GestureTest::action(uint8_t selected) {
 void GestureTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, ITEMS[selected]);
     if (device.imuReady()) {
-        device.display().drawRectangle(10, 22, _range, 8);
-        uint16_t val = device.sensorValue(MAP[selected]);
-        if (val < _range/2) {
-            device.display().fillRectangle(10 + val, 22, _range/2 - val, 8);
+        if (device.sensorActivity(MAP[selected])) {
+            device.display().drawText(90, 8, "A");
+        }
+
+        device.display().drawRectangle(10, 22, RANGE, 8);
+        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (val < RANGE/2) {
+            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
         }
         else {
-            device.display().fillRectangle(10 + _range/2, 22, val - _range/2, 8);
+            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
         }
     }
     else {

@@ -97,9 +97,9 @@ private:
     Sensor(const Sensor&);
     Sensor& operator=(const Sensor&);
 
-    static uint16_t MAX_VALUE;
-    static uint16_t ZERO_VALUE;
-    static uint8_t VALUE_COUNT;
+    static const uint16_t MAX_VALUE;
+    static const uint16_t ZERO_VALUE;
+    static const uint8_t VALUE_COUNT;
     uint64_t _activityThreshold;
     double _factor;
     uint64_t _mean;
@@ -112,13 +112,12 @@ private:
     int64_t _variance;
 };
 
-//uint64_t Sensor::ACTIVITY_THRESHOLD = 300 * 300;
-uint16_t Sensor::MAX_VALUE = 65535;
-uint16_t Sensor::ZERO_VALUE = 32767;
-uint8_t Sensor::VALUE_COUNT = 32;
+const uint16_t Sensor::MAX_VALUE = 65535;
+const uint16_t Sensor::ZERO_VALUE = 32767;
+const uint8_t Sensor::VALUE_COUNT = 32;
 
 Sensor::Sensor() :
-    _activityThreshold(300 * 300),
+    _activityThreshold(0),
     _factor(1.0),
     _pos(0),
     _rawMax(1.0),
