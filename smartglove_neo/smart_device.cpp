@@ -143,6 +143,10 @@ bool SmartDevice::commandUp() const {
     return buttonDown(BUTTON_INDEX_FINGER_1);
 }
 
+void SmartDevice::configureSensor(uint8_t index, double min, double max, double minStdDev) {
+    _sensors.configure(index, min, max, minStdDev);
+}
+
 bool SmartDevice::imuReady() const {
     return _imu.status() == IMU::Ready;
 }
@@ -169,12 +173,12 @@ void SmartDevice::setup() {
 
     _showFramerate = Storage.readByte(STORAGE_SHOW_FRAMERATE);
 
-    setSensorRawRange(SENSOR_ACCEL_X, -10.0, 10.0);
-    setSensorRawRange(SENSOR_ACCEL_Y, 10.0, -10.0);
-    setSensorRawRange(SENSOR_ACCEL_Z, 10.0, -10.0);
-    setSensorRawRange(SENSOR_GYRO_ROLL, 180.0, -180.0);
-    setSensorRawRange(SENSOR_GYRO_PITCH, 90.0, -90.0);
-    setSensorRawRange(SENSOR_GYRO_HEADING, 180.0, -180.0);
+    configureSensor(SENSOR_ACCEL_X, -10.0, 10.0, 1.0);
+    configureSensor(SENSOR_ACCEL_Y, 10.0, -10.0, 1.0);
+    configureSensor(SENSOR_ACCEL_Z, 10.0, -10.0, 1.0);
+    configureSensor(SENSOR_GYRO_ROLL, 180.0, -180.0, 2.0);
+    configureSensor(SENSOR_GYRO_PITCH, 90.0, -90.0, 1.0);
+    configureSensor(SENSOR_GYRO_HEADING, 180.0, -180.0, 2.0);
 
     // initialize IMU
     _imu.setup();
@@ -228,14 +232,6 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
 
 void SmartDevice::resetIMU() {
     _imu.setup();
-}
-
-void SmartDevice::setSensorOutRange(uint8_t index, uint16_t min, uint16_t max) {
-    _sensors.setOutRange(index, min, max);
-}
-
-void SmartDevice::setSensorRawRange(uint8_t index, double min, double max) {
-    _sensors.setRawRange(index, min, max);
 }
 
 void SmartDevice::setShowFramerate(bool showFramerate) {

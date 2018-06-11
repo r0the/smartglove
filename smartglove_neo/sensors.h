@@ -88,9 +88,8 @@ public:
     bool activity(uint8_t id) const;
     void addMeasurement(uint8_t id, double value);
     bool available(uint8_t id) const;
+    void configure(uint8_t id, double min, double max, double minStdDev);
     void setAvailable(uint16_t mask);
-    void setOutRange(uint8_t id, uint16_t min, uint16_t max);
-    void setRawRange(uint8_t id, double min, double max);
     uint16_t value(uint8_t id) const;
 private:  
     Sensors(const Sensors&);

@@ -110,7 +110,6 @@ public:
     bool sensorActivity(uint8_t id) const { return _sensors.activity(id); }
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
-    void setSensorOutRange(uint8_t id, uint16_t min, uint16_t max);
     void setShowFramerate(bool showFramerate);
     bool showFramerate() const { return _showFramerate; }
 protected:
@@ -121,7 +120,7 @@ protected:
     virtual uint16_t longPressButtonMask() const = 0;
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLed(bool on) = 0;
-    void setSensorRawRange(uint8_t index, double min, double max);
+    void configureSensor(uint8_t index, double min, double max, double minStdDev);
 private:
     SmartDevice(const SmartDevice&);
     SmartDevice& operator=(const SmartDevice&);

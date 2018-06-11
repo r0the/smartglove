@@ -75,7 +75,7 @@ void MenuBehaviour::select(uint8_t index) {
  * class BoardIdSelect
  *****************************************************************************/
 
-const unsigned short BoardIdSelect::ITEM_COUNT = 3;
+const uint8_t BoardIdSelect::ITEM_COUNT = 3;
 const char* BoardIdSelect::ITEMS[BoardIdSelect::ITEM_COUNT] = {
     "Arduino 51",
     "Arduino 52",
@@ -160,7 +160,7 @@ void ButtonTest::loop() {
  * class FramerateOption
  *****************************************************************************/
 
-const unsigned short FramerateOption::ITEM_COUNT = 2;
+const uint8_t FramerateOption::ITEM_COUNT = 2;
 const char* FramerateOption::ITEMS[FramerateOption::ITEM_COUNT] = {
     "No",
     "Yes"
@@ -185,14 +185,13 @@ void FramerateOption::draw(uint8_t selected) {
  * class GestureTest
  *****************************************************************************/
 
-const unsigned short GestureTest::ITEM_COUNT = 3;
+const uint8_t GestureTest::ITEM_COUNT = 3;
 const char* GestureTest::ITEMS[GestureTest::ITEM_COUNT] = {
     "X-Axis", "Y-Axis", "Z-Axis"
 };
 uint8_t GestureTest::MAP[] = {
     SENSOR_ACCEL_X, SENSOR_ACCEL_Y, SENSOR_ACCEL_Z
 };
-
 GestureTest::GestureTest(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
 }
@@ -200,9 +199,6 @@ GestureTest::GestureTest(SmartDevice& device) :
 void GestureTest::setup() {
     MenuBehaviour::setup();
     _range = 115;
-    device.setSensorOutRange(SENSOR_ACCEL_X, 0, _range);
-    device.setSensorOutRange(SENSOR_ACCEL_Y, 0, _range);
-    device.setSensorOutRange(SENSOR_ACCEL_Z, 0, _range);
     device.resetIMU();
 }
 
@@ -231,13 +227,15 @@ void GestureTest::draw(uint8_t selected) {
  * class GyroscopeTest
  *****************************************************************************/
 
-const unsigned short GyroscopeTest::ITEM_COUNT = 3;
+const uint8_t GyroscopeTest::ITEM_COUNT = 3;
 const char* GyroscopeTest::ITEMS[GyroscopeTest::ITEM_COUNT] = {
     "Heading", "Pitch", "Roll"
 };
-uint8_t GyroscopeTest::MAP[] = {
+const uint8_t GyroscopeTest::MAP[] = {
     SENSOR_GYRO_HEADING, SENSOR_GYRO_PITCH, SENSOR_GYRO_ROLL
 };
+
+const uint16_t GyroscopeTest::RANGE = 116;
 
 GyroscopeTest::GyroscopeTest(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
@@ -245,10 +243,6 @@ GyroscopeTest::GyroscopeTest(SmartDevice& device) :
 
 void GyroscopeTest::setup() {
     MenuBehaviour::setup();
-    _range = 115;
-    device.setSensorOutRange(SENSOR_GYRO_HEADING, 0, _range);
-    device.setSensorOutRange(SENSOR_GYRO_PITCH, 0, _range);
-    device.setSensorOutRange(SENSOR_GYRO_ROLL, 0, _range);
     device.resetIMU();
 }
 
@@ -263,13 +257,13 @@ void GyroscopeTest::draw(uint8_t selected) {
             device.display().drawText(90, 8, "A");
         }
 
-        device.display().drawRectangle(10, 22, _range, 8);
-        uint16_t val = device.sensorValue(MAP[selected]);
-        if (val < _range/2) {
-            device.display().fillRectangle(10 + val, 22, _range/2 - val, 8);
+        device.display().drawRectangle(10, 22, RANGE, 8);
+        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (val < RANGE/2) {
+            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
         }
         else {
-            device.display().fillRectangle(10 + _range/2, 22, val - _range/2, 8);
+            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
         }
     }
     else {
@@ -281,7 +275,7 @@ void GyroscopeTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const unsigned short MainMenu::ITEM_COUNT = 6;
+const uint8_t MainMenu::ITEM_COUNT = 6;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",

@@ -17,37 +17,6 @@
 
 #include "sensors.h"
 
-#define RAW_VALUE_COUNT 9
-
-static uint8_t median3(uint16_t* data, uint8_t a, uint8_t b, uint8_t c) {
-    if (data[a] < data[b]) {
-        if (data[b] < data[c]) {
-            return b; // a, b, c
-        }
-        else { // c < b
-            if (data[a] < data[c]) {
-                return c; // a, c, b
-            }
-            else { // c < a
-                return a; // c, a, b
-            }
-        }
-    }
-    else { // b < a
-        if (data[a] < data[c]) {
-            return a; // b, a, c
-        }
-        else { // c < a
-            if (data[b] < data[c]) {
-                return c; // b, c, a
-            }
-            else { // c < b
-                return b; // c, b, a
-            }
-        }
-    }
-}
-
 /******************************************************************************
  * class Buttons
  *****************************************************************************/
@@ -122,38 +91,47 @@ public:
     Sensor();
     bool activity() const;
     void addMeasurement(double value);
-    void setOutRange(uint16_t min, uint16_t max);
-    void setRawRange(double min, double max);
+    void configure(double min, double max, double minStdDev);
     uint16_t value() const;
 private:
     Sensor(const Sensor&);
     Sensor& operator=(const Sensor&);
 
+    static uint16_t MAX_VALUE;
+    static uint16_t ZERO_VALUE;
+    static uint8_t VALUE_COUNT;
+    uint64_t _activityThreshold;
     double _factor;
-    uint16_t _outMax;
-    uint16_t _outMin;
+    uint64_t _mean;
     uint8_t _pos;
     double _rawMax;
     double _rawMin;
     char _type;
+    uint16_t _valueActivityEnd;
     uint16_t* _values;
+    int64_t _variance;
 };
 
+//uint64_t Sensor::ACTIVITY_THRESHOLD = 300 * 300;
+uint16_t Sensor::MAX_VALUE = 65535;
+uint16_t Sensor::ZERO_VALUE = 32767;
+uint8_t Sensor::VALUE_COUNT = 32;
+
 Sensor::Sensor() :
+    _activityThreshold(300 * 300),
     _factor(1.0),
-    _outMax(65535),
-    _outMin(0),
     _pos(0),
     _rawMax(1.0),
     _rawMin(-1.0),
-    _values(new uint16_t[RAW_VALUE_COUNT]) {
-    for (int i = 0; i < RAW_VALUE_COUNT; ++i) {
-        _values[i] = (_outMax - _outMin) / 2;
+    _valueActivityEnd(ZERO_VALUE),
+    _values(new uint16_t[VALUE_COUNT]) {
+    for (int i = 0; i < VALUE_COUNT; ++i) {
+        _values[i] = ZERO_VALUE;
     }
 }
 
 bool Sensor::activity() const {
-    return true;
+    return _activityThreshold < _variance;
 }
 
 void Sensor::addMeasurement(double value) {
@@ -161,7 +139,7 @@ void Sensor::addMeasurement(double value) {
         if (value < _rawMin) {
             value = _rawMin;
         }
-    
+
         if (value > _rawMax) {
             value = _rawMax;
         }
@@ -170,35 +148,44 @@ void Sensor::addMeasurement(double value) {
         if (value > _rawMin) {
             value = _rawMin;
         }
-    
+
         if (value < _rawMax) {
             value = _rawMax;
         }        
     }
 
-    _values[_pos] = _outMin + (value - _rawMin) * _factor;
-    _pos = (_pos + 1) % RAW_VALUE_COUNT;
+    uint16_t currentValue = (value - _rawMin) * _factor;
+    _pos = (_pos + 1) % VALUE_COUNT;
+    _values[_pos] = currentValue;
+
+    // calculate variance for activity detection
+    uint64_t sum = 0;
+    uint64_t sumOfSquares = 0;
+    for (uint8_t i = 0; i < VALUE_COUNT; ++i) {
+        uint64_t val = _values[i];
+        sum += val;
+        sumOfSquares += val * val;
+    }
+
+    _mean = sum / VALUE_COUNT;
+    _variance = sumOfSquares / VALUE_COUNT - _mean * _mean;
+    if (activity()) {
+        _valueActivityEnd = currentValue;
+    } else {
+        
+    }
 }
 
-void Sensor::setOutRange(uint16_t min, uint16_t max) {
-    _outMin = min;
-    _outMax = max;
-    _factor = static_cast<double>(_outMax - _outMin) / (_rawMax - _rawMin);
-}
-
-void Sensor::setRawRange(double min, double max) {
+void Sensor::configure(double min, double max, double minStdDev) {
     _rawMin = min;
     _rawMax = max;
-    _factor = static_cast<double>(_outMax - _outMin) / (_rawMax - _rawMin);
+    _factor = static_cast<double>(MAX_VALUE) / (_rawMax - _rawMin);
+    _activityThreshold = minStdDev * abs(_factor);
+    _activityThreshold *= _activityThreshold;
 }
 
 uint16_t Sensor::value() const {
-    uint8_t index = _pos;
-    uint8_t m1 = median3(_values, 0, 1, 2);
-    uint8_t m2 = median3(_values, 3, 4, 5);
-    uint8_t m3 = median3(_values, 6, 7, 8);
-    index = median3(_values, m1, m2, m3);
-    return _values[index];
+    return _valueActivityEnd;
 }
 
 /******************************************************************************
@@ -217,7 +204,7 @@ Sensors::~Sensors() {
 
 bool Sensors::activity(uint8_t id) const {
     if (id >= COUNT) {
-        return false;
+        return 0;
     }
 
     return _sensors[id].activity();
@@ -239,24 +226,16 @@ bool Sensors::available(uint8_t id) const {
     return _available & (1 << id);
 }
 
+void Sensors::configure(uint8_t id, double min, double max, double minStdDev) {
+    if (id >= COUNT) {
+        return;
+    }
+
+    _sensors[id].configure(min, max, minStdDev);
+}
+
 void Sensors::setAvailable(uint16_t mask) {
     _available = mask;
-}
-
-void Sensors::setOutRange(uint8_t id, uint16_t min, uint16_t max) {
-    if (id >= COUNT) {
-        return;
-    }
-
-    _sensors[id].setOutRange(min, max);
-}
-
-void Sensors::setRawRange(uint8_t id, double min, double max) {
-    if (id >= COUNT) {
-        return;
-    }
-
-    _sensors[id].setRawRange(min, max);
 }
 
 uint16_t Sensors::value(uint8_t id) const {
