@@ -35,21 +35,21 @@ SmartGlove devices support up to 16 digital outputs:
 
 ### Analog Outputs
 
-| Device          | Description         |  ID | junXion Pin |
-|:--------------- |:------------------- | ---:|:----------- |
-| Bend Sensor     | Index Finger        |   0 | Analog 0    |
-| Bend Sensor     | Middle Finger       |   1 | Analog 1    |
-| Bend Sensor     | Ring Finger         |   2 | Analog 2    |
-| Bend Sensor     | Little Finger       |   3 | Analog 3    |
-| Distance Sensor | Hand-to-Hand        |   4 | Own Input 0 |
-| IMU             | Raw Acceleration X  |   5 | Own Input 1 |
-| IMU             | Raw Acceleration Y  |   6 | Own Input 2 |
-| IMU             | Raw Acceleration Z  |   7 | Own Input 3 |
-| IMU             | Orientation Roll    |   8 | Own Input 4 |
-| IMU             | Orientation Pitch   |   9 | Own Input 5 |
-| IMU             | Orientation Heading |  10 | Own Input 6 |
-|                 | junXion State       |  11 | Own Input 7 |
-| Distance Sensor | Hand-to-Ground      |  12 | Own Input 8 |
+| Device          | Description             |  ID | junXion Pin |
+|:--------------- |:----------------------- | ---:|:----------- |
+| Bend Sensor     | Index Finger            |   0 | Analog 0    |
+| Bend Sensor     | Middle Finger           |   1 | Analog 1    |
+| Bend Sensor     | Ring Finger             |   2 | Analog 2    |
+| Bend Sensor     | Little Finger           |   3 | Analog 3    |
+| Distance Sensor | Hand-to-Hand            |   4 | Own Input 0 |
+| IMU             | Raw Acceleration X      |   5 | Own Input 1 |
+| IMU             | Raw Acceleration Y      |   6 | Own Input 2 |
+| IMU             | Raw Acceleration Z      |   7 | Own Input 3 |
+| IMU             | Orientation Pitch       |   8 | Own Input 4 |
+| IMU             | Orientation Roll        |   9 | Own Input 5 |
+| IMU             | Orientation Yaw/Heading |  10 | Own Input 6 |
+|                 | junXion State           |  11 | Own Input 7 |
+| Distance Sensor | Hand-to-Ground          |  12 | Own Input 8 |
 
 ## Hardware
 
@@ -59,7 +59,6 @@ SmartGlove devices support up to 16 digital outputs:
 |:------- |:------------------------- |:------------------ |:--------------------- |:-------------- |:----------- |
 | PCA9557 | buttons and LED           | `0011`             | `001`                 | `B0001001`     | `0x19`      |
 | BNO055  | inertial measurement unit | `010100`           | `1`                   | `B0101001`     | `0x29`      |
-| SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
 | SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
 | 24AA64  | EEPROM                    | `01010`            | `000`                 | `B0101000`     | `0x50`      |
 
