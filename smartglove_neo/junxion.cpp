@@ -90,10 +90,10 @@ const uint8_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
     BUTTON_MIDDLE_FINGER_1,
     BUTTON_RING_FINGER_1,
     BUTTON_LITTLE_FINGER_1,
-    0,
-    0,
-    0,
-    0,
+    GESTURE_WAVE_LEFT,
+    GESTURE_WAVE_RIGHT,
+    GESTURE_WAVE_UP,
+    GESTURE_WAVE_DOWN,
     BUTTON_INDEX_FINGER_2,
     BUTTON_MIDDLE_FINGER_2,
     BUTTON_RING_FINGER_2,
@@ -165,7 +165,7 @@ void Junxion::loop() {
         handleCommand(Serial.read());
         _headerReceived = false;
     }
- 
+
     if (_sendData) {
         sendData();
     }
@@ -215,7 +215,11 @@ uint8_t Junxion::analogPinCount() const {
 }
 
 uint16_t Junxion::analogPinValue(uint8_t pin) const {
-    return 0;
+    if (pin >= ANALOG_PIN_COUNT) {
+        return 0;
+    }
+
+    return device.sensorValue(ANALOG_PIN_MAP[pin]);
 }
 
 bool Junxion::digitalPinActive(uint8_t pin) const {
@@ -228,7 +232,7 @@ bool Junxion::digitalPinActive(uint8_t pin) const {
         return device.buttonAvailable(id) && device.buttonPressed(id);
     }
     else {
-        return false;
+        return device.gestureAvailable(id) && device.gestureDetected(id);
     }
 }
 
@@ -242,7 +246,7 @@ bool Junxion::digitalPinAvailable(uint8_t pin) const {
         return device.buttonAvailable(id);
     }
     else {
-        return false;
+        return device.gestureAvailable(id);
     }
 }
 
@@ -281,7 +285,7 @@ uint8_t Junxion::ownPinCount() const {
 
 uint16_t Junxion::ownPinValue(uint8_t pin) const {
     if (pin >= OWN_PIN_COUNT) {
-        return false;
+        return 0;
     }
 
     if (OWN_PIN_MAP[pin] == JUNXION_STATE) {
@@ -322,7 +326,7 @@ void Junxion::sendData() const {
             if (digitalPinActive(i)) {
                 state = state | (1 << pos);
             }
-    
+
             ++pos;
             if (pos >= 16) {
                 sendUInt16(state);
@@ -332,7 +336,7 @@ void Junxion::sendData() const {
         }
     }
 
-    if (pos > 0) {    
+    if (pos > 0) {
         sendUInt16(state);
     }
 
@@ -393,4 +397,3 @@ void Junxion::sendUInt16(uint16_t data) const {
     Serial.write(data / 256);
     Serial.write(data % 256);
 }
-

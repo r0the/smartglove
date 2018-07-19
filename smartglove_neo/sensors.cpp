@@ -32,7 +32,7 @@ bool Buttons::available(uint8_t id) const {
     if (id >= COUNT) {
         return false;
     }
-    
+
     return _available & (1 << id);
 }
 
@@ -131,7 +131,7 @@ void Sensor::addMeasurement(double value) {
 
         if (value < _rawMax) {
             value = _rawMax;
-        }        
+        }
     }
 
     uint16_t currentValue = (value - _rawMin) * _factor;
@@ -152,7 +152,7 @@ void Sensor::addMeasurement(double value) {
     if (activity()) {
         _valueActivityEnd = currentValue;
     } else {
-        
+
     }
 }
 
@@ -173,6 +173,7 @@ uint16_t Sensor::value() const {
  *****************************************************************************/
 
 const uint8_t Sensors::COUNT = 12;
+const uint8_t Sensors::GESTURE_COUNT = 4;
 
 Sensors::Sensors() :
     _sensors(new Sensor[COUNT]) {
@@ -214,6 +215,14 @@ void Sensors::configure(uint8_t id, double min, double max, double minStdDev) {
     _sensors[id].configure(min, max, minStdDev);
 }
 
+bool Sensors::gestureAvailable(uint8_t id) const {
+    return id < GESTURE_COUNT;
+}
+
+bool Sensors::gestureDetected(uint8_t id) const {
+
+}
+
 void Sensors::setAvailable(uint16_t mask) {
     _available = mask;
 }
@@ -225,4 +234,3 @@ uint16_t Sensors::value(uint8_t id) const {
 
     return _sensors[id].value();
 }
-

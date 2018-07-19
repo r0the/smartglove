@@ -105,6 +105,8 @@ public:
     virtual bool commandMenu() const = 0;
     bool commandUp() const;
     inline SSD1306& display() { return _display; }
+    inline bool gestureAvailable(uint8_t id) const { return _sensors.gestureAvailable(id); }
+    inline bool gestureDetected(uint8_t id) const { return _sensors.gestureDetected(id); }
     bool imuReady() const;
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
@@ -138,4 +140,3 @@ private:
 };
 
 #endif
-

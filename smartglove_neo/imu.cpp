@@ -24,6 +24,8 @@
 IMU::IMU() :
     _acceleration(new imu::Vector<3>()),
     _event(new sensors_event_t()),
+    _waveLeftTimeout(0),
+    _waveRightTimeout(0),
     _status(Uninitialized) {
 }
 

@@ -270,4 +270,3 @@ void SmartDevice::waitForFlash() {
     }
     while (wait > 0);
 }
-

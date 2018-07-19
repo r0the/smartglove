@@ -236,9 +236,17 @@ void GestureTest::action(uint8_t selected) {
 void GestureTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, ITEMS[selected]);
     if (device.imuReady()) {
-        if (device.sensorActivity(MAP[selected])) {
-            device.display().drawText(90, 8, "A");
+        if (device.gestureDetected(GESTURE_WAVE_LEFT)) {
+            device.display().drawText(90, 8, "L");
         }
+
+        if (device.gestureDetected(GESTURE_WAVE_RIGHT)) {
+            device.display().drawText(100, 8, "R");
+        }
+
+//        if (device.sensorActivity(MAP[selected])) {
+//            device.display().drawText(90, 8, "A");
+//        }
 
         device.display().drawRectangle(10, 22, RANGE, 8);
         uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE

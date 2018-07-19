@@ -72,20 +72,28 @@ private:
 #define SENSOR_GYRO_PITCH         10
 #define SENSOR_GYRO_HEADING       11
 
+#define GESTURE_WAVE_LEFT 0
+#define GESTURE_WAVE_RIGHT 1
+#define GESTURE_WAVE_UP 2
+#define GESTURE_WAVE_DOWN 3
+
 class Sensor;
 
 class Sensors {
 public:
     static const uint8_t COUNT;
+    static const uint8_t GESTURE_COUNT;
     Sensors();
     ~Sensors();
     bool activity(uint8_t id) const;
     void addMeasurement(uint8_t id, double value);
     bool available(uint8_t id) const;
     void configure(uint8_t id, double min, double max, double minStdDev);
+    bool gestureAvailable(uint8_t id) const;
+    bool gestureDetected(uint8_t id) const;
     void setAvailable(uint16_t mask);
     uint16_t value(uint8_t id) const;
-private:  
+private:
     Sensors(const Sensors&);
     Sensors& operator=(const Sensors&);
 
@@ -93,4 +101,3 @@ private:
     Sensor* _sensors;
 };
 #endif
-
