@@ -86,6 +86,10 @@ BehaviourStack::~BehaviourStack() {
     delete[] _behaviour;
 }
 
+void BehaviourStack::setup() {
+    _behaviour[_index]->setup();
+}
+
 void BehaviourStack::loop() {
     _behaviour[_index]->loop();
     bool changed = false;
@@ -183,8 +187,8 @@ void SmartDevice::setup() {
     configureSensor(SENSOR_GYRO_PITCH, 90.0, -90.0, 1.0);
     configureSensor(SENSOR_GYRO_HEADING, 180.0, -180.0, 2.0);
 
-    // initialize IMU
-    _imu.setup();
+    // initialize behaviour
+    _behaviour.setup();
 
 //    waitForFlash();
     doSetup();
@@ -221,6 +225,7 @@ void SmartDevice::loop() {
         _display.drawText(115, 7, text);
         _display.setFont(oldFont);
     }
+
     _display.updatePage();
     last = now;
 }
@@ -233,8 +238,9 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
     _behaviour.push(behaviour);
 }
 
-void SmartDevice::resetIMU() {
+bool SmartDevice::resetIMU() {
     _imu.setup();
+    return _imu.status() == IMU::Ready;
 }
 
 void SmartDevice::setLED(LED::Mode mode) {

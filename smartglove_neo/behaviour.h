@@ -30,6 +30,8 @@ public:
     explicit InitBehaviour(SmartDevice& device);
     virtual void setup();
     virtual void loop();
+private:
+    bool _imuReady;
 };
 
 /******************************************************************************

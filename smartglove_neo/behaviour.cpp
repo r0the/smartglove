@@ -29,10 +29,21 @@ InitBehaviour::InitBehaviour(SmartDevice& device) :
 }
 
 void InitBehaviour::setup() {
+    _imuReady = device.resetIMU();
+    device.display().setFont(&HELVETICA_10);
+    device.display().setTextAlign(ALIGN_LEFT);
 }
 
 void InitBehaviour::loop() {
-    device.pushBehaviour(new Junxion(device));
+    if (_imuReady) {
+        device.pushBehaviour(new Junxion(device));
+    }
+
+    if (device.commandMenu()) {
+        device.pushBehaviour(new MainMenu(device));
+    }
+
+    device.display().drawText(10, 8, "IMU Error");
 }
 
 /******************************************************************************

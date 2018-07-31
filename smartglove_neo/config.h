@@ -18,6 +18,7 @@
 //#define DEBUG
 
 #define I2C_DISPLAY_ADDRESS            0x3C
+#define I2C_IMU_ADDRESS                0x29
 #define I2C_SMART_BALL_BUTTONS_ADDRESS 0x19
 
 #define LONG_PRESS_MS 5000

@@ -73,6 +73,7 @@ class BehaviourStack {
 public:
     BehaviourStack(SmartDevice& device, uint8_t capacity);
     ~BehaviourStack();
+    void setup();
     void loop();
     void pop();
     void push(Behaviour* behaviour);
@@ -110,7 +111,7 @@ public:
     bool imuReady() const;
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
-    void resetIMU();
+    bool resetIMU();
     bool sensorActivity(uint8_t id) const { return _sensors.activity(id); }
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
