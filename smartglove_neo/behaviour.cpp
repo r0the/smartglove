@@ -248,25 +248,26 @@ void GestureTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, ITEMS[selected]);
     if (device.imuReady()) {
         if (device.gestureDetected(GESTURE_WAVE_LEFT)) {
-            device.display().drawText(90, 8, "L");
+            device.display().drawText(70, 8, "L");
         }
 
         if (device.gestureDetected(GESTURE_WAVE_RIGHT)) {
-            device.display().drawText(100, 8, "R");
+            device.display().drawText(70, 8, "R");
         }
 
-//        if (device.sensorActivity(MAP[selected])) {
-//            device.display().drawText(90, 8, "A");
-//        }
-
-        device.display().drawRectangle(10, 22, RANGE, 8);
-        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
-        if (val < RANGE/2) {
-            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
+        char text[20];
+        if (device.sensorMinBeforeMax(MAP[selected])) {
+            device.display().drawText(80, 8, "UP");
         }
         else {
-            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
+            device.display().drawText(80, 8, "DOWN");
         }
+
+        sprintf(text, "%i", device.sensorMinValue(MAP[selected]));
+        device.display().drawText(10, 20, text);
+
+        sprintf(text, "%i", device.sensorMaxValue(MAP[selected]));
+        device.display().drawText(70, 20, text);
     }
     else {
         device.display().drawText(10, 22, "IMU not ready");

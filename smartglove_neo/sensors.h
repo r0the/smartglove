@@ -86,11 +86,14 @@ public:
     Sensors();
     ~Sensors();
     bool activity(uint8_t id) const;
-    void addMeasurement(uint8_t id, double value);
+    void addMeasurement(unsigned long time, uint8_t id, double value);
     bool available(uint8_t id) const;
     void configure(uint8_t id, double min, double max, double minStdDev);
     bool gestureAvailable(uint8_t id) const;
     bool gestureDetected(uint8_t id) const;
+    uint16_t maxValue(uint8_t id) const;
+    bool minBeforeMax(uint8_t id) const;
+    uint16_t minValue(uint8_t id) const;
     void setAvailable(uint16_t mask);
     uint16_t value(uint8_t id) const;
 private:

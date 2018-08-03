@@ -32,6 +32,8 @@ SmartGlove devices support up to 16 digital outputs:
 | Middle Finger 2 |   9 | 0x0200   | Digital 13  |
 | Ring Finger 2   |  10 | 0x0400   | Digital 14  |
 | Little Finger 2 |  11 | 0x0800   | Digital 15  |
+| Wave Left       |  12 | 0x1000   | Digital 8   |
+| Wave Right      |  13 | 0x2000   | Digital 9   |
 
 ### Analog Outputs
 
@@ -72,7 +74,7 @@ SmartGlove devices support up to 16 digital outputs:
 3. Install the **Adafruit SAMD Boards** boards manager.
 4. Install the following libraries:
    - Adafruit Unified Sensor
-   - Adafruit BNO055
+   - Adafruit BNO055 (**Important:** Use version )
    - MonoGFX Arduino
 5. Select the board **Adafruit Feather M0**.
 

@@ -16,6 +16,7 @@
  */
 
 #include "sensors.h"
+#include "config.h"
 
 /******************************************************************************
  * class Buttons
@@ -71,9 +72,19 @@ class Sensor {
 public:
     Sensor();
     bool activity() const;
-    void addMeasurement(double value);
+    void addMeasurement(unsigned long time, double value);
     void configure(double min, double max, double minStdDev);
+    bool minBeforeMax() const;
     uint16_t value() const;
+    void debug() const {
+        PRINT("Start = ");
+        PRINT(_values[_posStart]);
+        PRINT(", Min = ");
+        PRINT(_values[_posMin]);
+        PRINT(", Max = ");
+        PRINT(_values[_posMax]);
+        PRINTLN("");
+    }
 private:
     Sensor(const Sensor&);
     Sensor& operator=(const Sensor&);
@@ -81,29 +92,39 @@ private:
     static const uint16_t MAX_VALUE;
     static const uint16_t ZERO_VALUE;
     static const uint8_t VALUE_COUNT;
+    bool _activity;
     uint64_t _activityThreshold;
     double _factor;
     uint64_t _mean;
     uint8_t _pos;
     double _rawMax;
     double _rawMin;
+    unsigned long _timeMax;
+    unsigned long _timeMin;
     char _type;
     uint16_t _valueActivityEnd;
+    uint16_t _valueMax;
+    uint16_t _valueMin;
     uint16_t* _values;
     int64_t _variance;
 };
 
 const uint16_t Sensor::MAX_VALUE = 65535;
 const uint16_t Sensor::ZERO_VALUE = 32767;
-const uint8_t Sensor::VALUE_COUNT = 32;
+const uint8_t Sensor::VALUE_COUNT = 16;
 
 Sensor::Sensor() :
+    _activity(false),
     _activityThreshold(0),
     _factor(1.0),
     _pos(0),
+    _timeMin(0),
+    _timeMax(0),
     _rawMax(1.0),
     _rawMin(-1.0),
     _valueActivityEnd(ZERO_VALUE),
+    _valueMax(0xFFFF),
+    _valueMin(0),
     _values(new uint16_t[VALUE_COUNT]) {
     for (int i = 0; i < VALUE_COUNT; ++i) {
         _values[i] = ZERO_VALUE;
@@ -111,10 +132,10 @@ Sensor::Sensor() :
 }
 
 bool Sensor::activity() const {
-    return _activityThreshold < _variance;
+    return _activity;
 }
 
-void Sensor::addMeasurement(double value) {
+void Sensor::addMeasurement(unsigned long time, double value) {
     if (_rawMin < _rawMax) {
         if (value < _rawMin) {
             value = _rawMin;
@@ -134,7 +155,9 @@ void Sensor::addMeasurement(double value) {
         }
     }
 
+    // scale raw measurement
     uint16_t currentValue = (value - _rawMin) * _factor;
+    // add measurement to ring buffer
     _pos = (_pos + 1) % VALUE_COUNT;
     _values[_pos] = currentValue;
 
@@ -149,10 +172,29 @@ void Sensor::addMeasurement(double value) {
 
     _mean = sum / VALUE_COUNT;
     _variance = sumOfSquares / VALUE_COUNT - _mean * _mean;
-    if (activity()) {
-        _valueActivityEnd = currentValue;
-    } else {
+    bool oldActivity = _activity;
+    _activity = _activityThreshold < _variance;
+    if (!_activity) {
+        return;
+    }
 
+    _valueActivityEnd = currentValue;
+    if (!oldActivity) {
+        _timeMax = time;
+        _timeMin = time;
+        _valueMax = currentValue;
+        _valueMin = currentValue;
+   }
+    else {
+        if (currentValue < _valueMin) {
+            _timeMin = time;
+            _valueMin = currentValue;
+        }
+
+        if (_valueMax < currentValue) {
+            _timeMax = time;
+            _valueMax = currentValue;
+        }
     }
 }
 
@@ -162,6 +204,10 @@ void Sensor::configure(double min, double max, double minStdDev) {
     _factor = static_cast<double>(MAX_VALUE) / (_rawMax - _rawMin);
     _activityThreshold = minStdDev * abs(_factor);
     _activityThreshold *= _activityThreshold;
+}
+
+bool Sensor::minBeforeMax() const {
+    return _timeMin < _timeMax;
 }
 
 uint16_t Sensor::value() const {
@@ -191,12 +237,15 @@ bool Sensors::activity(uint8_t id) const {
     return _sensors[id].activity();
 }
 
-void Sensors::addMeasurement(uint8_t id, double value) {
+void Sensors::addMeasurement(unsigned long time, uint8_t id, double value) {
     if (id >= COUNT) {
         return;
     }
 
-    _sensors[id].addMeasurement(value);
+    _sensors[id].addMeasurement(time, value);
+    if (id == SENSOR_ACCEL_X) {
+        _sensors[id].debug();
+    }
 }
 
 bool Sensors::available(uint8_t id) const {
@@ -220,7 +269,55 @@ bool Sensors::gestureAvailable(uint8_t id) const {
 }
 
 bool Sensors::gestureDetected(uint8_t id) const {
+    uint8_t sensorId;
+    bool minBeforeMax;
+    switch (id) {
+        case GESTURE_WAVE_LEFT:
+            sensorId = SENSOR_ACCEL_Y;
+            minBeforeMax = true;
+            break;
+        case GESTURE_WAVE_RIGHT:
+            sensorId = SENSOR_ACCEL_Y;
+            minBeforeMax = false;
+            break;
+        case GESTURE_WAVE_UP:
+            sensorId = SENSOR_ACCEL_Z;
+            minBeforeMax = true;
+            break;
+        case GESTURE_WAVE_DOWN:
+            sensorId = SENSOR_ACCEL_Z;
+            minBeforeMax = false;
+            break;
+        default:
+            return false;
+    }
 
+    Sensor& s = _sensors[sensorId];
+    return s._valueMin < 5000 && s._valueMax > 60535 && minBeforeMax == s.minBeforeMax();
+}
+
+uint16_t Sensors::maxValue(uint8_t id) const {
+    if (id >= COUNT) {
+        return 0;
+    }
+
+    return _sensors[id]._valueMax;
+}
+
+bool Sensors::minBeforeMax(uint8_t id) const {
+    if (id >= COUNT) {
+        return 0;
+    }
+
+    return _sensors[id].minBeforeMax();
+}
+
+uint16_t Sensors::minValue(uint8_t id) const {
+    if (id >= COUNT) {
+        return 0;
+    }
+
+    return _sensors[id]._valueMin;
 }
 
 void Sensors::setAvailable(uint16_t mask) {

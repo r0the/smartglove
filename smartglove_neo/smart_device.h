@@ -114,6 +114,9 @@ public:
     bool resetIMU();
     bool sensorActivity(uint8_t id) const { return _sensors.activity(id); }
     bool sensorAvailable(uint8_t id) const { return _sensors.available(id); }
+    int32_t sensorMaxValue(uint8_t id) const { return _sensors.maxValue(id); }
+    bool sensorMinBeforeMax(uint8_t id) const { return _sensors.minBeforeMax(id); }
+    int32_t sensorMinValue(uint8_t id) const { return _sensors.minValue(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
     void setLED(LED::Mode mode);
     void setShowFramerate(bool showFramerate);
