@@ -18,8 +18,8 @@
 #ifndef SMART_DEVICE_H
 #define SMART_DEVICE_H
 
+#include <Adafruit_BNO055.h>
 #include <ssd1306.h>
-#include "imu.h"
 #include "sensors.h"
 
 /******************************************************************************
@@ -108,7 +108,7 @@ public:
     inline SSD1306& display() { return _display; }
     inline bool gestureAvailable(uint8_t id) const { return _sensors.gestureAvailable(id); }
     inline bool gestureDetected(uint8_t id) const { return _sensors.gestureDetected(id); }
-    bool imuReady() const;
+    inline bool imuReady() const { return _imuReady; }
     void popBehaviour();
     void pushBehaviour(Behaviour* behaviour);
     bool resetIMU();
@@ -134,9 +134,12 @@ private:
     SmartDevice& operator=(const SmartDevice&);
     void waitForFlash();
     BehaviourStack _behaviour;
+    Adafruit_BNO055 _imu;
+    imu::Vector<3> _imuAcceleration;
+    sensors_event_t _imuEvent;
+    bool _imuReady;
     Buttons _buttons;
     SSD1306 _display;
-    IMU _imu;
     LED _infoLED;
     unsigned long _lastMs;
     Sensors _sensors;

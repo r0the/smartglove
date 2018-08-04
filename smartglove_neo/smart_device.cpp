@@ -130,7 +130,8 @@ SmartDevice::SmartDevice() :
     _behaviour(*this, BEHAVIOUR_STACK_CAPACITY),
     _buttons(),
     _display(I2C_DISPLAY_ADDRESS),
-    _imu(),
+    _imu(-1, I2C_IMU_ADDRESS),
+    _imuReady(false),
     _infoLED(),
     _sensors() {
 }
@@ -154,10 +155,6 @@ bool SmartDevice::commandUp() const {
 
 void SmartDevice::configureSensor(uint8_t index, double min, double max, double minStdDev) {
     _sensors.configure(index, min, max, minStdDev);
-}
-
-bool SmartDevice::imuReady() const {
-    return _imu.status() == IMU::Ready;
 }
 
 void SmartDevice::setup() {
@@ -190,6 +187,8 @@ void SmartDevice::setup() {
     // initialize behaviour
     _behaviour.setup();
 
+    resetIMU();
+
 //    waitForFlash();
     doSetup();
 }
@@ -197,19 +196,28 @@ void SmartDevice::setup() {
 unsigned long last;
 
 void SmartDevice::loop() {
+    unsigned long now = millis();
     _infoLED.loop();
     setInfoLED(_infoLED.on());
     // update buttons
     _buttons.updateState(readButtonState());
     // update sensor values from IMU
-    _imu.loop();
-    unsigned long now = millis();
-    _sensors.addMeasurement(now, SENSOR_ACCEL_X, _imu.ax());
-    _sensors.addMeasurement(now, SENSOR_ACCEL_Y, _imu.ay());
-    _sensors.addMeasurement(now, SENSOR_ACCEL_Z, _imu.az());
-    _sensors.addMeasurement(now, SENSOR_GYRO_HEADING, _imu.heading());
-    _sensors.addMeasurement(now, SENSOR_GYRO_PITCH, _imu.pitch());
-    _sensors.addMeasurement(now, SENSOR_GYRO_ROLL, _imu.roll());
+    if (_imuReady) {
+        _imu.getEvent(&_imuEvent);
+        _imuAcceleration = _imu.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+        _sensors.addMeasurement(now, SENSOR_ACCEL_X, _imuAcceleration.x());
+        _sensors.addMeasurement(now, SENSOR_ACCEL_Y, _imuAcceleration.y());
+        _sensors.addMeasurement(now, SENSOR_ACCEL_Z, _imuAcceleration.z());
+        double heading = _imuEvent.orientation.x;
+        if (heading > 180) {
+            heading -= 360;
+        }
+
+        _sensors.addMeasurement(now, SENSOR_GYRO_HEADING, heading);
+        _sensors.addMeasurement(now, SENSOR_GYRO_PITCH, _imuEvent.orientation.y);
+        _sensors.addMeasurement(now, SENSOR_GYRO_ROLL, _imuEvent.orientation.z);
+    }
+
 
     doLoop();
     _display.clear();
@@ -239,8 +247,7 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
 }
 
 bool SmartDevice::resetIMU() {
-    _imu.setup();
-    return _imu.status() == IMU::Ready;
+    _imuReady = _imu.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
 }
 
 void SmartDevice::setLED(LED::Mode mode) {
