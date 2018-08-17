@@ -371,5 +371,9 @@ void MainMenu::action(uint8_t selected) {
 void MainMenu::draw(uint8_t selected) {
     device.display().drawText(10, 8, "Menu");
     device.display().drawText(10, 20, ITEMS[selected]);
+    device.display().setTextAlign(ALIGN_RIGHT);
+    device.display().drawText(120, 8, VERSION);
+    device.display().setTextAlign(ALIGN_LEFT);
 }
+
 
