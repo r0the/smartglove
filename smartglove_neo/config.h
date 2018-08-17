@@ -35,6 +35,8 @@
 
 #define SERIAL_CHECK_INTERVAL_MS 500
 
+#define GESTURE_TIMEOUT_MS 500
+
 #ifdef DEBUG
 
 void printByte(uint8_t data);

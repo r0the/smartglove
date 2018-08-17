@@ -225,16 +225,14 @@ void LEDTest::selected(uint8_t selected) {
 
 const uint8_t GestureTest::ITEM_COUNT = 3;
 const char* GestureTest::ITEMS[GestureTest::ITEM_COUNT] = {
-    "X-Axis", "Y-Axis", "Z-Axis"
+    "Gesture", "Left/Right", "Up/Down"
 };
 const uint8_t GestureTest::MAP[] = {
-    SENSOR_ACCEL_X, SENSOR_ACCEL_Y, SENSOR_ACCEL_Z
+    0, SENSOR_ACCEL_Y, SENSOR_ACCEL_Z
 };
 GestureTest::GestureTest(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
 }
-
-const uint16_t GestureTest::RANGE = 116;
 
 void GestureTest::setup() {
     MenuBehaviour::setup();
@@ -246,31 +244,35 @@ void GestureTest::action(uint8_t selected) {
 
 void GestureTest::draw(uint8_t selected) {
     device.display().drawText(10, 8, ITEMS[selected]);
-    if (device.imuReady()) {
+    if (!device.imuReady()) {
+        device.display().drawText(10, 22, "IMU not ready");
+        return;
+    }
+
+    if (selected == 0) {
         if (device.gestureDetected(GESTURE_WAVE_LEFT)) {
-            device.display().drawText(70, 8, "L");
+            device.display().drawText(10, 20, "LL");
         }
-
+    
         if (device.gestureDetected(GESTURE_WAVE_RIGHT)) {
-            device.display().drawText(70, 8, "R");
+            device.display().drawText(30, 20, "RR");
         }
 
-        char text[20];
-        if (device.sensorMinBeforeMax(MAP[selected])) {
-            device.display().drawText(80, 8, "UP");
-        }
-        else {
-            device.display().drawText(80, 8, "DOWN");
+        if (device.gestureDetected(GESTURE_WAVE_UP)) {
+            device.display().drawText(50, 20, "UU");
         }
 
-        sprintf(text, "%i", device.sensorMinValue(MAP[selected]));
-        device.display().drawText(10, 20, text);
-
-        sprintf(text, "%i", device.sensorMaxValue(MAP[selected]));
-        device.display().drawText(70, 20, text);
+        if (device.gestureDetected(GESTURE_WAVE_DOWN)) {
+            device.display().drawText(70, 20, "DD");
+        }
     }
     else {
-        device.display().drawText(10, 22, "IMU not ready");
+        char text[20];
+        sprintf(text, "%i", device.sensorMinValue(MAP[selected]));
+        device.display().drawText(10, 20, text);
+    
+        sprintf(text, "%i", device.sensorMaxValue(MAP[selected]));
+        device.display().drawText(70, 20, text);
     }
 }
 

@@ -122,7 +122,6 @@ private:
     static const uint8_t ITEM_COUNT;
     static const char* ITEMS[];
     static const uint8_t MAP[];
-    static const uint16_t RANGE;
 };
 
 /******************************************************************************

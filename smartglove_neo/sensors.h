@@ -92,7 +92,6 @@ public:
     bool gestureAvailable(uint8_t id) const;
     bool gestureDetected(uint8_t id) const;
     uint16_t maxValue(uint8_t id) const;
-    bool minBeforeMax(uint8_t id) const;
     uint16_t minValue(uint8_t id) const;
     void setAvailable(uint16_t mask);
     uint16_t value(uint8_t id) const;
@@ -101,6 +100,7 @@ private:
     Sensors& operator=(const Sensors&);
 
     uint16_t _available;
+    uint8_t _gestures;
     Sensor* _sensors;
 };
 #endif
