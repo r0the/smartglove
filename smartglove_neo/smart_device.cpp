@@ -222,6 +222,10 @@ void SmartDevice::loop() {
     doLoop();
     _display.clear();
     _behaviour.loop();
+    if (buttonCombination(BUTTON_INDEX_FINGER_2, BUTTON_MIDDLE_FINGER_2)) {
+        resetIMU();
+    }
+
     if (_showFramerate) {
         unsigned long now = millis();
         char text[6];
