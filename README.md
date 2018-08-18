@@ -39,8 +39,8 @@ SmartGlove devices support up to 4 gestures:
 |:--------------- | ---:|:-------- |:----------- |
 | Wave Left       |   0 | 0x1000   | Digital 8   |
 | Wave Right      |   1 | 0x2000   | Digital 9   |
-| Wave Up         |   2 | 0x1000   | Digital 8   |
-| Wave Down       |   3 | 0x2000   | Digital 9   |
+| Wave Up         |   2 | 0x1000   | Digital 10  |
+| Wave Down       |   3 | 0x2000   | Digital 11  |
 
 ### Analog Outputs
 

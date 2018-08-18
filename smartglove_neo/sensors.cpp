@@ -106,7 +106,7 @@ private:
     int64_t _variance;
 };
 
-const uint16_t Sensor::GESTURE_THRESOLD = 5000;
+const uint16_t Sensor::GESTURE_THRESOLD = 10;
 const uint16_t Sensor::MAX_VALUE = 0xFFFF;
 const uint16_t Sensor::ZERO_VALUE = 0x7FFF;
 const uint8_t Sensor::VALUE_COUNT = 16;

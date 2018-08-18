@@ -17,7 +17,7 @@
 
 //#define DEBUG
 
-#define VERSION "v2.0"
+#define VERSION "v2.1"
 
 #define I2C_DISPLAY_ADDRESS            0x3C
 #define I2C_IMU_ADDRESS                0x29
@@ -37,7 +37,7 @@
 
 #define SERIAL_CHECK_INTERVAL_MS 500
 
-#define GESTURE_TIMEOUT_MS 500
+#define GESTURE_TIMEOUT_MS 300
 
 #ifdef DEBUG
 
