@@ -59,10 +59,10 @@ private:
  * class Sensors
  *****************************************************************************/
 
-#define SENSOR_BEND_INDEX_FINGER   0
-#define SENSOR_BEND_MIDDLE_FINGER  1
-#define SENSOR_BEND_RING_FINGER    2
-#define SENSOR_BEND_LITTLE_FINGER  3
+#define SENSOR_FLEX_INDEX_FINGER   0
+#define SENSOR_FLEX_MIDDLE_FINGER  1
+#define SENSOR_FLEX_RING_FINGER    2
+#define SENSOR_FLEX_LITTLE_FINGER  3
 #define SENSOR_DIST_HAND           4
 #define SENSOR_DIST_GROUND         5
 #define SENSOR_ACCEL_X             6

@@ -125,6 +125,23 @@ private:
 };
 
 /******************************************************************************
+ * class FlexTest
+ *****************************************************************************/
+
+class FlexTest : public MenuBehaviour {
+public:
+    explicit FlexTest(SmartDevice& device);
+    virtual void setup();
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const uint8_t ITEM_COUNT;
+    static const char* ITEMS[];
+    static const uint8_t MAP[];
+    static const uint16_t RANGE;
+};
+
+/******************************************************************************
  * class GyroscopeTest
  *****************************************************************************/
 

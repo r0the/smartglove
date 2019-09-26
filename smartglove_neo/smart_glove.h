@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2019 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SMART_BALL_H
-#define SMART_BALL_H
+#ifndef SMART_GLOVE_H
+#define SMART_GLOVE_H
 
 #include "smart_device.h"
 #include "pca9557.h"
 
-class SmartBall : public SmartDevice {
+class SmartGlove : public SmartDevice {
 public:
-    SmartBall();
+    SmartGlove();
     virtual bool commandCalibrateIMU() const;
     virtual bool commandMenu() const;
     virtual bool flexReady() const;
@@ -35,6 +35,7 @@ protected:
     virtual uint16_t readButtonState() const;
     virtual void setInfoLED(bool on);
 private:
+    bool _ads;
     PCA9557 _buttons;
     bool _commandMenu;
     unsigned long _menuTimeoutMs;

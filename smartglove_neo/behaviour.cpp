@@ -324,16 +324,64 @@ void GyroscopeTest::draw(uint8_t selected) {
 }
 
 /******************************************************************************
+ * class FlexTest
+ *****************************************************************************/
+
+const uint8_t FlexTest::ITEM_COUNT = 4;
+const char* FlexTest::ITEMS[FlexTest::ITEM_COUNT] = {
+    "Index Finger", "Middle Finger", "Ring Finger", "Little Finger"
+};
+const uint8_t FlexTest::MAP[] = {
+    SENSOR_FLEX_INDEX_FINGER, SENSOR_FLEX_MIDDLE_FINGER, SENSOR_FLEX_RING_FINGER, SENSOR_FLEX_LITTLE_FINGER
+};
+
+const uint16_t FlexTest::RANGE = 116;
+
+FlexTest::FlexTest(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+}
+
+void FlexTest::setup() {
+    MenuBehaviour::setup();
+}
+
+void FlexTest::action(uint8_t selected) {
+    device.popBehaviour();
+}
+
+void FlexTest::draw(uint8_t selected) {
+    device.display().drawText(10, 8, ITEMS[selected]);
+    if (device.flexReady()) {
+        if (device.sensorActivity(MAP[selected])) {
+            device.display().drawText(90, 8, "A");
+        }
+
+        device.display().drawRectangle(10, 22, RANGE, 8);
+        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (val < RANGE/2) {
+            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
+        }
+        else {
+            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
+        }
+    }
+    else {
+        device.display().drawText(10, 22, "Flex not ready");
+    }
+}
+
+/******************************************************************************
  * class MainMenu
  *****************************************************************************/
 
-const uint8_t MainMenu::ITEM_COUNT = 7;
+const uint8_t MainMenu::ITEM_COUNT = 8;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
     "LED Test",
     "Gesture Test",
     "Gyroscope Test",
+    "Flex Test",
     "Framerate",
     "Exit"
 };
@@ -360,9 +408,12 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 5:
-        device.pushBehaviour(new FramerateOption(device));
+        device.pushBehaviour(new FlexTest(device));
         break;
     case 6:
+        device.pushBehaviour(new FramerateOption(device));
+        break;
+    case 7:
         device.popBehaviour();
         break;
     }

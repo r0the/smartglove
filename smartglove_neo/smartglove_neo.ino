@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "smart_ball.h"
+#include "smart_glove.h"
 #include "config.h"
 
 SmartDevice* smartDevice;
 
 void setup() {
     DEBUG_INIT()
-    smartDevice = new SmartBall();
+    smartDevice = new SmartGlove();
     smartDevice->setup();
 }
 

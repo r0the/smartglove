@@ -106,6 +106,7 @@ public:
     virtual bool commandMenu() const = 0;
     bool commandUp() const;
     inline SSD1306& display() { return _display; }
+    virtual bool flexReady() const = 0;
     inline bool gestureAvailable(uint8_t id) const { return _sensors.gestureAvailable(id); }
     inline bool gestureDetected(uint8_t id) const { return _sensors.gestureDetected(id); }
     inline bool imuReady() const { return _imuReady; }
@@ -128,6 +129,7 @@ protected:
     virtual uint16_t readButtonState() const = 0;
     virtual void setInfoLED(bool on) = 0;
     void configureSensor(uint8_t index, double min, double max, double minStdDev);
+    Sensors _sensors;
 private:
     SmartDevice(const SmartDevice&);
     SmartDevice& operator=(const SmartDevice&);
@@ -139,9 +141,9 @@ private:
     bool _imuReady;
     Buttons _buttons;
     SSD1306 _display;
+    bool _flexReady;
     LED _infoLED;
     unsigned long _lastMs;
-    Sensors _sensors;
     bool _showFramerate;
 };
 

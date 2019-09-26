@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2019 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "smart_ball.h"
+#include "smart_glove.h"
 #include "config.h"
+#include "ads.h"
 
 const uint8_t BUTTON_COUNT = 7;
 const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
@@ -29,32 +30,45 @@ const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
     BUTTON_MIDDLE_FINGER_2
 };
 
-SmartBall::SmartBall() :
+SmartGlove::SmartGlove() :
+    _ads(false),
     _buttons(I2C_SMART_BALL_BUTTONS_ADDRESS),
     _commandMenu(false),
     _menuTimeoutMs(0) {
 }
 
-bool SmartBall::commandCalibrateIMU() const {
+bool SmartGlove::commandCalibrateIMU() const {
     return buttonCombination(BUTTON_INDEX_FINGER_2, BUTTON_MIDDLE_FINGER_2);
 }
 
-bool SmartBall::commandMenu() const {
+bool SmartGlove::commandMenu() const {
     return _commandMenu;
 }
 
-bool SmartBall::flexReady() const {
-    return false;
+bool SmartGlove::flexReady() const {
+    return _ads;
 }
 
-void SmartBall::doSetup() {
+void SmartGlove::doSetup() {
     _buttons.writeConfig(0x7F);
     _buttons.writePolarity(0x7F);
+    ads_init_t init;
+    init.sps = ADS_100_HZ;
+    init.addr = 0x12;
+    _ads = ads_init(&init) == ADS_OK;
+    ads_polled(true);
 }
 
-void SmartBall::doLoop() {
+void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
+
+    float sample[2];
+    uint8_t dataType;
+    if (ads_read_polled(sample, &dataType) == ADS_OK && dataType == ADS_SAMPLE) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, sample[0]);
+    }
+
     if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
         _menuTimeoutMs = now + LONG_PRESS_MS;
     }
@@ -70,7 +84,7 @@ void SmartBall::doLoop() {
     }
 }
 
-uint16_t SmartBall::availableButtonMask() const {
+uint16_t SmartGlove::availableButtonMask() const {
     return
         (1 << BUTTON_THUMB_1) | 
         (1 << BUTTON_INDEX_FINGER_1) | 
@@ -81,17 +95,21 @@ uint16_t SmartBall::availableButtonMask() const {
         (1 << BUTTON_MIDDLE_FINGER_2);
 }
 
-uint16_t SmartBall::availableSensorMask() const {
+uint16_t SmartGlove::availableSensorMask() const {
     return
         (1 << SENSOR_ACCEL_X) | 
         (1 << SENSOR_ACCEL_Y) | 
         (1 << SENSOR_ACCEL_Z) |
         (1 << SENSOR_GYRO_ROLL) |
         (1 << SENSOR_GYRO_PITCH) |
-        (1 << SENSOR_GYRO_HEADING);
+        (1 << SENSOR_GYRO_HEADING) |
+        (1 << SENSOR_FLEX_INDEX_FINGER) |
+        (1 << SENSOR_FLEX_MIDDLE_FINGER) |
+        (1 << SENSOR_FLEX_RING_FINGER) |
+        (1 << SENSOR_FLEX_LITTLE_FINGER);
 }
 
-uint16_t SmartBall::readButtonState() const {
+uint16_t SmartGlove::readButtonState() const {
     uint16_t result = 0;
     uint8_t buttons = _buttons.readInput();
     for (uint8_t bit = 0; bit < BUTTON_COUNT; ++bit) {
@@ -103,7 +121,6 @@ uint16_t SmartBall::readButtonState() const {
     return result;
 }
 
-void SmartBall::setInfoLED(bool on) {
-    _buttons.writeOutput(on ? 0x80 : 0x00);
+void SmartGlove::setInfoLED(bool on) {
 }
 
