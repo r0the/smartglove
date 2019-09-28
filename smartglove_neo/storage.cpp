@@ -18,13 +18,7 @@
 #include "storage.h"
 #include <Wire.h>
 
-#if defined(ARDUINO_SAMD_MKR1000)
 #define NO_EEPROM
-#endif
-
-#if defined(ARDUINO_SAMD_FEATHER_M0)
-#define NO_EEPROM
-#endif
 
 #if defined(NO_EEPROM)
 #define EEPROM_ADDRESS 0x50
@@ -67,4 +61,3 @@ uint8_t StorageSingleton::readByte(uint16_t address) const {
 }
 
 StorageSingleton Storage;
-

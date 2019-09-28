@@ -20,6 +20,7 @@
 
 #include "smart_device.h"
 #include "pca9557.h"
+#include "SparkFun_Displacement_Sensor_Arduino_Library.h"
 
 class SmartGlove : public SmartDevice {
 public:
@@ -36,10 +37,10 @@ protected:
     virtual void setInfoLED(bool on);
 private:
     bool _ads;
+    ADS _flexIndexFinger;
     PCA9557 _buttons;
     bool _commandMenu;
     unsigned long _menuTimeoutMs;
 };
 
 #endif
-

@@ -17,7 +17,6 @@
 
 #include "smart_glove.h"
 #include "config.h"
-#include "ads.h"
 
 const uint8_t BUTTON_COUNT = 7;
 const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
@@ -52,21 +51,15 @@ bool SmartGlove::flexReady() const {
 void SmartGlove::doSetup() {
     _buttons.writeConfig(0x7F);
     _buttons.writePolarity(0x7F);
-    ads_init_t init;
-    init.sps = ADS_100_HZ;
-    init.addr = 0x12;
-    _ads = ads_init(&init) == ADS_OK;
-    ads_polled(true);
+    _ads = _flexIndexFinger.begin();
 }
 
 void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    float sample[2];
-    uint8_t dataType;
-    if (ads_read_polled(sample, &dataType) == ADS_OK && dataType == ADS_SAMPLE) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, sample[0]);
+    if (_flexIndexFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.getX());        
     }
 
     if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
@@ -123,4 +116,3 @@ uint16_t SmartGlove::readButtonState() const {
 
 void SmartGlove::setInfoLED(bool on) {
 }
-
