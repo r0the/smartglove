@@ -39,8 +39,20 @@ bool SmartBall::commandCalibrateIMU() const {
     return buttonCombination(BUTTON_INDEX_FINGER_2, BUTTON_MIDDLE_FINGER_2);
 }
 
+bool SmartBall::commandDown() const {
+    return buttonDown(BUTTON_MIDDLE_FINGER_1);
+}
+
+bool SmartBall::commandEnter() const {
+    return buttonDown(BUTTON_THUMB_1);
+}
+
 bool SmartBall::commandMenu() const {
     return _commandMenu;
+}
+
+bool SmartBall::commandUp() const {
+    return buttonDown(BUTTON_INDEX_FINGER_1);
 }
 
 bool SmartBall::flexReady() const {
@@ -106,4 +118,3 @@ uint16_t SmartBall::readButtonState() const {
 void SmartBall::setInfoLED(bool on) {
     _buttons.writeOutput(on ? 0x80 : 0x00);
 }
-

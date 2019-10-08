@@ -101,10 +101,10 @@ public:
     inline bool buttonDown(uint8_t id) const { return _buttons.down(id); }
     inline bool buttonPressed(uint8_t id) const { return _buttons.pressed(id); }
     virtual bool commandCalibrateIMU() const = 0;
-    bool commandDown() const;
-    bool commandEnter() const;
+    virtual bool commandDown() const = 0;
+    virtual bool commandEnter() const = 0;
     virtual bool commandMenu() const = 0;
-    bool commandUp() const;
+    virtual bool commandUp() const = 0;
     inline SSD1306& display() { return _display; }
     virtual bool flexReady() const = 0;
     inline bool gestureAvailable(uint8_t id) const { return _sensors.gestureAvailable(id); }

@@ -26,7 +26,10 @@ class SmartGlove : public SmartDevice {
 public:
     SmartGlove();
     virtual bool commandCalibrateIMU() const;
+    virtual bool commandDown() const;
+    virtual bool commandEnter() const;
     virtual bool commandMenu() const;
+    virtual bool commandUp() const;
     virtual bool flexReady() const;
 protected:
     virtual void doSetup();
@@ -37,10 +40,11 @@ protected:
     virtual void setInfoLED(bool on);
 private:
     bool _ads;
-    ADS _flexIndexFinger;
-    PCA9557 _buttons;
     bool _commandMenu;
+    ADS _flexIndexFinger;
     unsigned long _menuTimeoutMs;
+    PCA9557 _sideButtons;
+    PCA9557 _tipButtons;
 };
 
 #endif

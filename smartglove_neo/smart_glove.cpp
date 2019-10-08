@@ -18,30 +18,44 @@
 #include "smart_glove.h"
 #include "config.h"
 
-const uint8_t BUTTON_COUNT = 7;
+const uint8_t BUTTON_COUNT = 8;
 const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
-    BUTTON_THUMB_1,
     BUTTON_INDEX_FINGER_1,
     BUTTON_MIDDLE_FINGER_1,
     BUTTON_RING_FINGER_1,
     BUTTON_LITTLE_FINGER_1,
-    BUTTON_INDEX_FINGER_2,
-    BUTTON_MIDDLE_FINGER_2
+    BUTTON_THUMB_1,
+    BUTTON_THUMB_2,
+    BUTTON_THUMB_3,
+    BUTTON_THUMB_4
 };
 
 SmartGlove::SmartGlove() :
     _ads(false),
-    _buttons(I2C_SMART_BALL_BUTTONS_ADDRESS),
     _commandMenu(false),
-    _menuTimeoutMs(0) {
+    _menuTimeoutMs(0),
+    _sideButtons(I2C_SMART_GLOVE_SIDE_BUTTONS_ADDRESS),
+    _tipButtons(I2C_SMART_GLOVE_TIP_BUTTONS_ADDRESS) {
 }
 
 bool SmartGlove::commandCalibrateIMU() const {
     return buttonCombination(BUTTON_INDEX_FINGER_2, BUTTON_MIDDLE_FINGER_2);
 }
 
+bool SmartGlove::commandDown() const {
+    return buttonDown(BUTTON_THUMB_3);
+}
+
+bool SmartGlove::commandEnter() const {
+    return buttonDown(BUTTON_THUMB_1);
+}
+
 bool SmartGlove::commandMenu() const {
     return _commandMenu;
+}
+
+bool SmartGlove::commandUp() const {
+    return buttonDown(BUTTON_THUMB_4);
 }
 
 bool SmartGlove::flexReady() const {
@@ -49,8 +63,8 @@ bool SmartGlove::flexReady() const {
 }
 
 void SmartGlove::doSetup() {
-    _buttons.writeConfig(0x7F);
-    _buttons.writePolarity(0x7F);
+    _sideButtons.writeConfig(0xF0);
+    _sideButtons.writePolarity(0xF0);
     _ads = _flexIndexFinger.begin();
 }
 
@@ -66,7 +80,7 @@ void SmartGlove::doLoop() {
         _menuTimeoutMs = now + LONG_PRESS_MS;
     }
 
-    if (buttonPressed(BUTTON_THUMB_1) && buttonPressed(BUTTON_LITTLE_FINGER_1)) {
+    if (buttonPressed(BUTTON_THUMB_1)) {
         if (_menuTimeoutMs < now) {
             _commandMenu = true;
             _menuTimeoutMs = now + LONG_PRESS_MS;
@@ -80,12 +94,13 @@ void SmartGlove::doLoop() {
 uint16_t SmartGlove::availableButtonMask() const {
     return
         (1 << BUTTON_THUMB_1) | 
+        (1 << BUTTON_THUMB_2) | 
+        (1 << BUTTON_THUMB_3) | 
+        (1 << BUTTON_THUMB_4) | 
         (1 << BUTTON_INDEX_FINGER_1) | 
         (1 << BUTTON_MIDDLE_FINGER_1) |
         (1 << BUTTON_RING_FINGER_1) |
-        (1 << BUTTON_LITTLE_FINGER_1) |
-        (1 << BUTTON_INDEX_FINGER_2) |
-        (1 << BUTTON_MIDDLE_FINGER_2);
+        (1 << BUTTON_LITTLE_FINGER_1);
 }
 
 uint16_t SmartGlove::availableSensorMask() const {
@@ -104,13 +119,15 @@ uint16_t SmartGlove::availableSensorMask() const {
 
 uint16_t SmartGlove::readButtonState() const {
     uint16_t result = 0;
-    uint8_t buttons = _buttons.readInput();
+    uint8_t buttons = (_sideButtons.readInput() & 0xF0) | ((_tipButtons.readInput() & 0xF0) >> 4);
     for (uint8_t bit = 0; bit < BUTTON_COUNT; ++bit) {
         if (buttons & (1 << bit)) {
             result |= (1 << BUTTON_MAP[bit]);
         }
     }
 
+    _sideButtons.writeOutput(~(buttons >> 4));
+    _tipButtons.writeOutput(~(buttons & 0x0F));
     return result;
 }
 

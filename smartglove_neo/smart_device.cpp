@@ -141,18 +141,6 @@ bool SmartDevice::buttonCombination(uint8_t id1, uint8_t id2) const {
            (buttonDown(id2) && buttonPressed(id1));
 }
 
-bool SmartDevice::commandDown() const {
-    return buttonDown(BUTTON_MIDDLE_FINGER_1);
-}
-
-bool SmartDevice::commandEnter() const {
-    return buttonDown(BUTTON_THUMB_1);
-}
-
-bool SmartDevice::commandUp() const {
-    return buttonDown(BUTTON_INDEX_FINGER_1);
-}
-
 void SmartDevice::configureSensor(uint8_t index, double min, double max, double minStdDev) {
     _sensors.configure(index, min, max, minStdDev);
 }
