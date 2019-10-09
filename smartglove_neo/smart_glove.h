@@ -42,6 +42,9 @@ private:
     bool _ads;
     bool _commandMenu;
     ADS _flexIndexFinger;
+    ADS _flexMiddleFinger;
+    ADS _flexRingFinger;
+    ADS _flexLittleFinger;
     unsigned long _menuTimeoutMs;
     PCA9557 _sideButtons;
     PCA9557 _tipButtons;

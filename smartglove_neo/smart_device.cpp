@@ -171,6 +171,10 @@ void SmartDevice::setup() {
     configureSensor(SENSOR_GYRO_ROLL, 180.0, -180.0, 2.0);
     configureSensor(SENSOR_GYRO_PITCH, 90.0, -90.0, 1.0);
     configureSensor(SENSOR_GYRO_HEADING, 180.0, -180.0, 2.0);
+    configureSensor(SENSOR_FLEX_INDEX_FINGER, 90.0, -90.0, 2.0);
+    configureSensor(SENSOR_FLEX_MIDDLE_FINGER, 90.0, -90.0, 2.0);
+    configureSensor(SENSOR_FLEX_RING_FINGER, 90.0, -90.0, 2.0);
+    configureSensor(SENSOR_FLEX_LITTLE_FINGER, 90.0, -90.0, 2.0);
 
     // initialize behaviour
     _behaviour.setup();
