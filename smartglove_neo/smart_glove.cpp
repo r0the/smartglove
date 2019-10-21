@@ -75,26 +75,22 @@ void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    _flexIndexFinger.poll();
     if (_flexIndexFinger.available()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.getX());        
     }
 
-    _flexIndexFinger.stop();
-    _flexMiddleFinger.poll();
     if (_flexMiddleFinger.available()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.getX());        
     }
 
-    _flexMiddleFinger.stop();
-/*    if (_flexRingFinger.available()) {
-//        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.getX());        
+    if (_flexRingFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.getX());        
     }
 
     if (_flexLittleFinger.available()) {
-//        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.getX());        
+        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.getX());        
     }
-*/
+
     if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
         _menuTimeoutMs = now + LONG_PRESS_MS;
     }
