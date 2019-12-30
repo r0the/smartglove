@@ -17,7 +17,7 @@
 
 //#define DEBUG
 
-#define VERSION "v3.0"
+#define VERSION "v3.1"
 
 #define I2C_DISPLAY_ADDRESS                  0x3C
 #define I2C_IMU_ADDRESS                      0x29

@@ -108,7 +108,6 @@ SmartGlove devices support up to 4 gestures:
 4. Install the following libraries:
    - Adafruit Unified Sensor
    - Adafruit BNO055 (**Important:** Use version )
-   - SparkFun Angular Displacement Sensor Adruino Library
    - MonoGFX Arduino
 5. Select the board **Adafruit Feather M0**.
 

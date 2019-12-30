@@ -33,6 +33,10 @@ const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
 SmartGlove::SmartGlove() :
     _ads(false),
     _commandMenu(false),
+    _flexIndexFinger(I2C_FLEX_INDEX_FINGER_ADDRESS),
+    _flexLittleFinger(I2C_FLEX_LITTLE_FINGER_ADDRESS),
+    _flexMiddleFinger(I2C_FLEX_MIDDLE_FINGER_ADDRESS),
+    _flexRingFinger(I2C_FLEX_RING_FINGER_ADDRESS),
     _menuTimeoutMs(0),
     _sideButtons(I2C_SMART_GLOVE_SIDE_BUTTONS_ADDRESS),
     _tipButtons(I2C_SMART_GLOVE_TIP_BUTTONS_ADDRESS) {
@@ -65,30 +69,30 @@ bool SmartGlove::flexReady() const {
 void SmartGlove::doSetup() {
     _sideButtons.writeConfig(0xF0);
     _sideButtons.writePolarity(0xF0);
-    _flexIndexFinger.begin(I2C_FLEX_INDEX_FINGER_ADDRESS);
-    _flexMiddleFinger.begin(I2C_FLEX_MIDDLE_FINGER_ADDRESS);
-    _flexRingFinger.begin(I2C_FLEX_RING_FINGER_ADDRESS);
-    _flexLittleFinger.begin(I2C_FLEX_LITTLE_FINGER_ADDRESS);
+    _flexIndexFinger.init();
+    _flexMiddleFinger.init();
+    _flexRingFinger.init();
+    _flexLittleFinger.init();
 }
 
 void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    if (_flexIndexFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.getX());        
+    if (_flexIndexFinger.ready()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.readInput());
     }
 
-    if (_flexMiddleFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.getX());        
+    if (_flexMiddleFinger.ready()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.readInput());
     }
 
-    if (_flexRingFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.getX());        
+    if (_flexRingFinger.ready()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.readInput());
     }
 
-    if (_flexLittleFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.getX());        
+    if (_flexLittleFinger.ready()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.readInput());
     }
 
     if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
