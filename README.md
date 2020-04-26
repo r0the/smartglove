@@ -76,26 +76,27 @@ SmartGlove devices support up to 4 gestures:
 
 ### I2C Addresses SmartBall
 
-| Chip    | Function                    | Fixed Address Part | Variable Address part | Address Binary | Address Hex |
-|:------- |:--------------------------- |:------------------ |:--------------------- |:-------------- |:----------- |
-| PCA9557 | buttons and LED             | `0011`             | `001`                 | `B0001001`     | `0x19`      |
-| BNO055  | inertial measurement unit   | `010100`           | `1`                   | `B0101001`     | `0x29`      |
-| SSD1306 | dot matrix display          | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
-| 24AA64  | EEPROM                      | `01010`            | `000`                 | `B0101000`     | `0x50`      |
+| Chip    | Function                  | Fixed Address Part | Variable Address part | Address Hex |
+|:------- |:------------------------- |:------------------ |:--------------------- |:----------- |
+| PCA9557 | buttons and LED           | `0011`             | `001`                 | `0x19`      |
+| BNO055  | inertial measurement unit | `010100`           | `1`                   | `0x29`      |
+| SSD1306 | dot matrix display        | `011110`           | `0`                   | `0x3C`      |
+| 24AA64  | EEPROM                    | `01010`            | `000`                 | `0x50`      |
 
 ### I2C Addresses SmartGlove
 
-| Chip    | Function                  | Fixed Address Part | Variable Address part | Address Binary | Address Hex |
-|:------- |:------------------------- |:------------------ |:--------------------- |:-------------- |:----------- |
-| PCA9557 | side buttons and LED      | `0011`             | `000`                 | `B0001000`     | `0x18`      |
-| PCA9557 | tip buttons and LED       | `0011`             | `001`                 | `B0001001`     | `0x19`      |
-| BNO055  | inertial measurement unit | `010100`           | `1`                   | `B0101001`     | `0x29`      |
-| SSD1306 | dot matrix display        | `011110`           | `0`                   | `B0111100`     | `0x3C`      |
-| 24AA64  | EEPROM                    | `01010`            | `000`                 | `B0101000`     | `0x50`      |
-|         | flex sensor index finger  |                    | `0010010`             | `B0010010`     | `0x12`      |
-|         | flex sensor middle finger |                    | `0010010`             | `B0010011`     | `0x13`      |
-|         | flex sensor ring finger   |                    | `0010010`             | `B0010100`     | `0x14`      |
-|         | flex sensor little finger |                    | `0010010`             | `B0010101`     | `0x15`      |
+| Chip    | Function                  | Fixed Address Part | Variable Address part | Address Hex |
+|:------- |:------------------------- |:------------------ |:--------------------- |:----------- |
+|         | flex sensor index finger  |                    | `0010010`             | `0x12`      |
+|         | flex sensor middle finger |                    | `0010011`             | `0x13`      |
+|         | flex sensor ring finger   |                    | `0010100`             | `0x14`      |
+|         | flex sensor little finger |                    | `0010101`             | `0x15`      |
+| PCA9557 | side buttons and LED      | `0011`             | `000`                 | `0x18`      |
+| PCA9557 | tip buttons and LED       | `0011`             | `001`                 | `0x19`      |
+| BNO055  | inertial measurement unit | `010100`           | `1`                   | `0x29`      |
+| SSD1306 | dot matrix display        | `011110`           | `0`                   | `0x3C`      |
+| 24AA64  | EEPROM                    | `01010`            | `000`                 | `0x50`      |
+| VL52L1X | distance measurement      | `1010010`          |                       | `0x52`      |
 
 ## IDE Setup
 
@@ -104,11 +105,12 @@ SmartGlove devices support up to 4 gestures:
 
    `https://adafruit.github.io/arduino-board-index/package_adafruit_index.json`
 
-3. Install the **Adafruit SAMD Boards** boards manager.
-4. Install the following libraries:
-   - Adafruit Unified Sensor
-   - Adafruit BNO055 (**Important:** Use version )
-   - MonoGFX Arduino
+3. Install the **Adafruit SAMD Boards** boards manager (menu Tools/Board/Boards Manager).
+4. Install the following libraries (menu Sketch/Include Library/Manage Libraries):
+   - **Adafruit Unified Sensor**
+   - **Adafruit BNO055**
+   - **MonoGFX Arduino**
+   - **SparkFun VL53L1X 4m Laser Distance Sensor**
 5. Select the board **Adafruit Feather M0**.
 
 [1]: https://www.arduino.cc/en/Main/Software
