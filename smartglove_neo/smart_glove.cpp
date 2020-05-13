@@ -69,6 +69,8 @@ bool SmartGlove::flexReady() const {
 void SmartGlove::doSetup() {
     _sideButtons.writeConfig(0xF0);
     _sideButtons.writePolarity(0xF0);
+    _tipButtons.writeConfig(0xF0);
+    _tipButtons.writePolarity(0xF0);
     _flexIndexFinger.init();
     _flexMiddleFinger.init();
     _flexRingFinger.init();
