@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2018 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,21 @@ public:
 };
 
 /******************************************************************************
- * class FramerateMenu
+ * class DebugSerialOption
+ *****************************************************************************/
+
+class DebugSerialOption: public MenuBehaviour {
+public:
+    explicit DebugSerialOption(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const uint8_t ITEM_COUNT;
+    static const char* ITEMS[];
+};
+
+/******************************************************************************
+ * class FramerateOption
  *****************************************************************************/
 
 class FramerateOption: public MenuBehaviour {
@@ -173,4 +187,3 @@ private:
 };
 
 #endif
-

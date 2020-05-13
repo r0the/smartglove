@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2018 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,6 +105,7 @@ public:
     virtual bool commandEnter() const = 0;
     virtual bool commandMenu() const = 0;
     virtual bool commandUp() const = 0;
+    inline bool debugSerial() const { return _debugSerial; }
     inline SSD1306& display() { return _display; }
     virtual bool flexReady() const = 0;
     inline bool gestureAvailable(uint8_t id) const { return _sensors.gestureAvailable(id); }
@@ -119,6 +120,7 @@ public:
     int32_t sensorMinValue(uint8_t id) const { return _sensors.minValue(id); }
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
     void setLED(LED::Mode mode);
+    void setDebugSerial(bool enable);
     void setShowFramerate(bool showFramerate);
     bool showFramerate() const { return _showFramerate; }
 protected:
@@ -135,12 +137,13 @@ private:
     SmartDevice& operator=(const SmartDevice&);
     void waitForFlash();
     BehaviourStack _behaviour;
+    Buttons _buttons;
+    SSD1306 _display;
+    bool _debugSerial;
     Adafruit_BNO055 _imu;
     imu::Vector<3> _imuAcceleration;
     sensors_event_t _imuEvent;
     bool _imuReady;
-    Buttons _buttons;
-    SSD1306 _display;
     bool _flexReady;
     LED _infoLED;
     unsigned long _lastMs;

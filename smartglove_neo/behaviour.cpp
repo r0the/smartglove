@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2018 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -149,6 +149,31 @@ void ButtonTest::loop() {
             x += 2;
         }
     }
+}
+
+/******************************************************************************
+ * class DebugSerialOption
+ *****************************************************************************/
+
+const uint8_t DebugSerialOption::ITEM_COUNT = 2;
+const char* DebugSerialOption::ITEMS[DebugSerialOption::ITEM_COUNT] = {
+    "No",
+    "Yes"
+};
+
+DebugSerialOption::DebugSerialOption(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+    select(device.debugSerial() ? 1 : 0);
+}
+
+void DebugSerialOption::action(uint8_t selected) {
+    device.setDebugSerial(selected == 1);
+    device.popBehaviour();
+}
+
+void DebugSerialOption::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "Serial Debug Output");
+    device.display().drawText(10, 20, ITEMS[selected]);
 }
 
 /******************************************************************************
@@ -311,6 +336,10 @@ void GyroscopeTest::draw(uint8_t selected) {
 
         device.display().drawRectangle(10, 22, RANGE, 8);
         uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (device.debugSerial()) {
+            Serial.println(val);
+        }
+
         if (val < RANGE/2) {
             device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
         }
@@ -358,6 +387,10 @@ void FlexTest::draw(uint8_t selected) {
 
         device.display().drawRectangle(10, 22, RANGE, 8);
         uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (device.debugSerial()) {
+            Serial.println(val);
+        }
+
         if (val < RANGE/2) {
             device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
         }
@@ -374,7 +407,7 @@ void FlexTest::draw(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const uint8_t MainMenu::ITEM_COUNT = 8;
+const uint8_t MainMenu::ITEM_COUNT = 9;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
@@ -383,6 +416,7 @@ const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "Gyroscope Test",
     "Flex Test",
     "Framerate",
+    "Debug Serial",
     "Exit"
 };
 
@@ -414,6 +448,9 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new FramerateOption(device));
         break;
     case 7:
+        device.pushBehaviour(new DebugSerialOption(device));
+        break;
+    case 8:
         device.popBehaviour();
         break;
     }
@@ -426,5 +463,3 @@ void MainMenu::draw(uint8_t selected) {
     device.display().drawText(120, 8, VERSION);
     device.display().setTextAlign(ALIGN_LEFT);
 }
-
-

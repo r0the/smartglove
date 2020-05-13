@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2018 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,6 +129,7 @@ void BehaviourStack::push(Behaviour* behaviour) {
 SmartDevice::SmartDevice() :
     _behaviour(*this, BEHAVIOUR_STACK_CAPACITY),
     _buttons(),
+    _debugSerial(false),
     _display(I2C_DISPLAY_ADDRESS),
     _imu(-1, I2C_IMU_ADDRESS),
     _imuReady(false),
@@ -244,6 +245,25 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
 
 bool SmartDevice::resetIMU() {
     _imuReady = _imu.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
+}
+
+void SmartDevice::setDebugSerial(bool enable) {
+    if (enable && !_debugSerial) {
+        _display.clear();
+        _display.drawText(10, 8, "Open Serial Plotter");
+        _display.update();
+        Serial.begin(9600);
+        while (!Serial) {
+            delay(1);
+        }
+
+        _debugSerial = true;
+    }
+
+    if (!enable && _debugSerial) {
+        Serial.end();
+        _debugSerial = false;
+    }
 }
 
 void SmartDevice::setLED(LED::Mode mode) {

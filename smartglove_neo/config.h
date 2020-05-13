@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 by Stefan Rothe
+ * Copyright (C) 2018 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 //#define DEBUG
 
-#define VERSION "v3.1"
+#define VERSION "v3.2"
 
 #define I2C_DISPLAY_ADDRESS                  0x3C
 #define I2C_IMU_ADDRESS                      0x29
