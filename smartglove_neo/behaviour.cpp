@@ -177,6 +177,57 @@ void DebugSerialOption::draw(uint8_t selected) {
 }
 
 /******************************************************************************
+ * class FlexTest
+ *****************************************************************************/
+
+const uint8_t FlexTest::ITEM_COUNT = 4;
+const char* FlexTest::ITEMS[FlexTest::ITEM_COUNT] = {
+    "Index Finger", "Middle Finger", "Ring Finger", "Little Finger"
+};
+const uint8_t FlexTest::MAP[] = {
+    SENSOR_FLEX_INDEX_FINGER, SENSOR_FLEX_MIDDLE_FINGER, SENSOR_FLEX_RING_FINGER, SENSOR_FLEX_LITTLE_FINGER
+};
+
+const uint16_t FlexTest::RANGE = 116;
+
+FlexTest::FlexTest(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+}
+
+void FlexTest::setup() {
+    MenuBehaviour::setup();
+}
+
+void FlexTest::action(uint8_t selected) {
+    device.popBehaviour();
+}
+
+void FlexTest::draw(uint8_t selected) {
+    device.display().drawText(10, 8, ITEMS[selected]);
+    if (device.flexReady()) {
+        if (device.sensorActivity(MAP[selected])) {
+            device.display().drawText(90, 8, "A");
+        }
+
+        device.display().drawRectangle(10, 22, RANGE, 8);
+        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
+        if (device.debugSerial()) {
+            Serial.println(val);
+        }
+
+        if (val < RANGE/2) {
+            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
+        }
+        else {
+            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
+        }
+    }
+    else {
+        device.display().drawText(10, 22, "Flex not ready");
+    }
+}
+
+/******************************************************************************
  * class FramerateOption
  *****************************************************************************/
 
@@ -199,49 +250,6 @@ void FramerateOption::action(uint8_t selected) {
 void FramerateOption::draw(uint8_t selected) {
     device.display().drawText(10, 8, "Show Framerate");
     device.display().drawText(10, 20, ITEMS[selected]);
-}
-
-/******************************************************************************
- * class LEDTest
- *****************************************************************************/
-
-const uint8_t LEDTest::ITEM_COUNT = 4;
-const char* LEDTest::ITEMS[LEDTest::ITEM_COUNT] = {
-    "Off",
-    "On",
-    "Blink slow",
-    "Blink fast"
-};
-
-LEDTest::LEDTest(SmartDevice& device) :
-    MenuBehaviour(device, ITEM_COUNT) {
-}
-
-void LEDTest::action(uint8_t selected) {
-    device.setShowFramerate(selected == 1);
-    device.popBehaviour();
-}
-
-void LEDTest::draw(uint8_t selected) {
-    device.display().drawText(10, 8, "LED Test");
-    device.display().drawText(10, 20, ITEMS[selected]);
-}
-
-void LEDTest::selected(uint8_t selected) {
-    switch (selected) {
-        case 0:
-            device.setLED(LED::Off);
-            break;
-        case 1:
-            device.setLED(LED::On);
-            break;
-        case 2:
-            device.setLED(LED::BlinkSlow);
-            break;
-        case 3:
-            device.setLED(LED::BlinkFast);
-            break;
-    }
 }
 
 /******************************************************************************
@@ -353,53 +361,45 @@ void GyroscopeTest::draw(uint8_t selected) {
 }
 
 /******************************************************************************
- * class FlexTest
+ * class LEDTest
  *****************************************************************************/
 
-const uint8_t FlexTest::ITEM_COUNT = 4;
-const char* FlexTest::ITEMS[FlexTest::ITEM_COUNT] = {
-    "Index Finger", "Middle Finger", "Ring Finger", "Little Finger"
-};
-const uint8_t FlexTest::MAP[] = {
-    SENSOR_FLEX_INDEX_FINGER, SENSOR_FLEX_MIDDLE_FINGER, SENSOR_FLEX_RING_FINGER, SENSOR_FLEX_LITTLE_FINGER
+const uint8_t LEDTest::ITEM_COUNT = 4;
+const char* LEDTest::ITEMS[LEDTest::ITEM_COUNT] = {
+    "Off",
+    "On",
+    "Blink slow",
+    "Blink fast"
 };
 
-const uint16_t FlexTest::RANGE = 116;
-
-FlexTest::FlexTest(SmartDevice& device) :
+LEDTest::LEDTest(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
 }
 
-void FlexTest::setup() {
-    MenuBehaviour::setup();
-}
-
-void FlexTest::action(uint8_t selected) {
+void LEDTest::action(uint8_t selected) {
+    device.setShowFramerate(selected == 1);
     device.popBehaviour();
 }
 
-void FlexTest::draw(uint8_t selected) {
-    device.display().drawText(10, 8, ITEMS[selected]);
-    if (device.flexReady()) {
-        if (device.sensorActivity(MAP[selected])) {
-            device.display().drawText(90, 8, "A");
-        }
+void LEDTest::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "LED Test");
+    device.display().drawText(10, 20, ITEMS[selected]);
+}
 
-        device.display().drawRectangle(10, 22, RANGE, 8);
-        uint16_t val = device.sensorValue(MAP[selected]) / 565; // 565 = 65535 / RANGE
-        if (device.debugSerial()) {
-            Serial.println(val);
-        }
-
-        if (val < RANGE/2) {
-            device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
-        }
-        else {
-            device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
-        }
-    }
-    else {
-        device.display().drawText(10, 22, "Flex not ready");
+void LEDTest::selected(uint8_t selected) {
+    switch (selected) {
+        case 0:
+            device.setLED(LED::Off);
+            break;
+        case 1:
+            device.setLED(LED::On);
+            break;
+        case 2:
+            device.setLED(LED::BlinkSlow);
+            break;
+        case 3:
+            device.setLED(LED::BlinkFast);
+            break;
     }
 }
 
