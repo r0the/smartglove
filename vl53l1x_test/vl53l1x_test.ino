@@ -1,70 +1,44 @@
-
-#include <ComponentObject.h>
-#include <RangeSensor.h>
-#include <SparkFun_VL53L1X.h>
-#include <vl53l1x_class.h>
-#include <vl53l1_error_codes.h>
-
-/*
-  Reading distance from the laser based VL53L1X
-  By: Nathan Seidle
-  SparkFun Electronics
-  Date: April 4th, 2018
-  License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-
-  SparkFun labored with love to create this code. Feel like supporting open source hardware?
-  Buy a board from SparkFun! https://www.sparkfun.com/products/14667
-
-  This example prints the distance to an object.
-
-  Are you getting weird readings? Be sure the vacuum tape has been removed from the sensor.
-*/
-
+#include "vl53l1x.h"
 #include <Wire.h>
-#include "SparkFun_VL53L1X.h"
-
-//Optional interrupt and shutdown pins.
-#define SHUTDOWN_PIN 2
-#define INTERRUPT_PIN 3
-
-SFEVL53L1X distanceSensor;
-//Uncomment the following line to use the optional shutdown and interrupt pins.
-//SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
-
-void setup(void)
-{
 
 
-  Serial.begin(9600);
-  while (!Serial) delay(50);
-  Serial.println("VL53L1X Qwiic Test");
-  distanceSensor.setI2CAddress(0x29);
-  if (distanceSensor.begin() == 0) //Begin returns 0 on a good init
-  {
-    Serial.println("Sensor online!");
-  }
-  else {
-    Serial.println("Sensor offline!");
-  }
+VL53L1X sensor(0x29);
 
-  delay(50);
+void setup() {
+    Serial.begin(9600);
+    while (!Serial) delay(1);
+    Serial.println("Welcome to VL53L1X test");
+    Wire.begin();
+    Wire.setClock(400000); // use 400 kHz I2C
+
+    sensor.setTimeout(500);
+    Serial.println("Initializing sensor...");
+    if (!sensor.init()) {
+        Serial.println("Failed to detect and initialize sensor!");
+        while (1);
+    }
+
+  // Use long distance mode and allow up to 50000 us (50 ms) for a measurement.
+  // You can change these settings to adjust the performance of the sensor, but
+  // the minimum timing budget is 20 ms for short distance mode and 33 ms for
+  // medium and long distance modes. See the VL53L1X datasheet for more
+  // information on range and timing limits.
+  sensor.setDistanceMode(VL53L1X::Long);
+  sensor.writeMeasurementTimingBudget(50000);
+
+  // Start continuous readings at a rate of one measurement every 50 ms (the
+  // inter-measurement period). This period should be at least as long as the
+  // timing budget.
+ sensor.startContinuous(50);
+  Serial.println("Initialized");
 }
 
-void loop(void)
+void loop()
 {
-  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
-  int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-  distanceSensor.stopRanging();
-
-  Serial.print("Distance(mm): ");
-  Serial.print(distance);
-
-  float distanceInches = distance * 0.0393701;
-  float distanceFeet = distanceInches / 12.0;
-
-  Serial.print("\tDistance(ft): ");
-  Serial.print(distanceFeet, 2);
-
-  Serial.println();
-  delay(50);
+    if (sensor.dataReady()) {
+      sensor.updateDSS();
+      sensor.readResults();
+      sensor.getRangingData();
+      Serial.println(sensor.ranging_data.range_mm);
+    }
 }
