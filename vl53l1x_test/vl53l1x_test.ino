@@ -39,7 +39,6 @@ void setup(void)
   while (!Serial) delay(50);
   Serial.println("VL53L1X Qwiic Test");
   distanceSensor.setI2CAddress(0x29);
-
   if (distanceSensor.begin() == 0) //Begin returns 0 on a good init
   {
     Serial.println("Sensor online!");
@@ -47,6 +46,7 @@ void setup(void)
   else {
     Serial.println("Sensor offline!");
   }
+
   delay(50);
 }
 
