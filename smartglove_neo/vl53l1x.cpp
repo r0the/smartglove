@@ -6,6 +6,62 @@
 #include "vl53l1x.h"
 #include <Wire.h>
 
+// register addresses from API vl53l1x_register_map.h
+enum regAddr : uint16_t
+{
+  SOFT_RESET                                                                 = 0x0000,
+  I2C_SLAVE__DEVICE_ADDRESS                                                  = 0x0001,
+  OSC_MEASURED__FAST_OSC__FREQUENCY                                          = 0x0006,
+  VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND                                      = 0x0008,
+  VHV_CONFIG__INIT                                                           = 0x000B,
+  ALGO__PART_TO_PART_RANGE_OFFSET_MM                                         = 0x001E,
+  MM_CONFIG__OUTER_OFFSET_MM                                                 = 0x0022,
+  DSS_CONFIG__TARGET_TOTAL_RATE_MCPS                                         = 0x0024,
+  PAD_I2C_HV__EXTSUP_CONFIG                                                  = 0x002E,
+  GPIO__TIO_HV_STATUS                                                        = 0x0031,
+  SIGMA_ESTIMATOR__EFFECTIVE_PULSE_WIDTH_NS                                  = 0x0036,
+  SIGMA_ESTIMATOR__EFFECTIVE_AMBIENT_WIDTH_NS                                = 0x0037,
+  ALGO__CROSSTALK_COMPENSATION_VALID_HEIGHT_MM                               = 0x0039,
+  ALGO__RANGE_IGNORE_VALID_HEIGHT_MM                                         = 0x003E,
+  ALGO__RANGE_MIN_CLIP                                                       = 0x003F,
+  ALGO__CONSISTENCY_CHECK__TOLERANCE                                         = 0x0040,
+  CAL_CONFIG__VCSEL_START                                                    = 0x0047,
+  PHASECAL_CONFIG__TIMEOUT_MACROP                                            = 0x004B,
+  PHASECAL_CONFIG__OVERRIDE                                                  = 0x004D,
+  DSS_CONFIG__ROI_MODE_CONTROL                                               = 0x004F,
+  SYSTEM__THRESH_RATE_HIGH                                                   = 0x0050,
+  SYSTEM__THRESH_RATE_LOW                                                    = 0x0052,
+  DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT                                  = 0x0054,
+  DSS_CONFIG__APERTURE_ATTENUATION                                           = 0x0057,
+  MM_CONFIG__TIMEOUT_MACROP_A                                                = 0x005A, // added by Pololu for 16-bit accesses
+  MM_CONFIG__TIMEOUT_MACROP_B                                                = 0x005C, // added by Pololu for 16-bit accesses
+  RANGE_CONFIG__TIMEOUT_MACROP_A                                             = 0x005E, // added by Pololu for 16-bit accesses
+  RANGE_CONFIG__VCSEL_PERIOD_A                                               = 0x0060,
+  RANGE_CONFIG__TIMEOUT_MACROP_B                                             = 0x0061, // added by Pololu for 16-bit accesses
+  RANGE_CONFIG__VCSEL_PERIOD_B                                               = 0x0063,
+  RANGE_CONFIG__SIGMA_THRESH                                                 = 0x0064,
+  RANGE_CONFIG__MIN_COUNT_RATE_RTN_LIMIT_MCPS                                = 0x0066,
+  RANGE_CONFIG__VALID_PHASE_HIGH                                             = 0x0069,
+  SYSTEM__INTERMEASUREMENT_PERIOD                                            = 0x006C,
+  SYSTEM__GROUPED_PARAMETER_HOLD_0                                           = 0x0071,
+  SYSTEM__SEED_CONFIG                                                        = 0x0077,
+  SD_CONFIG__WOI_SD0                                                         = 0x0078,
+  SD_CONFIG__WOI_SD1                                                         = 0x0079,
+  SD_CONFIG__INITIAL_PHASE_SD0                                               = 0x007A,
+  SD_CONFIG__INITIAL_PHASE_SD1                                               = 0x007B,
+  SYSTEM__GROUPED_PARAMETER_HOLD_1                                           = 0x007C,
+  SD_CONFIG__QUANTIFIER                                                      = 0x007E,
+  SYSTEM__SEQUENCE_CONFIG                                                    = 0x0081,
+  SYSTEM__GROUPED_PARAMETER_HOLD                                             = 0x0082,
+  SYSTEM__INTERRUPT_CLEAR                                                    = 0x0086,
+  SYSTEM__MODE_START                                                         = 0x0087,
+  RESULT__RANGE_STATUS                                                       = 0x0089,
+  PHASECAL_RESULT__VCSEL_START                                               = 0x00D8,
+  RESULT__OSC_CALIBRATE_VAL                                                  = 0x00DE,
+  FIRMWARE__SYSTEM_STATUS                                                    = 0x00E5,
+  IDENTIFICATION__MODEL_ID                                                   = 0x010F,
+};
+
 // Constructors ////////////////////////////////////////////////////////////////
 
 VL53L1X::VL53L1X()
@@ -154,6 +210,13 @@ bool VL53L1X::init(bool io_2v8)
   return true;
 }
 
+// check if sensor has new reading available
+// assumes interrupt is active low (GPIO_HV_MUX__CTRL bit 4 is 1)
+bool VL53L1X::dataReady() {
+    return (readReg(GPIO__TIO_HV_STATUS) & 0x01) == 0;
+}
+
+
 // Write an 8-bit register
 void VL53L1X::writeReg(uint16_t reg, uint8_t value)
 {
@@ -189,7 +252,7 @@ void VL53L1X::writeReg32Bit(uint16_t reg, uint32_t value)
 }
 
 // Read an 8-bit register
-uint8_t VL53L1X::readReg(regAddr reg)
+uint8_t VL53L1X::readReg(uint16_t reg)
 {
   uint8_t value;
 
