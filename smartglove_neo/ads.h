@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by Stefan Rothe
+ * Copyright (C) 2019 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
  #ifndef ADS_H
  #define ADS_H
 
- #include <Arduino.h>
+ #include "i2cdevice.h"
 
- class ADS {
+ class ADS : public I2CDevice {
  public:
      ADS(uint8_t address);
 
@@ -39,15 +39,7 @@
       */
      void setPollMode(bool enable) const;
 
-     /**
-      * Checks if the chip is responding.
-      */
-     bool ready() const;
-
  private:
-     uint8_t _address;
-     float decode(uint8_t low, uint8_t high) const;
-     bool readBuffer(uint8_t* buffer, uint8_t len) const;
      bool writeCommand(uint8_t command, uint8_t param1, uint8_t param2 = 0) const;
  };
 

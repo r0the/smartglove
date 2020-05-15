@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by Stefan Rothe
+ * Copyright (C) 2019 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,8 @@
  */
 
 #include "ads.h"
-#include <Wire.h>
 
-#define ADS_RUN           static_cast<uint8_t>(0x00)
+#define ADS_RUN           0x00
 #define ADS_SPS           0x01
 #define ADS_RESET         0x02
 #define ADS_DFU           0x03
@@ -33,21 +32,21 @@
 #define ADS_SAMPLE        0x00
 
 #define DATA_SIZE         3
-#define COMMAND_SIZE      3
 
 inline int16_t ads_int16_decode(const uint8_t* p_encoded_data) {
     return ((((uint16_t)(p_encoded_data)[0])) | (((int16_t)(p_encoded_data)[1]) << 8));
 }
 
-ADS::ADS(uint8_t address) : _address(address) {
+ADS::ADS(uint8_t address) :
+    I2CDevice(address) {
 }
 
 float ADS::readInput() const {
     uint8_t buffer[3];
-    if (!readBuffer(buffer, DATA_SIZE)) {
-        return 0;
-    }
-
+    requestData(3);
+    buffer[0] = read();
+    buffer[1] = read();
+    buffer[2] = read();
     if (buffer[0] == ADS_SAMPLE) {
         return (float) ads_int16_decode(buffer + 1) / 64.0f;
     }
@@ -55,41 +54,17 @@ float ADS::readInput() const {
 }
 
 void ADS::init() const {
-    Wire.beginTransmission(_address);
-    Wire.write(ADS_POLL);
-    Wire.write(0x01); // enable poll mode
-    Wire.write(0); // fill
-    Wire.endTransmission();
-}
-
-bool ADS::ready() const {
-    Wire.beginTransmission(_address);
-    return Wire.endTransmission() == 0;
+    setPollMode(true);
 }
 
 void ADS::setPollMode(bool enable) const {
     writeCommand(ADS_POLL, enable);
 }
 
-bool ADS::readBuffer(uint8_t* buffer, uint8_t len) const {
-     Wire.requestFrom(_address, len);
-     uint8_t pos = 0;
-     while (Wire.available()) {
-        if (pos < len) {
-            buffer[pos] = Wire.read();
-            ++pos;
-        }
-     }
-
-     return pos == len;
-}
-
 bool ADS::writeCommand(uint8_t command, uint8_t param1, uint8_t param2) const {
-    uint8_t buffer[COMMAND_SIZE];
-    buffer[0] = command;
-    buffer[1] = param1;
-    buffer[2] = param2;
-    Wire.beginTransmission(_address);
-    uint8_t written = Wire.write(buffer, COMMAND_SIZE);
-    return Wire.endTransmission() == 0 && written == COMMAND_SIZE;
+    beginTransmission();
+    write(command);
+    write(param1);
+    write(param2);
+    return endTransmission();
 }

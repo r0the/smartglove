@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by Stefan Rothe
+ * Copyright (C) 2019 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,19 +81,19 @@ void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    if (_flexIndexFinger.ready()) {
+    if (_flexIndexFinger.present()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.readInput());
     }
 
-    if (_flexMiddleFinger.ready()) {
+    if (_flexMiddleFinger.present()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.readInput());
     }
 
-    if (_flexRingFinger.ready()) {
+    if (_flexRingFinger.present()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.readInput());
     }
 
-    if (_flexLittleFinger.ready()) {
+    if (_flexLittleFinger.present()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.readInput());
     }
 

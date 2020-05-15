@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2018 by Stefan Rothe
+ * Copyright (C) 2015 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 #ifndef PCA9557_H
 #define PCA9557_H
 
-#include <Arduino.h>
+#include "i2cdevice.h"
 
-class PCA9557 {
+class PCA9557 : public I2CDevice {
 public:
     PCA9557(uint8_t address);
 
@@ -28,11 +28,6 @@ public:
      * Reads a byte from the input register.
      */
     uint8_t readInput() const;
-
-    /**
-     * Checks if the chip is responding.
-     */
-    bool ready() const;
 
     /**
      * Writes to the config register. The config register defines the input/output
@@ -53,10 +48,6 @@ public:
      * is inverted, i.e. the set bit sets the output to GND instead of VCC.
      */
     void writePolarity(uint8_t polarity) const;
-
-private:
-    uint8_t _address;
 };
 
 #endif
-
