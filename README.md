@@ -93,7 +93,7 @@ SmartGlove devices support up to 4 gestures:
 |         | flex sensor little finger |                    | `0010101`             | `0x15`      |
 | PCA9557 | side buttons and LED      | `0011`             | `000`                 | `0x18`      |
 | PCA9557 | tip buttons and LED       | `0011`             | `001`                 | `0x19`      |
-| BNO055  | inertial measurement unit | `010100`           | `1`                   | `0x29`      |
+| BNO055  | inertial measurement unit | `010100`           | `0`                   | `0x28`      |
 | SSD1306 | dot matrix display        | `011110`           | `0`                   | `0x3C`      |
 | 24AA64  | EEPROM                    | `01010`            | `000`                 | `0x50`      |
 | VL52L1X | distance measurement      | `1010010`          |                       | `0x52`      |
