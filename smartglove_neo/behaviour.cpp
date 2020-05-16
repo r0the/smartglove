@@ -203,12 +203,7 @@ void DistanceTest::loop() {
         Serial.println(val);
     }
 
-    if (val < RANGE/2) {
-        device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
-    }
-    else {
-        device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
-    }
+    device.display().fillRectangle(10, 22, 10 + val, 8);
 }
 
 /******************************************************************************

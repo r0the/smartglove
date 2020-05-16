@@ -21,6 +21,7 @@
 #include "smart_device.h"
 #include "ads.h"
 #include "pca9557.h"
+#include "vl53l1x.h"
 
 class SmartGlove : public SmartDevice {
 public:
@@ -41,6 +42,7 @@ protected:
 private:
     bool _ads;
     bool _commandMenu;
+    VL53L1X _distance;
     ADS _flexIndexFinger;
     ADS _flexLittleFinger;
     ADS _flexMiddleFinger;

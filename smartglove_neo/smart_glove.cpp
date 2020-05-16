@@ -33,6 +33,7 @@ const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
 SmartGlove::SmartGlove() :
     _ads(false),
     _commandMenu(false),
+    _distance(I2C_DISTANCE_ADDRESS),
     _flexIndexFinger(I2C_FLEX_INDEX_FINGER_ADDRESS),
     _flexLittleFinger(I2C_FLEX_LITTLE_FINGER_ADDRESS),
     _flexMiddleFinger(I2C_FLEX_MIDDLE_FINGER_ADDRESS),
@@ -75,6 +76,7 @@ void SmartGlove::doSetup() {
     _flexMiddleFinger.init();
     _flexRingFinger.init();
     _flexLittleFinger.init();
+    _distance.init();
 }
 
 void SmartGlove::doLoop() {
@@ -95,6 +97,10 @@ void SmartGlove::doLoop() {
 
     if (_flexLittleFinger.present()) {
         _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.readInput());
+    }
+
+    if (_distance.dataReady()) {
+        _sensors.addMeasurement(now, SENSOR_DISTANCE, _distance.readInput());
     }
 
     if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
@@ -129,6 +135,7 @@ uint16_t SmartGlove::availableSensorMask() const {
         (1 << SENSOR_ACCEL_X) | 
         (1 << SENSOR_ACCEL_Y) | 
         (1 << SENSOR_ACCEL_Z) |
+        (1 << SENSOR_DISTANCE) |
         (1 << SENSOR_GYRO_ROLL) |
         (1 << SENSOR_GYRO_PITCH) |
         (1 << SENSOR_GYRO_HEADING) |
