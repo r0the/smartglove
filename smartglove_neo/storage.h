@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 - 2018 by Stefan Rothe
+ * Copyright (C) 2017 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,4 +33,3 @@ private:
 extern StorageSingleton Storage;
 
 #endif
-

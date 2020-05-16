@@ -23,7 +23,7 @@
 
 class I2CDevice {
 public:
-    I2CDevice(uint8_t address) : 
+    I2CDevice(uint8_t address) :
       _address(address) {
     }
 
@@ -35,7 +35,7 @@ protected:
     inline void beginTransmission() const {
         Wire.beginTransmission(_address);
     }
-  
+
     inline void write(uint8_t data) const {
         Wire.write(data);
     }
@@ -51,19 +51,19 @@ protected:
         Wire.write(static_cast<uint8_t>((data >> 8) & 0xFF));
         Wire.write(static_cast<uint8_t>(data & 0xFF));
     }
-    
+
     inline bool endTransmission() const {
         return Wire.endTransmission() == 0;
     }
-    
+
     inline void requestData(uint8_t bytes) const {
         Wire.requestFrom(_address, bytes);
     }
-    
+
     inline uint8_t read() const {
         return Wire.read();
     }
-    
+
     inline uint16_t read16() const {
         uint16_t value  = static_cast<uint16_t>(Wire.read()) << 8;
         value |= Wire.read();
