@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - 2018 by Stefan Rothe
+ * Copyright (C) 2016 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,7 +235,7 @@ uint16_t Sensor::value() const {
  * class Sensors
  *****************************************************************************/
 
-const uint8_t Sensors::COUNT = 12;
+const uint8_t Sensors::COUNT = 11;
 const uint8_t Sensors::GESTURE_COUNT = 4;
 
 Sensors::Sensors() :
@@ -325,4 +325,3 @@ uint16_t Sensors::value(uint8_t id) const {
 
     return _sensors[id].value();
 }
-

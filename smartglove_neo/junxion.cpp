@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2018 by Stefan Rothe
+ * Copyright (C) 2015 - 2020 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ const uint8_t OWN_PIN_COUNT = 8;
 #define JUNXION_STATE 255
 
 const uint8_t OWN_PIN_MAP[OWN_PIN_COUNT] = {
-    SENSOR_DIST_HAND,
+    SENSOR_DISTANCE,
     SENSOR_ACCEL_X,
     SENSOR_ACCEL_Y,
     SENSOR_ACCEL_Z,

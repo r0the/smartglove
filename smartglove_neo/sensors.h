@@ -63,14 +63,13 @@ private:
 #define SENSOR_FLEX_MIDDLE_FINGER  1
 #define SENSOR_FLEX_RING_FINGER    2
 #define SENSOR_FLEX_LITTLE_FINGER  3
-#define SENSOR_DIST_HAND           4
-#define SENSOR_DIST_GROUND         5
-#define SENSOR_ACCEL_X             6
-#define SENSOR_ACCEL_Y             7
-#define SENSOR_ACCEL_Z             8
-#define SENSOR_GYRO_ROLL           9
-#define SENSOR_GYRO_PITCH         10
-#define SENSOR_GYRO_HEADING       11
+#define SENSOR_DISTANCE            4
+#define SENSOR_ACCEL_X             5
+#define SENSOR_ACCEL_Y             6
+#define SENSOR_ACCEL_Z             7
+#define SENSOR_GYRO_ROLL           8
+#define SENSOR_GYRO_PITCH          9
+#define SENSOR_GYRO_HEADING       10
 
 #define GESTURE_WAVE_LEFT 0
 #define GESTURE_WAVE_RIGHT 1

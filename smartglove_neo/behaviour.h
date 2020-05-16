@@ -94,6 +94,19 @@ private:
 };
 
 /******************************************************************************
+ * class DistanceTest
+ *****************************************************************************/
+
+class DistanceTest : public Behaviour {
+public:
+    explicit DistanceTest(SmartDevice& device);
+    virtual void setup();
+    virtual void loop();
+private:
+    static const uint16_t RANGE;
+};
+
+/******************************************************************************
  * class FlexTest
  *****************************************************************************/
 

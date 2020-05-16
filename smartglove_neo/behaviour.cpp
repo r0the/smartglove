@@ -177,6 +177,41 @@ void DebugSerialOption::draw(uint8_t selected) {
 }
 
 /******************************************************************************
+ * class DistanceTest
+ *****************************************************************************/
+
+const uint16_t DistanceTest::RANGE = 116;
+
+DistanceTest::DistanceTest(SmartDevice& device) :
+    Behaviour(device) {
+}
+
+void DistanceTest::setup() {
+    device.display().setFont(&HELVETICA_10);
+    device.display().setTextAlign(ALIGN_LEFT);
+}
+
+void DistanceTest::loop() {
+    if (device.commandEnter()) {
+        device.popBehaviour();
+    }
+
+    device.display().drawText(10, 8, "Distance Test");
+    device.display().drawRectangle(10, 22, RANGE, 8);
+    uint16_t val = device.sensorValue(SENSOR_DISTANCE) / 565; // 565 = 65535 / RANGE
+    if (device.debugSerial()) {
+        Serial.println(val);
+    }
+
+    if (val < RANGE/2) {
+        device.display().fillRectangle(10 + val, 22, RANGE/2 - val, 8);
+    }
+    else {
+        device.display().fillRectangle(10 + RANGE/2, 22, val - RANGE/2, 8);
+    }
+}
+
+/******************************************************************************
  * class FlexTest
  *****************************************************************************/
 
@@ -407,11 +442,12 @@ void LEDTest::selected(uint8_t selected) {
  * class MainMenu
  *****************************************************************************/
 
-const uint8_t MainMenu::ITEM_COUNT = 9;
+const uint8_t MainMenu::ITEM_COUNT = 10;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "junXion Board ID",
     "Button Test",
     "LED Test",
+    "Distance Test",
     "Gesture Test",
     "Gyroscope Test",
     "Flex Test",
@@ -436,21 +472,24 @@ void MainMenu::action(uint8_t selected) {
         device.pushBehaviour(new LEDTest(device));
         break;
     case 3:
-        device.pushBehaviour(new GestureTest(device));
+        device.pushBehaviour(new DistanceTest(device));
         break;
     case 4:
-        device.pushBehaviour(new GyroscopeTest(device));
+        device.pushBehaviour(new GestureTest(device));
         break;
     case 5:
-        device.pushBehaviour(new FlexTest(device));
+        device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 6:
-        device.pushBehaviour(new FramerateOption(device));
+        device.pushBehaviour(new FlexTest(device));
         break;
     case 7:
-        device.pushBehaviour(new DebugSerialOption(device));
+        device.pushBehaviour(new FramerateOption(device));
         break;
     case 8:
+        device.pushBehaviour(new DebugSerialOption(device));
+        break;
+    case 9:
         device.popBehaviour();
         break;
     }
