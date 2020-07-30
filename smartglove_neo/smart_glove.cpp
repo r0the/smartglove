@@ -24,10 +24,10 @@ const uint8_t BUTTON_MAP[BUTTON_COUNT] = {
     BUTTON_MIDDLE_FINGER_1,
     BUTTON_RING_FINGER_1,
     BUTTON_LITTLE_FINGER_1,
-    BUTTON_THUMB_1,
-    BUTTON_THUMB_2,
+    BUTTON_THUMB_4,
     BUTTON_THUMB_3,
-    BUTTON_THUMB_4
+    BUTTON_THUMB_2,
+    BUTTON_THUMB_1
 };
 
 SmartGlove::SmartGlove() :
@@ -103,7 +103,7 @@ void SmartGlove::doLoop() {
         _sensors.addMeasurement(now, SENSOR_DISTANCE, _distance.readInput());
     }
 
-    if (buttonCombination(BUTTON_THUMB_1, BUTTON_LITTLE_FINGER_1)) {
+    if (buttonCombination(BUTTON_THUMB_1, BUTTON_THUMB_2)) {
         _menuTimeoutMs = now + LONG_PRESS_MS;
     }
 

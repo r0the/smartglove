@@ -19,9 +19,9 @@ The following buttons and button combinations have a special function:
 | Button(s)                          | Function             |
 |:---------------------------------- |:-------------------- |
 | Thumb 1                            | Enter/Select in menu |
-| Thumb 3                            | Menu navigation up   |
-| Thumb 4                            | Menu navigation down |
-| long press (> 5 s) Thumb 1         | Open menu            |
+| Thumb 4                            | Menu navigation up   |
+| Thumb 3                            | Menu navigation down |
+| long press (> 5 s) Thumb 4         | Open menu            |
 | Index Finger 2 and Middle Finger 2 | Calibrate IMU        |
 
 ## junXion Interface
@@ -94,9 +94,9 @@ SmartGlove devices support up to 4 gestures:
 | PCA9557 | side buttons and LED      | `0011`             | `000`                 | `0x18`      |
 | PCA9557 | tip buttons and LED       | `0011`             | `001`                 | `0x19`      |
 | BNO055  | inertial measurement unit | `010100`           | `0`                   | `0x28`      |
+| VL52L1X | distance measurement      |                    |                       | `0x29`      |
 | SSD1306 | dot matrix display        | `011110`           | `0`                   | `0x3C`      |
 | 24AA64  | EEPROM                    | `01010`            | `000`                 | `0x50`      |
-| VL52L1X | distance measurement      | `1010010`          |                       | `0x52`      |
 
 ## IDE Setup
 
