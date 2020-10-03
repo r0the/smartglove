@@ -34,10 +34,10 @@ SmartGlove::SmartGlove() :
     _ads(false),
     _commandMenu(false),
     _distance(I2C_DISTANCE_ADDRESS),
-    _flexIndexFinger(I2C_FLEX_INDEX_FINGER_ADDRESS),
-    _flexLittleFinger(I2C_FLEX_LITTLE_FINGER_ADDRESS),
-    _flexMiddleFinger(I2C_FLEX_MIDDLE_FINGER_ADDRESS),
-    _flexRingFinger(I2C_FLEX_RING_FINGER_ADDRESS),
+    _flexIndexFinger(),
+    _flexLittleFinger(),
+    _flexMiddleFinger(),
+    _flexRingFinger(),
     _menuTimeoutMs(0),
     _sideButtons(I2C_SMART_GLOVE_SIDE_BUTTONS_ADDRESS),
     _tipButtons(I2C_SMART_GLOVE_TIP_BUTTONS_ADDRESS) {
@@ -72,10 +72,10 @@ void SmartGlove::doSetup() {
     _sideButtons.writePolarity(0xF0);
     _tipButtons.writeConfig(0xF0);
     _tipButtons.writePolarity(0xF0);
-    _flexIndexFinger.init();
-    _flexMiddleFinger.init();
-    _flexRingFinger.init();
-    _flexLittleFinger.init();
+    _flexIndexFinger.begin(I2C_FLEX_INDEX_FINGER_ADDRESS);
+    _flexMiddleFinger.begin(I2C_FLEX_MIDDLE_FINGER_ADDRESS);
+    _flexRingFinger.begin(I2C_FLEX_RING_FINGER_ADDRESS);
+    _flexLittleFinger.begin(I2C_FLEX_LITTLE_FINGER_ADDRESS);
     _distance.init();
 }
 
@@ -83,20 +83,20 @@ void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    if (_flexIndexFinger.present()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.readInput());
+    if (_flexIndexFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.getX());
     }
 
-    if (_flexMiddleFinger.present()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.readInput());
+    if (_flexMiddleFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.getX());
     }
 
-    if (_flexRingFinger.present()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.readInput());
+    if (_flexRingFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.getX());
     }
 
-    if (_flexLittleFinger.present()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.readInput());
+    if (_flexLittleFinger.available()) {
+        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.getX());
     }
 
     if (_distance.dataReady()) {

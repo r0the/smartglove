@@ -19,7 +19,7 @@
 #define SMART_GLOVE_H
 
 #include "smart_device.h"
-#include "ads.h"
+#include "SparkFun_Displacement_Sensor_Arduino_Library.h"
 #include "pca9557.h"
 #include "vl53l1x.h"
 
