@@ -36,7 +36,7 @@ Was noch fehlt:
 | Ringfinger 2     |  10 | 0x40     | Digital 14  |
 | kleiner Finger 2 |  11 | 0x80     | Digital 15  |
 
-## Port 0x92 (Gesten)
+### Port 0x92 (Gesten)
 
 | Beschreibung     |  ID | Bit Mask | junXion Pin |
 |:---------------- | ---:|:-------- |:----------- |
