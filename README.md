@@ -109,8 +109,9 @@ SmartGlove devices support up to 4 gestures:
 4. Install the following libraries (menu Sketch/Include Library/Manage Libraries):
    - **Adafruit Unified Sensor**
    - **Adafruit BNO055**
-   - **MonoGFX Arduino**
-   - **SparkFun VL53L1X 4m Laser Distance Sensor**
+   - **Adafruit NeoPixel**
+   - **Adafruit SSD1306**
+   - **VL53L1X**
 5. Select the board **Adafruit Feather M0**.
 
 [1]: https://www.arduino.cc/en/Main/Software
