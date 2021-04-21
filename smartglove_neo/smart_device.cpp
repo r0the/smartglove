@@ -246,6 +246,7 @@ void SmartDevice::pushBehaviour(Behaviour* behaviour) {
 
 bool SmartDevice::resetIMU() {
     _imuReady = _imu.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
+    return _imuReady;
 }
 
 void SmartDevice::setDebugSerial(bool enable) {
