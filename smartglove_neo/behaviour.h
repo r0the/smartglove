@@ -22,19 +22,6 @@
 #include "junxion.h"
 
 /******************************************************************************
- * class InitBehaviour
- *****************************************************************************/
-
-class InitBehaviour : public Behaviour {
-public:
-    explicit InitBehaviour(SmartDevice& device);
-    virtual void setup();
-    virtual void loop();
-private:
-    bool _imuReady;
-};
-
-/******************************************************************************
  * class MenuBehaviour
  *****************************************************************************/
 
@@ -51,6 +38,20 @@ protected:
 private:
     uint8_t _itemCount;
     uint8_t _selected;
+};
+
+/******************************************************************************
+ * class InitBehaviour
+ *****************************************************************************/
+
+class InitBehaviour : public MenuBehaviour {
+public:
+    explicit InitBehaviour(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const uint8_t ITEM_COUNT;
+    static const char* ITEMS[];
 };
 
 /******************************************************************************

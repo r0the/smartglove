@@ -17,7 +17,10 @@
 
 //#define DEBUG
 
-#define VERSION "v4.2"
+#define VERSION "v4.3"
+
+#define VERSION_MAJOR 4
+#define VERSION_MINOR 3
 
 #define I2C_FLEX_INDEX_FINGER_ADDRESS        0x12
 #define I2C_FLEX_MIDDLE_FINGER_ADDRESS       0x13

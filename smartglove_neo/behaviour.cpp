@@ -18,33 +18,8 @@
 #include "behaviour.h"
 #include "config.h"
 #include "junxion.h"
+#include "max.h"
 #include "storage.h"
-
-/******************************************************************************
- * class InitBehaviour
- *****************************************************************************/
-
-InitBehaviour::InitBehaviour(SmartDevice& device) :
-    Behaviour(device) {
-}
-
-void InitBehaviour::setup() {
-    _imuReady = device.resetIMU();
-    device.display().setFont(&HELVETICA_10);
-    device.display().setTextAlign(ALIGN_LEFT);
-}
-
-void InitBehaviour::loop() {
-    if (_imuReady) {
-        device.pushBehaviour(new Junxion(device));
-    }
-
-    if (device.commandMenu()) {
-        device.pushBehaviour(new MainMenu(device));
-    }
-
-    device.display().drawText(10, 8, "IMU Error");
-}
 
 /******************************************************************************
  * class MenuBehaviour
@@ -85,6 +60,41 @@ void MenuBehaviour::select(uint8_t index) {
 }
 
 void MenuBehaviour::selected(uint8_t selected) {
+}
+
+/******************************************************************************
+ * class InitBehaviour
+ *****************************************************************************/
+
+const uint8_t InitBehaviour::ITEM_COUNT = 3;
+const char* InitBehaviour::ITEMS[InitBehaviour::ITEM_COUNT] = {
+    "Junxion",
+    "Firmata",
+    "Setup"
+};
+
+InitBehaviour::InitBehaviour(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+    select(0);
+}
+
+void InitBehaviour::action(uint8_t selected) {
+    switch (selected) {
+        case 0:
+            device.pushBehaviour(new Junxion(device));
+            break;
+        case 1:
+            device.pushBehaviour(new Max(device));
+            break;
+        case 2:
+            device.pushBehaviour(new MainMenu(device));
+            break;
+    }
+}
+
+void InitBehaviour::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "Main Menu");
+    device.display().drawText(10, 20, ITEMS[selected]);
 }
 
 /******************************************************************************
