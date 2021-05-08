@@ -92,17 +92,17 @@ In regelmässigen Abständen schickt der SmartGlove die aktuellen Werte der Sens
 | Beginn                   |  1  |   1   | 83 (S) |             |
 | Art                      |  2  |   1   | 65 (A) |             |
 | Länge                    |  3  |   1   | 25     |             |
-| Beugung Zeigefinger      |  4  |   2   | analog | Analog 0    |
-| Beugung Mittelfinger     |  6  |   2   | analog | Analog 1    |
-| Beugung Ringfinger       |  8  |   2   | analog | Analog 2    |
-| Beugung kleiner Finger   | 10  |   2   | analog | Analog 3    |
-| Beschleunigung X         | 12  |   2   | analog | Own Input 1 |
-| Beschleunigung Y         | 14  |   2   | analog | Own Input 2 |
-| Beschleunigung Z         | 16  |   2   | analog | Own Input 3 |
-| Orientierung Pitch       | 18  |   2   | analog | Own Input 4 |
-| Orientierung Roll        | 20  |   2   | analog | Own Input 5 |
-| Orientierung Yaw/Heading | 22  |   2   | analog | Own Input 6 |
-| Distanzsensor            | 24  |   2   | analog | Own Input 8 |
+| Distanzsensor            |  4  |   2   | analog | Own Input 1 |
+| Beschleunigung X         |  6  |   2   | analog | Own Input 2 |
+| Beschleunigung Y         |  8  |   2   | analog | Own Input 3 |
+| Beschleunigung Z         | 10  |   2   | analog | Own Input 4 |
+| Orientierung Pitch       | 12  |   2   | analog | Own Input 5 |
+| Orientierung Roll        | 14  |   2   | analog | Own Input 6 |
+| Orientierung Yaw/Heading | 16  |   2   | analog | Own Input 7 |
+| Beugung Zeigefinger      | 18  |   2   | analog | Analog 0    |
+| Beugung Mittelfinger     | 20  |   2   | analog | Analog 1    |
+| Beugung Ringfinger       | 22  |   2   | analog | Analog 2    |
+| Beugung kleiner Finger   | 24  |   2   | analog | Analog 3    |
 | Ende                     | 25  |   1   | 69 (E) |             |
 
 ## Nachricht State (S)
