@@ -35,10 +35,12 @@ private:
     Max(const Max&);
     Max& operator=(const Max&);
     void receive();
-    void sysex();
-    void sysexEnd();
-    void reportFirmware();
+    void sendAnalog();
     void sendDigital();
+    void sendInformation();
+    void sendButton(uint8_t button);
+    void sendSensor(uint8_t id);
+    void sendByte(uint8_t data);
     bool _serialConnected;
     unsigned long _serialCheckMs;
 };

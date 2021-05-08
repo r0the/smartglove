@@ -26,6 +26,42 @@
 
 #define REPORT_FIRMWARE 0x79 
 
+const uint8_t DIGITAL_PIN_COUNT = 16;
+const uint8_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
+    BUTTON_THUMB_1,
+    BUTTON_THUMB_2,
+    BUTTON_THUMB_3,
+    BUTTON_THUMB_4,
+    BUTTON_INDEX_FINGER_1,
+    BUTTON_MIDDLE_FINGER_1,
+    BUTTON_RING_FINGER_1,
+    BUTTON_LITTLE_FINGER_1,
+    GESTURE_WAVE_LEFT,
+    GESTURE_WAVE_RIGHT,
+    GESTURE_WAVE_UP,
+    GESTURE_WAVE_DOWN,
+    BUTTON_INDEX_FINGER_2,
+    BUTTON_MIDDLE_FINGER_2,
+    BUTTON_RING_FINGER_2,
+    BUTTON_LITTLE_FINGER_2
+};
+
+
+const uint8_t ANALOG_PIN_COUNT = 13;
+const uint8_t ANALOG_PIN_MAP[ANALOG_PIN_COUNT] = {
+    SENSOR_DISTANCE,
+    SENSOR_ACCEL_X,
+    SENSOR_ACCEL_Y,
+    SENSOR_ACCEL_Z,
+    SENSOR_GYRO_PITCH,
+    SENSOR_GYRO_ROLL,
+    SENSOR_GYRO_HEADING,
+    SENSOR_FLEX_INDEX_FINGER,
+    SENSOR_FLEX_MIDDLE_FINGER,
+    SENSOR_FLEX_RING_FINGER,
+    SENSOR_FLEX_LITTLE_FINGER
+};
+
 Max::Max(SmartDevice& device) :
     Behaviour(device),
     _serialConnected(false),
@@ -54,7 +90,7 @@ void Max::loop() {
         _serialConnected = static_cast<bool>(Serial);
         if (!_serialConnected) {
             Serial.begin(FIRMATA_BAUD_RATE);
-            reportFirmware();
+            sendInformation();
         }
 
         _serialCheckMs = now + SERIAL_CHECK_INTERVAL_MS;
@@ -64,64 +100,63 @@ void Max::loop() {
         device.display().setTextAlign(ALIGN_LEFT);
         device.display().setFont(&HELVETICA_10);
         device.display().drawText(10, 8, "Waiting for");
-        device.display().drawText(10, 22, "Firmata connection...");
+        device.display().drawText(10, 22, "Max connection...");
         return;
     }
 
-    if (Serial.available()) {
-        receive();
-    }
+    device.display().drawText(10, 8, "Max connected");
 
     sendDigital();
+    sendAnalog();
 }
 
 void Max::receive() {
-    uint8_t command = Serial.read();
-    switch (command) {
-        case START_SYSEX:
-            Max::sysex();
-            break;
+
+}
+
+void Max::sendAnalog() {
+    sendByte('S');
+    sendByte('A');
+    sendByte(25);
+    for (uint8_t i = 0; i < ANALOG_PIN_COUNT; ++i) {
+        sendSensor(ANALOG_PIN_MAP[i]);
     }
-}
-
-void Max::sysex() {
-    uint8_t command = Serial.read();
-    switch (command) {
-        case REPORT_FIRMWARE:
-            sysexEnd();
-            reportFirmware();
-            break;
-    }
-}
-
-void Max::sysexEnd() {
-    while (Serial.available() > 0 && Serial.read() != END_SYSEX);
-}
-
-void Max::reportFirmware() {
-    Serial.write(START_SYSEX);
-    Serial.write(REPORT_FIRMWARE);
-    Serial.write(VERSION_MAJOR);
-    Serial.write(VERSION_MINOR);
-    Serial.print("Smartglove");
-    Serial.write(END_SYSEX);
+    sendByte('E');
 }
 
 void Max::sendDigital() {
-    // Thumb buttons
-    Serial.write(0x90);
-    uint8_t data1 = device.buttonPressed(BUTTON_THUMB_1) | 
-                    (device.buttonPressed(BUTTON_THUMB_2) << 1) |
-                    (device.buttonPressed(BUTTON_THUMB_3) << 2) |
-                    (device.buttonPressed(BUTTON_THUMB_4) << 3);
-    Serial.write(data1);
-    Serial.write(0x00);
+    sendByte('S');
+    sendByte('D');
+    sendByte(20);
+    for (uint8_t i = 0; i < DIGITAL_PIN_COUNT; ++i) {
+        sendButton(DIGITAL_PIN_MAP[i]);
+    }
+    sendByte('E');
+}
 
-    Serial.write(0x91);
-    uint8_t data1 = device.buttonPressed(BUTTON_THUMB_1) | 
-                    (device.buttonPressed(BUTTON_THUMB_2) << 1) |
-                    (device.buttonPressed(BUTTON_THUMB_3) << 2) |
-                    (device.buttonPressed(BUTTON_THUMB_4) << 3);
-    Serial.write(data1);
-    Serial.write(0x00);
+void Max::sendInformation() {
+    sendByte('S');
+    sendByte('I');
+    sendByte(10);
+    sendByte('G');
+    sendByte(VERSION_MAJOR);
+    sendByte(VERSION_MINOR);
+    sendByte(0);
+    sendByte(0);
+    sendByte(0);
+    sendByte('E');
+}
+
+void Max::sendSensor(uint8_t id) {
+    uint16_t value = device.sensorValue(id);
+    Serial.write(value >> 8);
+    Serial.write(value & 0xFF);
+}
+
+void Max::sendButton(uint8_t button) {
+    Serial.write(device.buttonPressed(button) ? 1 : 0);
+}
+
+void Max::sendByte(uint8_t data) {
+    Serial.write(data);
 }
