@@ -47,7 +47,7 @@ const uint8_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
 };
 
 
-const uint8_t ANALOG_PIN_COUNT = 13;
+const uint8_t ANALOG_PIN_COUNT = 11;
 const uint8_t ANALOG_PIN_MAP[ANALOG_PIN_COUNT] = {
     SENSOR_DISTANCE,
     SENSOR_ACCEL_X,
@@ -90,7 +90,7 @@ void Max::loop() {
         _serialConnected = static_cast<bool>(Serial);
         if (!_serialConnected) {
             Serial.begin(FIRMATA_BAUD_RATE);
-            sendInformation();
+            // sendInformation();
         }
 
         _serialCheckMs = now + SERIAL_CHECK_INTERVAL_MS;
@@ -117,7 +117,7 @@ void Max::receive() {
 void Max::sendAnalog() {
     sendByte('S');
     sendByte('A');
-    sendByte(25);
+    sendByte(4 + 2 * ANALOG_PIN_COUNT);
     for (uint8_t i = 0; i < ANALOG_PIN_COUNT; ++i) {
         sendSensor(ANALOG_PIN_MAP[i]);
     }
@@ -127,7 +127,7 @@ void Max::sendAnalog() {
 void Max::sendDigital() {
     sendByte('S');
     sendByte('D');
-    sendByte(20);
+    sendByte(4 + DIGITAL_PIN_COUNT);
     for (uint8_t i = 0; i < DIGITAL_PIN_COUNT; ++i) {
         sendButton(DIGITAL_PIN_MAP[i]);
     }
