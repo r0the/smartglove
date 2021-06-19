@@ -62,7 +62,6 @@ The following buttons and button combinations have a special function:
    - **Adafruit Unified Sensor**
    - **Adafruit BNO055**
    - **Adafruit NeoPixel**
-   - **Adafruit SSD1306**
    - **VL53L1X**
 5. Select the board **Adafruit Feather M0**.
 
