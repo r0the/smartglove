@@ -35,6 +35,7 @@ private:
     Max(const Max&);
     Max& operator=(const Max&);
     void receive();
+    void receiveState();
     void sendAnalog();
     void sendDigital();
     void sendInformation();
@@ -42,6 +43,10 @@ private:
     void sendGesture(uint8_t gesture);
     void sendSensor(uint8_t id);
     void sendByte(uint8_t data);
+    uint8_t _messageLength;
+    uint8_t _messageType;
+    uint8_t _receiveState;
+    uint8_t _state;
     bool _serialConnected;
     unsigned long _serialCheckMs;
 };

@@ -26,6 +26,10 @@
 
 #define REPORT_FIRMWARE 0x79 
 
+#define RECEIVED_NOTHING 0
+#define RECEIVED_HEADER  1
+#define RECEIVED_TYPE    2
+
 const uint8_t DIGITAL_PIN_COUNT = 16;
 const bool DIGITAL_PIN_BUTTON[DIGITAL_PIN_COUNT] = {
     true, true, true, true, true, true, true, true,
@@ -69,8 +73,10 @@ const uint8_t ANALOG_PIN_MAP[ANALOG_PIN_COUNT] = {
 
 Max::Max(SmartDevice& device) :
     Behaviour(device),
+    _receiveState(RECEIVED_NOTHING),
     _serialConnected(false),
-    _serialCheckMs(0)
+    _serialCheckMs(0),
+    _state(0)
 {
 }
 
@@ -110,14 +116,44 @@ void Max::loop() {
         return;
     }
 
-    device.display().drawText(10, 8, "Max connected");
-
+    char text[10];
+    sprintf(text, "%i", _state);
+    device.display().setFont(&SWISS_20_B);
+    device.display().setTextAlign(ALIGN_CENTER);
+    device.display().drawText(64, 12, text);
+    receive();
     sendDigital();
     sendAnalog();
 }
 
 void Max::receive() {
+    switch (_receiveState) {
+    case RECEIVED_NOTHING:
+        if (Serial.available() && Serial.read() == 'S') {
+            _receiveState = RECEIVED_HEADER;
+        }
+        break;
+    case RECEIVED_HEADER:
+        if (Serial.available() && Serial.read() == 'S') {
+            _receiveState = RECEIVED_TYPE;
+        }
+        else {
+            _receiveState = RECEIVED_NOTHING;
+        }
+        break;
+    case RECEIVED_TYPE:
+        if (Serial.available() >= 3) {
+            receiveState();
+            _receiveState = RECEIVED_NOTHING;
+        }
+        break;
+    }
+}
 
+void Max::receiveState() {
+    Serial.read(); // length
+    _state = Serial.read();
+    Serial.read(); // 'E'
 }
 
 void Max::sendAnalog() {
