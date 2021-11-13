@@ -17,7 +17,7 @@
 
 //#define DEBUG
 
-#define VERSION "v5.1"
+#define VERSION "v5.2"
 
 #define VERSION_MAJOR 5
 #define VERSION_MINOR 1
