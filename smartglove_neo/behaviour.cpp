@@ -32,11 +32,11 @@ MenuBehaviour::MenuBehaviour(SmartDevice& device,uint8_t itemCount) :
 }
 
 void MenuBehaviour::setup() {
-    device.display().setFont(&HELVETICA_10);
-    device.display().setTextAlign(ALIGN_LEFT);
 }
 
 void MenuBehaviour::loop() {
+    device.display().setFont(&HELVETICA_10);
+    device.display().setTextAlign(ALIGN_LEFT);
     if (device.commandEnter()) {
         action(_selected);
         return;
