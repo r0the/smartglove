@@ -39,6 +39,7 @@ private:
     void sendDigital();
     void sendInformation();
     void sendButton(uint8_t button);
+    void sendGesture(uint8_t gesture);
     void sendSensor(uint8_t id);
     void sendByte(uint8_t data);
     bool _serialConnected;

@@ -27,6 +27,11 @@
 #define REPORT_FIRMWARE 0x79 
 
 const uint8_t DIGITAL_PIN_COUNT = 16;
+const bool DIGITAL_PIN_BUTTON[DIGITAL_PIN_COUNT] = {
+    true, true, true, true, true, true, true, true,
+    false, false, false, false, true, true, true, true
+};
+
 const uint8_t DIGITAL_PIN_MAP[DIGITAL_PIN_COUNT] = {
     BUTTON_THUMB_1,
     BUTTON_THUMB_2,
@@ -130,7 +135,12 @@ void Max::sendDigital() {
     sendByte('D');
     sendByte(4 + DIGITAL_PIN_COUNT);
     for (uint8_t i = 0; i < DIGITAL_PIN_COUNT; ++i) {
-        sendButton(DIGITAL_PIN_MAP[i]);
+        if (DIGITAL_PIN_BUTTON[i]) {
+            sendButton(DIGITAL_PIN_MAP[i]);
+        }
+        else {
+            sendGesture(DIGITAL_PIN_MAP[i]);
+        }
     }
     sendByte('E');
 }
@@ -156,6 +166,10 @@ void Max::sendSensor(uint8_t id) {
 
 void Max::sendButton(uint8_t button) {
     Serial.write(device.buttonPressed(button) ? 1 : 0);
+}
+
+void Max::sendGesture(uint8_t gesture) {
+    Serial.write(device.gestureDetected(gesture) ? 1 : 0);
 }
 
 void Max::sendByte(uint8_t data) {
