@@ -44,14 +44,11 @@ private:
  * class InitBehaviour
  *****************************************************************************/
 
-class InitBehaviour : public MenuBehaviour {
+class InitBehaviour : public Behaviour {
 public:
     explicit InitBehaviour(SmartDevice& device);
-    virtual void action(uint8_t selected);
-    virtual void draw(uint8_t selected);
-private:
-    static const uint8_t ITEM_COUNT;
-    static const char* ITEMS[];
+    virtual void setup();
+    virtual void loop();
 };
 
 /******************************************************************************
@@ -199,6 +196,21 @@ public:
 private:
     static const uint8_t ITEM_COUNT;
     static const char* ITEMS[];
+};
+
+/******************************************************************************
+ * class ProtocolSelect
+ *****************************************************************************/
+
+class ProtocolSelect : public MenuBehaviour {
+public:
+    explicit ProtocolSelect(SmartDevice& device);
+    virtual void action(uint8_t selected);
+    virtual void draw(uint8_t selected);
+private:
+    static const uint8_t ITEM_COUNT;
+    static const char* ITEMS[];
+    static const uint8_t MAP[];
 };
 
 #endif

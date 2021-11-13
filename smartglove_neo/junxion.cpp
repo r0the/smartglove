@@ -123,6 +123,7 @@ void Junxion::setup() {
 
 void Junxion::loop() {
     if (device.commandMenu()) {
+        device.popBehaviour();
         device.pushBehaviour(new MainMenu(device));
     }
 

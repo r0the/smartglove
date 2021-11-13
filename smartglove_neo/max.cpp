@@ -76,6 +76,7 @@ void Max::setup() {
 
 void Max::loop() {
     if (device.commandMenu()) {
+        device.popBehaviour();
         device.pushBehaviour(new MainMenu(device));
     }
 

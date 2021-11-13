@@ -66,35 +66,26 @@ void MenuBehaviour::selected(uint8_t selected) {
  * class InitBehaviour
  *****************************************************************************/
 
-const uint8_t InitBehaviour::ITEM_COUNT = 3;
-const char* InitBehaviour::ITEMS[InitBehaviour::ITEM_COUNT] = {
-    "Junxion",
-    "Firmata",
-    "Setup"
-};
-
 InitBehaviour::InitBehaviour(SmartDevice& device) :
-    MenuBehaviour(device, ITEM_COUNT) {
-    select(0);
+    Behaviour(device) {
 }
 
-void InitBehaviour::action(uint8_t selected) {
-    switch (selected) {
+void InitBehaviour::setup() {
+}
+
+void InitBehaviour::loop() {
+    uint8_t protocol = Storage.readByte(STORAGE_PROTOCOL);
+    switch (protocol) {
         case 0:
             device.pushBehaviour(new Junxion(device));
             break;
         case 1:
             device.pushBehaviour(new Max(device));
             break;
-        case 2:
-            device.pushBehaviour(new MainMenu(device));
+        default:
+            Storage.writeByte(STORAGE_PROTOCOL, 0);
             break;
     }
-}
-
-void InitBehaviour::draw(uint8_t selected) {
-    device.display().drawText(10, 8, "Main Menu");
-    device.display().drawText(10, 20, ITEMS[selected]);
 }
 
 /******************************************************************************
@@ -449,6 +440,7 @@ void LEDTest::selected(uint8_t selected) {
 
 const uint8_t MainMenu::ITEM_COUNT = 10;
 const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
+    "Protocol",
     "junXion Board ID",
     "Button Test",
     "LED Test",
@@ -456,7 +448,6 @@ const char* MainMenu::ITEMS[MainMenu::ITEM_COUNT] = {
     "Gesture Test",
     "Gyroscope Test",
     "Flex Test",
-    "Framerate",
     "Debug Serial",
     "Exit"
 };
@@ -468,28 +459,28 @@ MainMenu::MainMenu(SmartDevice& device) :
 void MainMenu::action(uint8_t selected) {
     switch (selected) {
     case 0:
-        device.pushBehaviour(new BoardIdSelect(device));
+        device.pushBehaviour(new ProtocolSelect(device));
         break;
     case 1:
-        device.pushBehaviour(new ButtonTest(device));
+        device.pushBehaviour(new BoardIdSelect(device));
         break;
     case 2:
-        device.pushBehaviour(new LEDTest(device));
+        device.pushBehaviour(new ButtonTest(device));
         break;
     case 3:
-        device.pushBehaviour(new DistanceTest(device));
+        device.pushBehaviour(new LEDTest(device));
         break;
     case 4:
-        device.pushBehaviour(new GestureTest(device));
+        device.pushBehaviour(new DistanceTest(device));
         break;
     case 5:
-        device.pushBehaviour(new GyroscopeTest(device));
+        device.pushBehaviour(new GestureTest(device));
         break;
     case 6:
-        device.pushBehaviour(new FlexTest(device));
+        device.pushBehaviour(new GyroscopeTest(device));
         break;
     case 7:
-        device.pushBehaviour(new FramerateOption(device));
+        device.pushBehaviour(new FlexTest(device));
         break;
     case 8:
         device.pushBehaviour(new DebugSerialOption(device));
@@ -506,4 +497,29 @@ void MainMenu::draw(uint8_t selected) {
     device.display().setTextAlign(ALIGN_RIGHT);
     device.display().drawText(120, 8, VERSION);
     device.display().setTextAlign(ALIGN_LEFT);
+}
+
+/******************************************************************************
+ * class ProtocolSelect
+ *****************************************************************************/
+
+const uint8_t ProtocolSelect::ITEM_COUNT = 2;
+const char* ProtocolSelect::ITEMS[ProtocolSelect::ITEM_COUNT] = {
+    "JunXion",
+    "Max"
+};
+
+ProtocolSelect::ProtocolSelect(SmartDevice& device) :
+    MenuBehaviour(device, ITEM_COUNT) {
+    select(Storage.readByte(STORAGE_PROTOCOL));
+}
+
+void ProtocolSelect::action(uint8_t selected) {
+    Storage.writeByte(STORAGE_PROTOCOL, selected);
+    device.popBehaviour();
+}
+
+void ProtocolSelect::draw(uint8_t selected) {
+    device.display().drawText(10, 8, "Protocol");
+    device.display().drawText(10, 20, ITEMS[selected]);
 }
