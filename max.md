@@ -12,24 +12,24 @@ Analoge Werte werden mit zwei Bytes dargestellt. Das erste Byte wird mit 256 mul
 
 Eine Nachricht beginnt immer mit dem Wert 83 (S für Start). Es folgt der Typ der Nachricht und die Länge der gesamten Nachricht in Bytes. Anschliessend kommt der Inhalt der Nachricht und abschliessend der Wert 69 (E für Ende).
 
-| Position | Bedeutung | Wert   |
-|:-------- |:--------- |:------ |
-| 1        | Start     | 83 (S) |
-| 2        | Art       | ...    |
-| 3        | Länge     | ...    |
-| ...      | Inhalt    | ...    |
-| n        | Ende      | 69 (E) |
+| Position | Bedeutung | Wert   | Hex |
+|:-------- |:--------- |:------ |:--- |
+| 1        | Start     | 83 (S) | $53 |
+| 2        | Art       | ...    | ... |
+| 3        | Länge     | ...    | ... |
+| ...      | Inhalt    | ...    | ... |
+| n        | Ende      | 69 (E) | $45 |
 
 ## Nachrichten-Typen
 
 Es gibt folgende Nachrichten-Typen:
 
-| Wert | Buchstabe | Bedeutung                                     |
-|:---- |:--------- |:--------------------------------------------- |
-| 73   | I         | Information (Geräte-Typ und Firmware-Version) |
-| 68   | D         | Digitale Daten (Zustand der Knöpfe)           |
-| 65   | A         | Analoge Daten (Sensoren)                      |
-| 83   | S         | State setzen                                  |
+| Wert | Hex | Buchstabe | Bedeutung                                     |
+|:---- |:--- |:--------- |:--------------------------------------------- |
+| 73   | $49 | I         | Information (Geräte-Typ und Firmware-Version) |
+| 68   | $44 | D         | Digitale Daten (Zustand der Knöpfe)           |
+| 65   | $41 | A         | Analoge Daten (Sensoren)                      |
+| 83   | $53 | S         | State setzen                                  |
 
 ## Nachricht Information (I)
 
@@ -91,7 +91,7 @@ In regelmässigen Abständen schickt der SmartGlove die aktuellen Werte der Sens
 |:------------------------ |:---:|:-----:|:------ |:----------- |
 | Beginn                   |  1  |   1   | 83 (S) |             |
 | Art                      |  2  |   1   | 65 (A) |             |
-| Länge                    |  3  |   1   | 25     |             |
+| Länge                    |  3  |   1   | 26     |             |
 | Distanzsensor            |  4  |   2   | analog | Own Input 1 |
 | Beschleunigung X         |  6  |   2   | analog | Own Input 2 |
 | Beschleunigung Y         |  8  |   2   | analog | Own Input 3 |
@@ -103,7 +103,7 @@ In regelmässigen Abständen schickt der SmartGlove die aktuellen Werte der Sens
 | Beugung Mittelfinger     | 20  |   2   | analog | Analog 1    |
 | Beugung Ringfinger       | 22  |   2   | analog | Analog 2    |
 | Beugung kleiner Finger   | 24  |   2   | analog | Analog 3    |
-| Ende                     | 25  |   1   | 69 (E) |             |
+| Ende                     | 26  |   1   | 69 (E) |             |
 
 ## Nachricht State (S)
 
@@ -112,7 +112,7 @@ Mit dieser Nachricht kann dem Smartglove einen Wert (Zahl zwischen 0 und 255) ü
 | Beschreibung | Pos | Bytes | Wert    |
 |:------------ |:---:|:-----:|:------- |
 | Beginn       |  1  |   1   | 83 (S)  |
-| Art          |  2  |   1   | 65 (S)  |
+| Art          |  2  |   1   | 83 (S)  |
 | Länge        |  3  |   1   | 5       |
 | Wert         |  4  |   1   | 0 - 255 |
 | Ende         |  5  |   1   | 69 (E)  |
