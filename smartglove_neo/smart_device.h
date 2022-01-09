@@ -121,6 +121,7 @@ public:
     int32_t sensorValue(uint8_t id) const { return _sensors.value(id); }
     void setLED(LED::Mode mode);
     void setDebugSerial(bool enable);
+    virtual void setNeoPixel(uint8_t fingerIndex, uint8_t pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {}
     void setShowFramerate(bool showFramerate);
     bool showFramerate() const { return _showFramerate; }
 protected:

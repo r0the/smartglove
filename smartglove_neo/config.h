@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 - 2020 by Stefan Rothe
+ * Copyright (C) 2018 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,16 +22,22 @@
 #define VERSION_MAJOR 5
 #define VERSION_MINOR 3
 
-#define I2C_FLEX_INDEX_FINGER_ADDRESS        0x12
-#define I2C_FLEX_MIDDLE_FINGER_ADDRESS       0x13
-#define I2C_FLEX_RING_FINGER_ADDRESS         0x14
-#define I2C_FLEX_LITTLE_FINGER_ADDRESS       0x15
 #define I2C_SMART_GLOVE_SIDE_BUTTONS_ADDRESS 0x18
 #define I2C_SMART_GLOVE_TIP_BUTTONS_ADDRESS  0x19
 #define I2C_SMART_BALL_BUTTONS_ADDRESS       0x19
 #define I2C_IMU_ADDRESS                      0x28
 #define I2C_DISTANCE_ADDRESS                 0x29
 #define I2C_DISPLAY_ADDRESS                  0x3C
+
+#define INDEX_FINGER_FLEX_PIN A0
+#define MIDDLE_FINGER_FLEX_PIN A1
+#define RING_FINGER_FLEX_PIN A2
+#define LITTLE_FINGER_FLEX_PIN A3
+
+#define INDEX_FINGER_NEOPIXEL_PIN 18
+#define MIDDLE_FINGER_NEOPIXEL_PIN 19
+#define RING_FINGER_NEOPIXEL_PIN 11
+#define LITTLE_FINGER_NEOPIXEL_PIN 12
 
 #define LONG_PRESS_MS 5000
 #define LED_BLINK_FAST_MS 100

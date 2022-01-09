@@ -39,10 +39,6 @@ The following buttons and button combinations have a special function:
 
 | Chip    | Function                  | Fixed Address Part | Variable Address part | Address Hex |
 |:------- |:------------------------- |:------------------ |:--------------------- |:----------- |
-|         | flex sensor index finger  |                    | `0010010`             | `0x12`      |
-|         | flex sensor middle finger |                    | `0010011`             | `0x13`      |
-|         | flex sensor ring finger   |                    | `0010100`             | `0x14`      |
-|         | flex sensor little finger |                    | `0010101`             | `0x15`      |
 | PCA9557 | side buttons and LED      | `0011`             | `000`                 | `0x18`      |
 | PCA9557 | tip buttons and LED       | `0011`             | `001`                 | `0x19`      |
 | BNO055  | inertial measurement unit | `010100`           | `0`                   | `0x28`      |
@@ -63,6 +59,7 @@ The following buttons and button combinations have a special function:
    - **Adafruit BNO055**
    - **Adafruit NeoPixel**
    - **VL53L1X**
+
 5. Select the board **Adafruit Feather M0**.
 
 [1]: https://www.arduino.cc/en/Main/Software

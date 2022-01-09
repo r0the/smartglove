@@ -116,3 +116,31 @@ Mit dieser Nachricht kann dem Smartglove einen Wert (Zahl zwischen 0 und 255) ü
 | Länge        |  3  |   1   | 5       |
 | Wert         |  4  |   1   | 0 - 255 |
 | Ende         |  5  |   1   | 69 (E)  |
+
+## Nachricht NeoPixel (N)
+
+Mit dieser Nachricht kann auf dem Smartglove die Farbe eines NeoPixels geändert werden.
+
+| Beschreibung | Pos | Bytes | Wert    |
+|:------------ |:---:|:-----:|:------- |
+| Beginn       |  1  |   1   | 83 (S)  |
+| Art          |  2  |   1   | 78 (N)  |
+| Länge        |  3  |   1   | 10      |
+| Finger       |  4  |   1   | 2 - 5   |
+| Pixel-Index  |  5  |   1   | 0 - 10  |
+| Rot-Wert     |  6  |   1   | 0 - 255 |
+| Grün-Wert    |  7  |   1   | 0 - 255 |
+| Blau-Wert    |  8  |   1   | 0 - 255 |
+| Wert         |  9  |   1   | 0 - 255 |
+| Ende         | 10  |   1   | 69 (E)  |
+
+Der Pixel-Index gibt die Nummer des Pixels an, dessen Farbe gesetzt werden soll. Dabei ist 1 das hinterste Pixel, 10 das vorderste am nächsten bei der Fingerkuppe. Wird 0 angegeben, so werden alle Pixel an diesem Finger auf die angegebene Farbe gesetzt.
+
+Der Finger wird folgendermassen gewählt:
+
+| Finger | Bedeutung      |
+|:------ |:-------------- |
+| 2      | Zeigefinger    |
+| 3      | Mittelfinger   |
+| 4      | Ringfinger     |
+| 5      | kleiner Finger |

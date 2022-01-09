@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2021 by Stefan Rothe
+ * Copyright (C) 2020 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation, eithe4r version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,41 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAX_H
-#define MAX_H
+#ifndef FINGER_H
+#define FINGER_H
 
 #include <Arduino.h>
-#include "smart_device.h"
+
+class Adafruit_NeoPixel;
 
 // ----------------------------------------------------------------------------
-// class Maxx
+// class Finger
 // ----------------------------------------------------------------------------
 
-class Max : public Behaviour {
+class Finger {
 public:
-    Max(SmartDevice& device);
-    virtual void setup();
-    virtual void loop();
-
+    Finger(uint8_t flexSensorPin, uint8_t neoPixelPin);
+    void init();
+    float readFlex();
+    void setNeoPixel(uint8_t index, uint8_t red, uint8_t green, uint8_t blue);
 private:
-    Max(const Max&);
-    Max& operator=(const Max&);
-    void receive();
-    void receiveNeopixel();
-    void receiveState();
-    void sendAnalog();
-    void sendDigital();
-    void sendInformation();
-    void sendButton(uint8_t button);
-    void sendGesture(uint8_t gesture);
-    void sendSensor(uint8_t id);
-    void sendByte(uint8_t data);
-    uint8_t _messageLength;
-    uint8_t _messageType;
-    uint8_t _receiveState;
-    uint8_t _state;
-    bool _serialConnected;
-    unsigned long _serialCheckMs;
+    uint8_t _flexSensorPin;
+    Adafruit_NeoPixel* _neopixel;
+    void fill(uint32_t color);
 };
 
 #endif

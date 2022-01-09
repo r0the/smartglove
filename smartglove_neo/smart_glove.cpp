@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 - 2020 by Stefan Rothe
+ * Copyright (C) 2019 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +34,10 @@ SmartGlove::SmartGlove() :
     _ads(false),
     _commandMenu(false),
     _distance(I2C_DISTANCE_ADDRESS),
-    _flexIndexFinger(),
-    _flexLittleFinger(),
-    _flexMiddleFinger(),
-    _flexRingFinger(),
+    _indexFinger(INDEX_FINGER_FLEX_PIN, INDEX_FINGER_NEOPIXEL_PIN),
+    _middleFinger(MIDDLE_FINGER_FLEX_PIN, MIDDLE_FINGER_NEOPIXEL_PIN),
+    _ringFinger(RING_FINGER_FLEX_PIN, RING_FINGER_NEOPIXEL_PIN),
+    _littleFinger(LITTLE_FINGER_FLEX_PIN, LITTLE_FINGER_NEOPIXEL_PIN),
     _menuTimeoutMs(0),
     _sideButtons(I2C_SMART_GLOVE_SIDE_BUTTONS_ADDRESS),
     _tipButtons(I2C_SMART_GLOVE_TIP_BUTTONS_ADDRESS) {
@@ -67,15 +67,32 @@ bool SmartGlove::flexReady() const {
     return true;
 }
 
+void SmartGlove::setNeoPixel(uint8_t fingerIndex, uint8_t pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {
+    switch (fingerIndex) {
+    case 2:
+          _indexFinger.setNeoPixel(pixelIndex, red, green, blue);
+          break;
+    case 3:
+        _middleFinger.setNeoPixel(pixelIndex, red, green, blue);
+        break;
+    case 4:
+        _ringFinger.setNeoPixel(pixelIndex, red, green, blue);
+        break;
+    case 5:
+        _littleFinger.setNeoPixel(pixelIndex, red, green, blue);
+        break;
+    }
+}
+
 void SmartGlove::doSetup() {
     _sideButtons.writeConfig(0xF0);
     _sideButtons.writePolarity(0xF0);
     _tipButtons.writeConfig(0xF0);
     _tipButtons.writePolarity(0xF0);
-    _flexIndexFinger.begin(I2C_FLEX_INDEX_FINGER_ADDRESS);
-    _flexMiddleFinger.begin(I2C_FLEX_MIDDLE_FINGER_ADDRESS);
-    _flexRingFinger.begin(I2C_FLEX_RING_FINGER_ADDRESS);
-    _flexLittleFinger.begin(I2C_FLEX_LITTLE_FINGER_ADDRESS);
+    _indexFinger.init();
+    _middleFinger.init();
+    _ringFinger.init();
+    _littleFinger.init();
     _distance.init();
 }
 
@@ -83,21 +100,10 @@ void SmartGlove::doLoop() {
     unsigned long now = millis();
     _commandMenu = false;
 
-    if (_flexIndexFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _flexIndexFinger.getX());
-    }
-
-    if (_flexMiddleFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _flexMiddleFinger.getX());
-    }
-
-    if (_flexRingFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _flexRingFinger.getX());
-    }
-
-    if (_flexLittleFinger.available()) {
-        _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _flexLittleFinger.getX());
-    }
+    _sensors.addMeasurement(now, SENSOR_FLEX_INDEX_FINGER, _indexFinger.readFlex());
+    _sensors.addMeasurement(now, SENSOR_FLEX_MIDDLE_FINGER, _middleFinger.readFlex());
+    _sensors.addMeasurement(now, SENSOR_FLEX_RING_FINGER, _ringFinger.readFlex());
+    _sensors.addMeasurement(now, SENSOR_FLEX_LITTLE_FINGER, _littleFinger.readFlex());
 
     if (_distance.dataReady()) {
         _sensors.addMeasurement(now, SENSOR_DISTANCE, _distance.readInput());
@@ -120,11 +126,11 @@ void SmartGlove::doLoop() {
 
 uint16_t SmartGlove::availableButtonMask() const {
     return
-        (1 << BUTTON_THUMB_1) | 
-        (1 << BUTTON_THUMB_2) | 
-        (1 << BUTTON_THUMB_3) | 
-        (1 << BUTTON_THUMB_4) | 
-        (1 << BUTTON_INDEX_FINGER_1) | 
+        (1 << BUTTON_THUMB_1) |
+        (1 << BUTTON_THUMB_2) |
+        (1 << BUTTON_THUMB_3) |
+        (1 << BUTTON_THUMB_4) |
+        (1 << BUTTON_INDEX_FINGER_1) |
         (1 << BUTTON_MIDDLE_FINGER_1) |
         (1 << BUTTON_RING_FINGER_1) |
         (1 << BUTTON_LITTLE_FINGER_1);
@@ -132,8 +138,8 @@ uint16_t SmartGlove::availableButtonMask() const {
 
 uint16_t SmartGlove::availableSensorMask() const {
     return
-        (1 << SENSOR_ACCEL_X) | 
-        (1 << SENSOR_ACCEL_Y) | 
+        (1 << SENSOR_ACCEL_X) |
+        (1 << SENSOR_ACCEL_Y) |
         (1 << SENSOR_ACCEL_Z) |
         (1 << SENSOR_DISTANCE) |
         (1 << SENSOR_GYRO_ROLL) |

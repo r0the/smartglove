@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by Stefan Rothe
+ * Copyright (C) 2019 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #define SMART_GLOVE_H
 
 #include "smart_device.h"
-#include "SparkFun_Displacement_Sensor_Arduino_Library.h"
+#include "finger.h"
 #include "pca9557.h"
 #include "vl53l1x.h"
 
@@ -32,6 +32,7 @@ public:
     virtual bool commandMenu() const;
     virtual bool commandUp() const;
     virtual bool flexReady() const;
+    virtual void setNeoPixel(uint8_t fingerIndex, uint8_t pixelIndex, uint8_t red, uint8_t green, uint8_t blue);
 protected:
     virtual void doSetup();
     virtual void doLoop();
@@ -43,10 +44,10 @@ private:
     bool _ads;
     bool _commandMenu;
     VL53L1X _distance;
-    ADS _flexIndexFinger;
-    ADS _flexLittleFinger;
-    ADS _flexMiddleFinger;
-    ADS _flexRingFinger;
+    Finger _indexFinger;
+    Finger _middleFinger;
+    Finger _ringFinger;
+    Finger _littleFinger;
     unsigned long _menuTimeoutMs;
     PCA9557 _sideButtons;
     PCA9557 _tipButtons;

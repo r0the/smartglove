@@ -24,11 +24,12 @@
 #define START_SYSEX 0xF0
 #define END_SYSEX 0xF7
 
-#define REPORT_FIRMWARE 0x79 
+#define REPORT_FIRMWARE 0x79
 
-#define RECEIVED_NOTHING 0
-#define RECEIVED_HEADER  1
-#define RECEIVED_TYPE    2
+#define RECEIVED_NOTHING       0
+#define RECEIVED_HEADER        1
+#define RECEIVED_TYPE_STATE    2
+#define RECEIVED_TYPE_NEOPIXEL 3
 
 const uint8_t DIGITAL_PIN_COUNT = 16;
 const bool DIGITAL_PIN_BUTTON[DIGITAL_PIN_COUNT] = {
@@ -134,20 +135,44 @@ void Max::receive() {
         }
         break;
     case RECEIVED_HEADER:
-        if (Serial.available() && Serial.read() == 'S') {
-            _receiveState = RECEIVED_TYPE;
+        if (Serial.available()) {
+            switch (Serial.read()) {
+                case 'S':
+                    _receiveState = RECEIVED_TYPE_STATE;
+                    break;
+                case 'N':
+                    _receiveState = RECEIVED_TYPE_NEOPIXEL;
+                    break;
+                default:
+                    _receiveState = RECEIVED_NOTHING;
+                    break;
+            }
         }
-        else {
+        break;
+    case RECEIVED_TYPE_NEOPIXEL:
+        if (Serial.available() >= 7) {
+            receiveNeopixel();
             _receiveState = RECEIVED_NOTHING;
         }
         break;
-    case RECEIVED_TYPE:
+    case RECEIVED_TYPE_STATE:
         if (Serial.available() >= 3) {
             receiveState();
             _receiveState = RECEIVED_NOTHING;
         }
         break;
     }
+}
+
+void Max::receiveNeopixel() {
+    Serial.read(); // length
+    uint8_t fingerIndex = Serial.read();
+    uint8_t pixelIndex = Serial.read();
+    uint8_t red = Serial.read();
+    uint8_t green = Serial.read();
+    uint8_t blue = Serial.read();
+    device.setNeoPixel(fingerIndex, pixelIndex, red, green, blue);
+    Serial.read(); // 'E'
 }
 
 void Max::receiveState() {
