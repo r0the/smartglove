@@ -85,6 +85,11 @@ void SmartGlove::setNeoPixel(uint8_t fingerIndex, uint8_t pixelIndex, uint8_t re
 }
 
 void SmartGlove::doSetup() {
+    configureSensor(SENSOR_FLEX_INDEX_FINGER, 0, 500, 2.0);
+    configureSensor(SENSOR_FLEX_MIDDLE_FINGER, 0, 500, 2.0);
+    configureSensor(SENSOR_FLEX_RING_FINGER, 0, 500, 2.0);
+    configureSensor(SENSOR_FLEX_LITTLE_FINGER, 0, 500, 2.0);
+
     _sideButtons.writeConfig(0xF0);
     _sideButtons.writePolarity(0xF0);
     _tipButtons.writeConfig(0xF0);
