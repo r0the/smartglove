@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 - 2020 by Stefan Rothe
+ * Copyright (C) 2017 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,25 @@
 
 #include <Arduino.h>
 
+#define STORAGE_BOARD_ID 2
+#define STORAGE_SHOW_FRAMERATE 3
+#define STORAGE_PROTOCOL 4
+
 class StorageSingleton {
 public:
     StorageSingleton();
-    void writeByte(uint16_t address, uint8_t data) const;
-    uint8_t readByte(uint16_t address) const;
+    inline uint8_t boardId() const { return readByte(STORAGE_BOARD_ID); };
+    void setBoardId(uint8_t value) { writeByte(STORAGE_BOARD_ID, value); }
+    inline uint8_t protocol() const { return readByte(STORAGE_PROTOCOL); };
+    void setProtocol(uint8_t value) { writeByte(STORAGE_PROTOCOL, value); }
+    inline uint8_t showFramerate() const { return readByte(STORAGE_SHOW_FRAMERATE); };
+    void setShowFramerate(uint8_t value) { writeByte(STORAGE_SHOW_FRAMERATE, value); }
 private:
     StorageSingleton(const StorageSingleton&);
     StorageSingleton operator=(const StorageSingleton&);
+
+    void writeByte(uint16_t address, uint8_t data) const;
+    uint8_t readByte(uint16_t address) const;
 };
 
 extern StorageSingleton Storage;

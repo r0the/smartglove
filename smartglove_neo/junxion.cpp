@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - 2020 by Stefan Rothe
+ * Copyright (C) 2015 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ Junxion::Junxion(SmartDevice& device) :
 
 void Junxion::setup() {
     _dataSize = 2 * (analogPinCount() + ownPinCount() + (digitalPinCount() / 16) + 1);
-    _boardId = Storage.readByte(STORAGE_BOARD_ID);
+    _boardId = Storage.boardId();
 }
 
 void Junxion::loop() {

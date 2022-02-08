@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 - 2020 by Stefan Rothe
+ * Copyright (C) 2018 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ void InitBehaviour::setup() {
 }
 
 void InitBehaviour::loop() {
-    uint8_t protocol = Storage.readByte(STORAGE_PROTOCOL);
+    uint8_t protocol = Storage.protocol();
     switch (protocol) {
         case 0:
             device.pushBehaviour(new Junxion(device));
@@ -83,7 +83,7 @@ void InitBehaviour::loop() {
             device.pushBehaviour(new Max(device));
             break;
         default:
-            Storage.writeByte(STORAGE_PROTOCOL, 0);
+            Storage.setProtocol(0);
             break;
     }
 }
@@ -102,11 +102,11 @@ const char* BoardIdSelect::ITEMS[BoardIdSelect::ITEM_COUNT] = {
 
 BoardIdSelect::BoardIdSelect(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
-    select(Storage.readByte(STORAGE_BOARD_ID) - 49);
+    select(Storage.boardId() - 49);
 }
 
 void BoardIdSelect::action(uint8_t selected) {
-    Storage.writeByte(STORAGE_BOARD_ID, selected + 49);
+    Storage.setBoardId(selected + 49);
     device.popBehaviour();
 }
 
@@ -511,11 +511,11 @@ const char* ProtocolSelect::ITEMS[ProtocolSelect::ITEM_COUNT] = {
 
 ProtocolSelect::ProtocolSelect(SmartDevice& device) :
     MenuBehaviour(device, ITEM_COUNT) {
-    select(Storage.readByte(STORAGE_PROTOCOL));
+    select(Storage.protocol());
 }
 
 void ProtocolSelect::action(uint8_t selected) {
-    Storage.writeByte(STORAGE_PROTOCOL, selected);
+    Storage.setProtocol(selected);
     device.popBehaviour();
 }
 

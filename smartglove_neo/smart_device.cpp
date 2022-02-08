@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 - 2020 by Stefan Rothe
+ * Copyright (C) 2018 - 2022 by Stefan Rothe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,7 +164,7 @@ void SmartDevice::setup() {
 
     setInfoLED(_infoLED.on());
 
-    _showFramerate = Storage.readByte(STORAGE_SHOW_FRAMERATE);
+    _showFramerate = Storage.showFramerate();
 
     configureSensor(SENSOR_ACCEL_X, -10.0, 10.0, 0.2);
     configureSensor(SENSOR_ACCEL_Y, 10.0, -10.0, 0.2);
@@ -271,7 +271,7 @@ void SmartDevice::setLED(LED::Mode mode) {
 void SmartDevice::setShowFramerate(bool showFramerate) {
     if (_showFramerate != showFramerate) {
         _showFramerate = showFramerate;
-        Storage.writeByte(STORAGE_SHOW_FRAMERATE, showFramerate);
+        Storage.setShowFramerate(showFramerate);
     }
 }
 
